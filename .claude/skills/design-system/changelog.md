@@ -4,6 +4,14 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-20 (tokens de estado)
+
+* Novas famílias de estado `-solid/-subtle/-border/-fg` para success, warning, danger e **info** (azul `--blue-600`), mais `draft-*` (rascunho, neutro) e gerais `border-strong`, `link`, `overlay`, `bg-disabled`, `fg-disabled`. Por quê: só havia uma cor sólida por estado, sem fundo suave nem texto AA.
+* `--color-success/warning/danger` mantidos como atalhos de `-solid`; único uso hoje: `Input` invalid. Sem quebra.
+* Decisão: componentes de feedback terão token próprio (`notification-*`, `badge-*`) apontando para os semânticos, criados junto com o componente. Por quê: trocar o vermelho do erro de formulário não pode mudar a notificação.
+* Criados já os tokens de componente `--color-notification-{success|error|warning|info}-{bg|border|fg|icon}` e `--color-badge-{draft|success|error|warning|info}-{bg|fg}`, apontando para os semânticos de estado. Por quê: pedido do usuário para deixar documentado, mesmo sem uso ainda (exceção consciente à regra de "não criar por antecipação"; os componentes `Notification` e `Badge` de status ainda não existem).
+* Azul do `info` (`--blue-600`, `#1d6fb8`) confirmado pelo usuário. Pendente (marca): cinza do `rascunho`, ainda proposta.
+
 ## 2026-09-20 (paleta preto + verde vivo)
 
 * Marca é preto e branco e minimalista; o verde entra só para dar vida. `--color-primary` passa de verde-floresta para `--black-900` (hover `--gray-700`): botões, `Badge solid`, preços, ícones, "Ver todos" e logo sobre fundo claro ficam pretos.

@@ -30,9 +30,8 @@ A marca é preto e branco, minimalista; o verde vivo é a única cor de destaque
 | `--gray-500` | texto secundário |
 | `--gray-700` | hover do botão preto |
 | `--gray-900` | texto principal |
-| `--success-600` | mensagens de sucesso |
-| `--red-600` | erro |
-| `--amber-500` | aviso |
+| `--gray-100` / `--gray-300` / `--gray-400` | fundo desabilitado / borda de campo / texto desabilitado |
+| `--success-*`, `--red-*`, `--amber-*`, `--blue-*` | escalas de estado: 50 (fundo), 200 (borda), 500/600 (cor viva), 800/900 (texto) |
 
 Cinzas e pretos com leve tom esverdeado, para combinar com a marca. Exceção intencional: `--black-800`, que puxa para azul-petróleo (escolha do usuário, 2026-09-20).
 
@@ -55,9 +54,33 @@ Cinzas e pretos com leve tom esverdeado, para combinar com a marca. Exceção in
 | `--color-primary-hover` | `--gray-700` | hover do botão principal |
 | `--color-border` | `--gray-200` | bordas |
 | `--color-ring` | `--green-600` | anel de foco (passa 3:1 sobre branco e sobre preto) |
-| `--color-success` | `--success-600` | sucesso (verde escuro, para passar AA como texto) |
-| `--color-warning` | `--amber-500` | aviso |
-| `--color-danger` | `--red-600` | erro |
+| `--color-border-strong` | `--gray-300` | borda de campo de formulário |
+| `--color-link` | `--blue-600` | links em texto corrido |
+| `--color-overlay` | preto 55% | fundo atrás de modais |
+| `--color-bg-disabled` / `--color-fg-disabled` | `--gray-100` / `--gray-400` | controles desabilitados (isento de AA) |
+
+#### Estados (success, warning, danger, info)
+
+Quatro tokens por família: `-solid` (ícone, borda de campo, botão), `-subtle` (fundo de alerta), `-border`, `-fg` (texto sobre o subtle, AA). Ex.: `--color-danger-subtle`, `--color-info-fg`. **Rascunho** é neutro: `--color-draft-subtle/-border/-fg`.
+
+`--color-success`, `--color-warning` e `--color-danger` continuam como atalhos de `-solid` (o `Input` invalid usa `border-danger`).
+
+`--color-warning-solid` (âmbar) dá só 2,0:1 sobre branco: use como preenchimento ou ícone, nunca como texto; texto de aviso é `--color-warning-fg`.
+
+**Regra de acoplamento:** um componente de feedback (notificação, badge de status) não usa `danger`/`success` "porque a cor é a mesma". Ele usa o token próprio, que aponta para o semântico de estado, para variar sozinho sem mexer nos erros de formulário. Decisão do usuário (2026-09-20): esses tokens já existem, mesmo antes dos componentes, para ficarem documentados.
+
+#### Tokens de componente (feedback)
+
+| Token (classe: `bg-…`, `text-…`, `border-…`) | Aponta para |
+|---|---|
+| `--color-notification-{success\|error\|warning\|info}-bg` | `-subtle` do estado (`error` usa `danger`) |
+| `--color-notification-{…}-border` | `-border` do estado |
+| `--color-notification-{…}-fg` | `-fg` do estado |
+| `--color-notification-{…}-icon` | `-solid` do estado |
+| `--color-badge-{draft\|success\|error\|warning\|info}-bg` | `-subtle` do estado (`draft` usa `draft-subtle`) |
+| `--color-badge-{…}-fg` | `-fg` do estado |
+
+Ex.: `bg-notification-error-bg text-notification-error-fg border-notification-error-border`. Para trocar só a cor da notificação de erro, mude `--color-notification-error-*`; `danger-*` e o erro de formulário não mudam.
 
 **Contraste (WCAG, calculado):** `--gray-900` (texto) sobre `--green-500` 7,4:1 e sobre `--green-600` 5,1:1 (botão e selo verdes, repouso e hover); `--green-500` sobre `--black-900` 8,2:1 e sobre `--black-800` 7,5:1; branco sobre `--black-800` 17,1:1; `--green-500` sobre branco 2,3:1 (só preenchimento, nunca texto); `--green-600` sobre branco 3,3:1 e sobre `--black-900` 5,7:1 (anel de foco); branco sobre `--black-900` 18,7:1 e sobre `--gray-700` 12:1. `--gray-500` (texto secundário, `#627068`) dá 5,2:1 sobre branco, 4,9:1 sobre `--gray-50` e 4,7:1 sobre `--green-100`: passa AA (4,5:1) em todos os fundos claros. Se algum contraste falhar, ajuste o primitivo, não o componente.
 

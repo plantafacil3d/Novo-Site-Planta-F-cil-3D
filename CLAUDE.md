@@ -17,29 +17,21 @@ Antes de dar uma tarefa por concluída, rode `lint`, `typecheck` e, se mexeu em 
 
 ## Ao concluir uma tarefa
 
-Termine com um resumo curto e visual das skills seguidas, com o que foi feito em cada uma. É o feedback para conferir se as regras foram cumpridas.
+Termine com um feedback curto para conferir se as regras foram cumpridas. Nomeie as skills seguidas e diga, em uma ou duas frases cada, o que foi seguido.
 
 * Liste só as skills que a tarefa realmente tocou; se uma não se aplicou, omita.
-* Um bloco curto por skill, de 2 a 4 linhas: o que foi feito de concreto (arquivo, componente, token), qual regra da skill isso atendeu e por que a decisão foi essa. Detalhado, mas sem texto longo.
+* Uma linha por skill (no máximo duas), começando pelo nome da skill e dizendo qual regra foi seguida, com o exemplo concreto. Ex.: "segui a skill de arquitetura: o front-end continua desacoplado do backend".
+* Linguagem de leigo esclarecido: simples e direta, sem jargão. Se usar um termo técnico, explique em poucas palavras. Nada de listas de arquivos e hex, salvo se o usuário pedir.
 * Se algo não foi seguido ou ficou pendente, diga, com o motivo. Não maquie o resumo.
 * Use ícones para organizar a leitura. Modelo:
 
 ```text
-✅ Tarefa concluída · skills seguidas
+✅ Tarefa concluída
 
-🏗️ arquitetura
-   • Feito: <arquivos criados ou alterados e em qual camada ficaram>
-   • Regra atendida: <ex.: dependência só para baixo, reutilizei em vez de criar>
-   • Por quê: <a decisão em uma frase>
+🏗️ arquitetura: <regra seguida, ex.: o front-end continua desacoplado do backend>
+🎨 design-system: <ex.: só usei tokens de cor, sem cor solta; reaproveitei componentes em vez de criar novos>
+🔒 seguranca: <regra seguida>
 
-🎨 design-system
-   • Feito: <componentes, variantes ou tokens usados ou criados>
-   • Regra atendida: <ex.: só tokens semânticos, catálogo atualizado>
-   • Por quê: <a decisão em uma frase>
-
-🔒 seguranca
-   • Feito / Regra atendida / Por quê: <mesmo formato>
-
-🧪 Verificação: <lint · typecheck · build, o que rodou e o resultado>
+🧪 Verificação: <o que rodou e o resultado, em uma linha>
 ⚠️ Pendências: <só se houver>
 ```

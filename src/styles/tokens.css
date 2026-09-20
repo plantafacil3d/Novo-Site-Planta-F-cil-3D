@@ -18,9 +18,27 @@
   --gray-500: #627068;
   --gray-700: #2b3a32;
   --gray-900: #14201a;
+  --gray-300: #b9c4be;
+  --gray-400: #8d9a93;
+  --gray-100: #eef2f0;
+
+  /* Estados: cada família tem fundo suave (50), borda (200), cor viva e texto escuro. */
+  --success-50: #eaf6eb;
+  --success-200: #b7dfba;
   --success-600: #2e7d32;
+  --success-800: #1b5e20;
+  --red-50: #fdecec;
+  --red-200: #f3b5b5;
   --red-600: #c62828;
+  --red-800: #8e1c1c;
+  --amber-50: #fef4e0;
+  --amber-200: #f9d58c;
   --amber-500: #f5a524;
+  --amber-900: #7a4a00;
+  --blue-50: #e8f2fb;
+  --blue-200: #b3d4f0;
+  --blue-600: #1d6fb8;
+  --blue-800: #114a7d;
 }
 
 /* Semânticos → utilitários do Tailwind */
@@ -46,9 +64,76 @@
   --color-border: var(--gray-200);
   --color-ring: var(--green-600);
 
-  --color-success: var(--success-600);
-  --color-warning: var(--amber-500);
-  --color-danger: var(--red-600);
+  --color-border-strong: var(--gray-300);
+  --color-link: var(--blue-600);
+  --color-overlay: rgb(11 20 16 / 0.55);
+  --color-bg-disabled: var(--gray-100);
+  --color-fg-disabled: var(--gray-400);
+
+  /* Estados: -solid (ícone, borda de campo, botão), -subtle (fundo), -border, -fg (texto sobre o subtle). */
+  --color-success-solid: var(--success-600);
+  --color-success-subtle: var(--success-50);
+  --color-success-border: var(--success-200);
+  --color-success-fg: var(--success-800);
+
+  --color-warning-solid: var(--amber-500);
+  --color-warning-subtle: var(--amber-50);
+  --color-warning-border: var(--amber-200);
+  --color-warning-fg: var(--amber-900);
+
+  --color-danger-solid: var(--red-600);
+  --color-danger-subtle: var(--red-50);
+  --color-danger-border: var(--red-200);
+  --color-danger-fg: var(--red-800);
+
+  --color-info-solid: var(--blue-600);
+  --color-info-subtle: var(--blue-50);
+  --color-info-border: var(--blue-200);
+  --color-info-fg: var(--blue-800);
+
+  /* Rascunho: estado neutro (ainda não publicado). */
+  --color-draft-subtle: var(--gray-50);
+  --color-draft-border: var(--gray-200);
+  --color-draft-fg: var(--gray-700);
+
+  /* Notificação/toast: token próprio por variante, apontando para o semântico de estado.
+     Para dar outra cor só à notificação, troque aqui; o erro de formulário não muda. */
+  --color-notification-success-bg: var(--color-success-subtle);
+  --color-notification-success-border: var(--color-success-border);
+  --color-notification-success-fg: var(--color-success-fg);
+  --color-notification-success-icon: var(--color-success-solid);
+
+  --color-notification-error-bg: var(--color-danger-subtle);
+  --color-notification-error-border: var(--color-danger-border);
+  --color-notification-error-fg: var(--color-danger-fg);
+  --color-notification-error-icon: var(--color-danger-solid);
+
+  --color-notification-warning-bg: var(--color-warning-subtle);
+  --color-notification-warning-border: var(--color-warning-border);
+  --color-notification-warning-fg: var(--color-warning-fg);
+  --color-notification-warning-icon: var(--color-warning-solid);
+
+  --color-notification-info-bg: var(--color-info-subtle);
+  --color-notification-info-border: var(--color-info-border);
+  --color-notification-info-fg: var(--color-info-fg);
+  --color-notification-info-icon: var(--color-info-solid);
+
+  /* Badge de status (rascunho, publicado, erro...): fundo e texto. */
+  --color-badge-draft-bg: var(--color-draft-subtle);
+  --color-badge-draft-fg: var(--color-draft-fg);
+  --color-badge-success-bg: var(--color-success-subtle);
+  --color-badge-success-fg: var(--color-success-fg);
+  --color-badge-error-bg: var(--color-danger-subtle);
+  --color-badge-error-fg: var(--color-danger-fg);
+  --color-badge-warning-bg: var(--color-warning-subtle);
+  --color-badge-warning-fg: var(--color-warning-fg);
+  --color-badge-info-bg: var(--color-info-subtle);
+  --color-badge-info-fg: var(--color-info-fg);
+
+  /* Atalhos antigos, mantidos para não quebrar o que já usa (ex.: Input invalid). */
+  --color-success: var(--color-success-solid);
+  --color-warning: var(--color-warning-solid);
+  --color-danger: var(--color-danger-solid);
 
   /* Raios */
   --radius-sm: 6px;
