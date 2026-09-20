@@ -4,7 +4,15 @@ import { cache } from 'react'
 
 import { projetoRepository } from '@/repositories/projetos'
 
+import { montarConsulta } from './rules'
+import type { ParametrosListagem } from './types'
+
 // Loaders para Server Components: o conteúdo público é renderizado no servidor (SEO).
+
+/** Uma página do catálogo para os parâmetros da URL (já validados por `lerParametrosListagem`). */
+export function listarProjetos(params: ParametrosListagem) {
+  return projetoRepository.buscarProjetos(montarConsulta(params))
+}
 
 export function listarProjetosEmDestaque() {
   return projetoRepository.listarDestaques()

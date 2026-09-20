@@ -1,3 +1,5 @@
+import type { EstiloArquitetonico, FaixaArea, OrdenacaoProjetos, TipoProjeto } from './catalogo'
+
 export type ImagemRef = {
   src: string
   alt: string
@@ -11,18 +13,26 @@ export type Diferencial = {
   rotulo: string
 }
 
+/** Resumo do projeto: o que o card e a listagem mostram e o que os filtros usam. */
 export type Projeto = {
   id: string
+  /** Código que o cliente vê e pode buscar (ex.: "PF-012"). */
+  codigo: string
   slug: string
   titulo: string
   selo?: SeloProjeto
   imagem: ImagemRef
+  tipo: TipoProjeto
+  estilo: EstiloArquitetonico
   larguraM: number
   profundidadeM: number
+  areaConstruidaM2: number
   suites: number
   quartos: number
   vagas: number
   pavimentos: number
+  piscina: boolean
+  areaGourmet: boolean
   diferencial: Diferencial
   /** Inteiro em centavos, para nunca somar/comparar valores com ponto flutuante. */
   precoCentavos: number
@@ -79,11 +89,8 @@ export type ProjetoDetalhe = Projeto & {
   categoria: Categoria
   /** Checkout externo (Hotmart ou outra plataforma). Só `https:` é aceito (ver `checkoutSeguro`). */
   checkoutUrl: string
-  areaConstruidaM2: number
   banheiros: number
-  piscina: boolean
   closet: boolean
-  areaGourmet: boolean
   /** Frase curta do topo da página. */
   resumo: string
   /** Parágrafo do topo da página. */
@@ -118,4 +125,56 @@ export type CategoriaSlug =
 export type Categoria = {
   slug: CategoriaSlug
   rotulo: string
+}
+
+/** Categorias que viram filtro na listagem; `mais` só leva à listagem sem filtro. */
+export type CategoriaFiltravel = Exclude<CategoriaSlug, 'mais'>
+
+/**
+ * Estado da listagem como chega pela URL (`/projetos?tipo=sobrado&pagina=2`), já validado.
+ * Os nomes são os mesmos da URL; `q` é o texto digitado (nome ou código).
+ */
+export type ParametrosListagem = {
+  q?: string
+  categoria?: CategoriaFiltravel
+  tipo?: TipoProjeto
+  estilo?: EstiloArquitetonico
+  /** Os três a seguir são "N ou mais". */
+  quartos?: number
+  suites?: number
+  vagas?: number
+  area?: FaixaArea
+  /** Medidas do terreno do cliente, em metros: só entram projetos que cabem nele. */
+  largura?: number
+  profundidade?: number
+  piscina?: boolean
+  gourmet?: boolean
+  ordem: OrdenacaoProjetos
+  /** Começa em 1. */
+  pagina: number
+}
+
+/** Filtros no vocabulário do domínio: é o que o repository entende (a URL é traduzida antes). */
+export type FiltrosProjetos = {
+  /** Nome ou código; todas as palavras precisam aparecer. */
+  busca?: string
+  categoria?: CategoriaFiltravel
+  tipo?: TipoProjeto
+  estilo?: EstiloArquitetonico
+  quartosMin?: number
+  suitesMin?: number
+  vagasMin?: number
+  areaMinM2?: number
+  areaMaxM2?: number
+  terrenoLarguraM?: number
+  terrenoProfundidadeM?: number
+  piscina?: boolean
+  areaGourmet?: boolean
+}
+
+export type ConsultaProjetos = {
+  filtros: FiltrosProjetos
+  ordenacao: OrdenacaoProjetos
+  pagina: number
+  porPagina: number
 }

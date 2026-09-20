@@ -4,6 +4,17 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-20 (listagem `/projetos`)
+
+* Primeira tela de listagem: filtros, paginação e estados de loading, vazio e erro. Componentes novos: `Select`, `Checkbox`, `Chip`, `Skeleton` (ui); `Pagination` (navigation); `CollapsiblePanel`, `EmptyState`, `ErrorState` (shared); `FormularioDeFiltros`, `FiltrosAplicados`, `ProjetosSkeleton` (feature). Todos saíram do backlog. Detalhes em `components.md`. Ícones novos: `chevron-down`, `sliders`.
+* Variante: `ProjetosDestaque` ganhou `className` (colunas da grade). A listagem divide a tela com os filtros e usa 2 colunas em `lg` e 3 em `xl`.
+* Sem token novo. `Skeleton` usa `--color-border` (o `--color-subtle` some sobre o branco); `ErrorState` usa os tokens de notificação de erro, não `danger` direto (regra de acoplamento de `tokens.md`).
+* Decisão: `Select` é o `<select>` nativo em vez de lista personalizada. Por quê: no celular abre o seletor do sistema, o teclado e o leitor de tela já funcionam, e nada de JavaScript a manter.
+* Decisão: filtros num formulário GET (`next/form`) que aplica com um botão ("Aplicar filtros"), em vez de filtrar a cada clique. Por quê: o estado fica na URL (link compartilhável, botão "voltar" certo, Google enxerga as páginas) e o servidor busca só uma página por vez. Como não filtra ao digitar, não precisa de *debounce*; ele passa a valer se um dia houver busca ao vivo.
+* Decisão: no celular os filtros ficam recolhidos atrás do botão "Filtros (N)", e as etiquetas dos filtros ativos ficam sempre visíveis fora do painel. Por quê: os filtros ocupam uma tela inteira e empurrariam os projetos para baixo.
+* Decisão: páginas com filtro ou ordem diferente da padrão saem do Google (`noindex, follow`); só a lista sem filtro e suas páginas numeradas são indexadas, cada uma com canonical próprio. Por quê: evitar milhares de combinações quase iguais.
+* Pendente: o filtro "fachada" pedido pelo usuário ainda não existe. Falta definir se é um tipo de projeto (só a fachada, sem plantas) ou outra coisa; nasce como mais uma opção em `tiposDeProjeto` (`features/projetos/catalogo.ts`).
+
 ## 2026-09-20 (paginação e volume de dados)
 
 * Regra nova em `ux-rules.md` (Listas e paginação): nenhuma lista que pode crescer aparece inteira; catálogo com páginas numeradas e número na URL, 12 cards por página em grade e 20 linhas em tabela do admin.

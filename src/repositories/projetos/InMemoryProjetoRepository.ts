@@ -2,17 +2,16 @@ import type {
   CategoriaGaleria,
   Categoria,
   Complementar,
+  ConsultaProjetos,
   ItemGaleria,
   Projeto,
   ProjetoDetalhe,
+  TipoProjeto,
 } from '@/features/projetos'
 
+import { foto, projetosGerados } from './catalogoDeExemplo'
+import { consultarEmMemoria } from './consultaEmMemoria'
 import type { ProjetoRepository } from './ProjetoRepository'
-
-// TEMPORÁRIO: fotos de exemplo do Unsplash. Trocar por arquivos em public/ (ex.: '/images/...')
-// e remover `images.remotePatterns` do next.config.ts.
-const foto = (id: string, largura = 900) =>
-  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${largura}&q=75`
 
 function itemGaleria(
   categoria: CategoriaGaleria,
@@ -26,6 +25,7 @@ function itemGaleria(
 const destaques: Projeto[] = [
   {
     id: 'sobrado-pequeno-moderno-inteligente',
+    codigo: 'PF-001',
     slug: 'sobrado-pequeno-moderno-e-inteligente',
     titulo: 'Sobrado Pequeno, Moderno e Inteligente',
     selo: 'Mais vendido',
@@ -33,17 +33,23 @@ const destaques: Projeto[] = [
       src: foto('1600047509807-ba8f99d2cdde'),
       alt: 'Sobrado moderno com fachada de madeira e vidro e jardim na frente',
     },
+    tipo: 'sobrado',
+    estilo: 'moderno',
     larguraM: 7,
     profundidadeM: 20,
+    areaConstruidaM2: 154,
     suites: 2,
     quartos: 1,
     vagas: 2,
     pavimentos: 2,
+    piscina: true,
+    areaGourmet: false,
     diferencial: { tipo: 'piscina', rotulo: 'Piscina opcional' },
     precoCentavos: 39900,
   },
   {
     id: 'casa-terrea-moderna',
+    codigo: 'PF-002',
     slug: 'casa-terrea-moderna',
     titulo: 'Casa Térrea Moderna',
     selo: 'Lançamento',
@@ -51,17 +57,23 @@ const destaques: Projeto[] = [
       src: foto('1512917774080-9991f1c4c750'),
       alt: 'Casa térrea moderna com grandes vidros e piscina',
     },
+    tipo: 'casa-terrea',
+    estilo: 'moderno',
     larguraM: 10,
     profundidadeM: 25,
+    areaConstruidaM2: 138,
     suites: 1,
     quartos: 3,
     vagas: 2,
     pavimentos: 1,
+    piscina: false,
+    areaGourmet: true,
     diferencial: { tipo: 'varanda-gourmet', rotulo: 'Varanda Gourmet' },
     precoCentavos: 34900,
   },
   {
     id: 'sobrado-com-piscina',
+    codigo: 'PF-003',
     slug: 'sobrado-com-piscina',
     titulo: 'Sobrado com Piscina',
     selo: 'Mais vendido',
@@ -69,17 +81,23 @@ const destaques: Projeto[] = [
       src: foto('1600596542815-ffad4c1539a9'),
       alt: 'Sobrado moderno branco com piscina em primeiro plano',
     },
+    tipo: 'sobrado',
+    estilo: 'contemporaneo',
     larguraM: 8,
     profundidadeM: 18,
+    areaConstruidaM2: 158,
     suites: 3,
     quartos: 1,
     vagas: 2,
     pavimentos: 2,
+    piscina: true,
+    areaGourmet: false,
     diferencial: { tipo: 'piscina', rotulo: 'Piscina' },
     precoCentavos: 49900,
   },
   {
     id: 'casa-terrea-com-2-suites',
+    codigo: 'PF-004',
     slug: 'casa-terrea-com-2-suites',
     titulo: 'Casa Térrea com 2 Suítes',
     selo: 'Lançamento',
@@ -87,12 +105,17 @@ const destaques: Projeto[] = [
       src: foto('1583608205776-bfd35f0d9f83'),
       alt: 'Casa térrea com varanda e telhado inclinado cercada por jardim',
     },
+    tipo: 'casa-terrea',
+    estilo: 'classico',
     larguraM: 12,
     profundidadeM: 20,
+    areaConstruidaM2: 132,
     suites: 2,
     quartos: 1,
     vagas: 2,
     pavimentos: 1,
+    piscina: false,
+    areaGourmet: true,
     diferencial: { tipo: 'varanda-gourmet', rotulo: 'Varanda Gourmet' },
     precoCentavos: 39900,
   },
@@ -175,7 +198,10 @@ const categorias: Categoria[] = [
 
 const sobradoModerno7x20: ProjetoDetalhe = {
   id: 'sobrado-moderno-7x20',
+  codigo: 'PF-005',
   slug: 'sobrado-moderno-7x20',
+  tipo: 'sobrado',
+  estilo: 'moderno',
   titulo: 'Sobrado Moderno 7x20',
   selo: 'Mais vendido',
   imagem: {
@@ -330,6 +356,12 @@ const sobradoModerno7x20: ProjetoDetalhe = {
   },
 }
 
+const categoriaDoTipo: Record<TipoProjeto, Categoria> = {
+  sobrado: { slug: 'sobrados', rotulo: 'Sobrados' },
+  'casa-terrea': { slug: 'casas-terreas', rotulo: 'Casas Térreas' },
+  'casa-de-campo': { slug: 'casas-de-campo', rotulo: 'Casas de Campo' },
+}
+
 const plural = (quantidade: number, singular: string, plural: string) =>
   `${quantidade} ${quantidade === 1 ? singular : plural}`
 
@@ -344,16 +376,8 @@ function detalheDeExemplo(projeto: Projeto): ProjetoDetalhe {
   return {
     ...base,
     ...projeto,
-    categoria:
-      projeto.pavimentos > 1
-        ? { slug: 'sobrados', rotulo: 'Sobrados' }
-        : { slug: 'casas-terreas', rotulo: 'Casas Térreas' },
+    categoria: categoriaDoTipo[projeto.tipo],
     banheiros: projeto.suites + 1,
-    areaConstruidaM2: Math.round(
-      projeto.larguraM * projeto.profundidadeM * projeto.pavimentos * 0.55,
-    ),
-    piscina: projeto.diferencial.tipo === 'piscina',
-    areaGourmet: projeto.diferencial.tipo === 'varanda-gourmet',
     sobre: {
       ...base.sobre,
       textos: [
@@ -369,12 +393,47 @@ function detalheDeExemplo(projeto: Projeto): ProjetoDetalhe {
   }
 }
 
-const detalhes: ProjetoDetalhe[] = [sobradoModerno7x20, ...destaques.map(detalheDeExemplo)]
+const detalhes: ProjetoDetalhe[] = [
+  sobradoModerno7x20,
+  ...destaques.map(detalheDeExemplo),
+  ...projetosGerados.map(detalheDeExemplo),
+]
+
+/** Só as colunas que a listagem usa, como um `select` de colunas no banco (nunca o detalhe todo). */
+function selecionarResumo(projeto: Projeto): Projeto {
+  return {
+    id: projeto.id,
+    codigo: projeto.codigo,
+    slug: projeto.slug,
+    titulo: projeto.titulo,
+    selo: projeto.selo,
+    imagem: projeto.imagem,
+    tipo: projeto.tipo,
+    estilo: projeto.estilo,
+    larguraM: projeto.larguraM,
+    profundidadeM: projeto.profundidadeM,
+    areaConstruidaM2: projeto.areaConstruidaM2,
+    suites: projeto.suites,
+    quartos: projeto.quartos,
+    vagas: projeto.vagas,
+    pavimentos: projeto.pavimentos,
+    piscina: projeto.piscina,
+    areaGourmet: projeto.areaGourmet,
+    diferencial: projeto.diferencial,
+    precoCentavos: projeto.precoCentavos,
+  }
+}
+
+const catalogo: Projeto[] = [...destaques, selecionarResumo(sobradoModerno7x20), ...projetosGerados]
 
 /** Adapter com dados fixos. Trocar por um adapter Supabase = mudar só o index.ts. */
 export class InMemoryProjetoRepository implements ProjetoRepository {
   async listarDestaques() {
     return destaques
+  }
+
+  async buscarProjetos(consulta: ConsultaProjetos) {
+    return consultarEmMemoria(catalogo, consulta)
   }
 
   async buscarPorSlug(slug: string) {

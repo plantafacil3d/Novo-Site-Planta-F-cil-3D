@@ -45,17 +45,28 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 * **Tokens:** `--color-accent`, `--text-xs`; `tracking-[0.12em]` (definido em `tokens.md`).
 
 ### Chip
-* **Propósito:** categoria ou filtro selecionável. *(Ainda não criado: entra quando uma tela pedir seleção/filtro.)*
-* **Estados:** repouso, hover, selecionado, foco.
-* **Tokens:** `--color-tint`, `--color-border`, `--radius-lg`.
+* **Propósito:** filtro aplicado em forma de etiqueta removível ("Com piscina ×"). É um `<Link>`: o clique leva ao mesmo endereço sem aquele filtro, então funciona sem JavaScript. Props: `href`, `label`, `removeLabel` (texto só para leitor de tela, ex.: "Remover filtro").
+* **Estados:** repouso, hover, foco. Altura mínima de 44px.
+* **Tokens:** `--color-tint`, `--color-border`, `--color-subtle` (hover), `--radius-lg`.
+* **Ainda não existe:** chip selecionável (liga/desliga); nasce quando uma tela pedir.
 
 ### Input
 * **Propósito:** campo de texto. Sempre com `<label>` (visível ou `sr-only`).
 * **Estados:** repouso, foco, erro (`invalid`), disabled.
 * **Tokens:** `--color-surface`, `--color-border`, `--radius-md`, `--color-danger`.
 
-### Skeleton, EmptyState, ErrorState
-* **Propósito:** estados de loading, vazio e erro padronizados (ver `ux-rules.md`). *(Ainda não criados: a home usa dados em memória e não tem estados assíncronos.)*
+### Select
+* **Propósito:** lista de opções nativa (`<select>`): funciona sem JavaScript, o celular abre o seletor do sistema e o teclado já vem pronto. Sempre com `<label>`. Ícone de seta (`chevron-down`) sobreposto; o resto igual ao `Input`.
+* **Estados:** repouso, foco, erro (`invalid`), disabled.
+* **Tokens:** `--color-surface`, `--color-border`, `--color-fg-muted`, `--radius-md`, `--color-danger`.
+
+### Checkbox
+* **Propósito:** caixa de marcação com rótulo (`label`); a linha inteira é clicável e tem 44px de altura. Usa `accent-primary` (a caixa nativa, com a cor da marca).
+* **Estados:** repouso, foco, marcado, disabled.
+
+### Skeleton
+* **Propósito:** bloco pulsante no lugar do conteúdo enquanto carrega (`aria-hidden`; quem o usa avisa "Carregando…" para leitor de tela). Dê a forma com `className` (`h-5 w-3/4`, `aspect-4/3`). Respeita `prefers-reduced-motion`.
+* **Tokens:** `--color-border` (cinza dos blocos), `--radius-md`.
 
 ## Layout e navegação (`components/layout/`, `components/navigation/`)
 
@@ -73,6 +84,9 @@ Trilha "Início › Projetos › Sobrados › Projeto" (`<nav aria-label>` + `<o
 
 ### Tabs (`navigation/`)
 `'use client'`. Abas acessíveis (`role="tablist"`/`tab`/`tabpanel`): setas, Home e End trocam de aba e movem o foco. Recebe `items: { id, label, content }[]`; todos os painéis ficam no HTML, só escondidos. Aba ativa em `--color-primary` com texto `--color-fg-inverse`; as outras com hover `--color-subtle`. No celular a lista rola na horizontal.
+
+### Pagination (`navigation/`)
+Paginação da listagem (regras em `ux-rules.md`, "Listas e paginação"). Props: `pagina` (atual, começa em 1), `totalPaginas`, `hrefPagina(n)` (quem usa monta o endereço; a página vive na URL). Mostra "Anterior 1 … 4 5 6 … 40 Próxima": primeira, última e vizinhas da atual, com "…" nos saltos. Cada número é um `Button` link (`primary` na página atual, com `aria-current="page"`; `secondary` nas demais); Anterior/Próxima ficam desabilitados nas pontas. Com uma página só, não renderiza nada. `<nav aria-label="Paginação">`, alvos de 44px.
 
 ### Footer (`layout/`)
 Logo, links de navegação, redes sociais, direitos autorais e localização. Fundo `--color-page` com borda superior `--color-border`.
@@ -103,6 +117,15 @@ Card compacto: imagem, título e preço. O card inteiro é um único link, pelo 
 ### FeatureItem
 Ícone + título + descrição curta. `tone`: `default` ou `inverse` (fundo escuro, hero). `layout`: `row` (ícone ao lado, padrão) ou `stack` (ícone em cima; grades de características, entregáveis e perfil). `titleAs="h3"` quando estiver dentro de seção com h2.
 
+### CollapsiblePanel
+`'use client'`. No celular, o conteúdo fica atrás de um botão `secondary` com ícone de filtro e contador (`count`, ex.: "Filtros (2)"), com `aria-expanded`/`aria-controls`. A partir de `lg` o conteúdo aparece sempre e o botão some. O conteúdo (`children`) é renderizado no servidor; só o abrir/fechar é estado do navegador. Quem usa dá uma `key` que mude a cada consulta, para o painel fechar depois de aplicar um filtro.
+
+### EmptyState
+Lista sem resultado: ícone, título, texto e uma ação opcional (`action: { label, href }`, botão `secondary`). Fundo `--color-subtle`, borda `--color-border`, `--radius-lg`. Sempre oferece um caminho ("Limpar filtros"), nunca uma tela vazia.
+
+### ErrorState
+Algo falhou: `role="alert"`, ícone, título, texto simples (nunca detalhe técnico) e "Tentar novamente" (`onRetry`, só aparece se passado). Usa os tokens de notificação de erro (`--color-notification-error-*`), como manda `tokens.md`. Usado em `app/projetos/error.tsx`.
+
 ### CTABanner
 Faixa de chamada para ação. Variantes: `inverse` (imagem à esquerda + painel escuro com rótulo, título, texto e botão), `brand` (faixa `--color-inverse` com ícone de casa e botão WhatsApp, sem imagem) e `card` (cartão escuro arredondado dentro da largura da página, imagem ao fundo à direita, rótulo, título, texto, **preço** com condição e botão; usado no "Gostou deste projeto?"). O botão vem da prop `action.variant`: padrão `accent` no `inverse` e `card` e `whatsapp` no `brand` (o preto sumiria sobre o fundo escuro); aceita também `secondary-inverse`. No `card`, `action.iconLeft="cart"` põe o carrinho no botão.
 
@@ -126,9 +149,9 @@ Injeta dados estruturados (schema.org) para o Google. Escapa o `<` para o conte�
 
 ## Backlog (criar só quando uma tela pedir)
 
-Pagination, Toast, Select, Checkbox, Chip, Skeleton/EmptyState/ErrorState.
+Toast, chip selecionável (liga/desliga).
 
-`Pagination` é obrigatório na primeira tela de listagem (`/projetos`); o comportamento já está definido em `ux-rules.md` (Listas e paginação). Nasce em `navigation/`, como componente de apresentação (props: página atual, total de páginas, função que monta o link).
+`Pagination`, `Select`, `Checkbox`, `Chip` (removível), `Skeleton`, `EmptyState` e `ErrorState` saíram do backlog com a listagem `/projetos` (2026-09-20).
 
 ## Componentes de domínio (`features/projetos/components/`)
 
@@ -136,6 +159,10 @@ Ficam na feature porque conhecem o `ProjetoDetalhe`; a tela é montada em `views
 
 * `ProjetoHero`: galeria + título, selo, resumo, especificações rápidas, preço, comprar, favoritar, selos de confiança e o resumo "O que está incluso". Sem checkout válido, o botão de compra aparece desabilitado.
 * `BarraCompraMobile`: preço + comprar fixos na base, só no celular. Deve ser o último filho da página (`sticky` para no fim do conteúdo e não cobre o rodapé).
+* `ProjetosDestaque`: grade de `ProjectCard` (1 coluna no celular, 2 no tablet, 4 no desktop). Aceita `className` para mudar as colunas quando divide a tela com outra coisa: a listagem usa `lg:grid-cols-2 xl:grid-cols-3` por causa da barra de filtros.
+* `FormularioDeFiltros`: filtros da listagem em formulário GET (`next/form`): busca por nome ou código, ordenar, tipo, estilo arquitetônico, quartos, suítes, vagas ("N ou mais"), área, medidas do terreno (só entram projetos que cabem nele) e piscina / área gourmet. Os campos guardam o que veio da URL; quem usa dá uma `key` que muda a cada consulta. Sem JavaScript também funciona.
+* `FiltrosAplicados`: os filtros ativos como `Chip` removível, mais "Limpar tudo"; some quando não há filtro.
+* `ProjetosSkeleton`: uma página de cards em branco (12), para a tela não pular enquanto carrega.
 * `EspecificacoesTecnicas`, `SobreProjeto`, `IncluidoNoProjeto`, `GaleriaCompleta`, `CaracteristicasAmbientes`, `PerfilProjeto`, `PerguntasFrequentes`, `ProjetosRelacionados` (reaproveita o `ProjectCard` da home, com selo "Similar").
 
 ## Registro

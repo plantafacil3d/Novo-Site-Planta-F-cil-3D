@@ -1,12 +1,20 @@
 import { ProjectCard } from '@/components/shared/ProjectCard'
+import { cn } from '@/components/ui/cn'
 
 import { formatarPreco, hrefProjeto } from '../rules'
 import type { Projeto } from '../types'
 import { especificacoesDoCard } from './especificacoes'
 
-export function ProjetosDestaque({ projetos }: { projetos: Projeto[] }) {
+type ProjetosDestaqueProps = {
+  projetos: Projeto[]
+  /** Muda as colunas quando a grade divide a tela com outra coisa (ex.: `lg:grid-cols-2`). */
+  className?: string
+}
+
+/** Grade de cards de projeto: 1 coluna no celular, 2 no tablet e 4 no desktop (padrão). */
+export function ProjetosDestaque({ projetos, className }: ProjetosDestaqueProps) {
   return (
-    <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <ul className={cn('grid gap-6 sm:grid-cols-2 lg:grid-cols-4', className)}>
       {projetos.map((projeto) => (
         <li key={projeto.id} className="grid">
           <ProjectCard

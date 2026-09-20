@@ -34,6 +34,7 @@ Sempre exibe, nesta ordem: imagem, selo (Mais vendido, Lançamento), título, me
 * Rótulo sempre visível (placeholder não substitui rótulo).
 * Erro ao lado do campo, ligado por `aria-describedby`; valide ao sair do campo, não a cada tecla.
 * Busca: aceite tipo, metragem e nº de quartos; mostre quantidade de resultados; filtros aplicados visíveis e removíveis.
+* Filtros da listagem: formulário GET com botão "Aplicar filtros" e o estado na URL. Campos "N ou mais" (quartos, suítes, vagas) começam em "Qualquer". Filtros aplicados aparecem como etiquetas removíveis fora do painel, com "Limpar tudo". Mudar filtro ou ordem volta para a página 1. No celular ficam recolhidos atrás de "Filtros (N)"; no desktop, numa coluna à esquerda.
 
 ## Listas e paginação
 
