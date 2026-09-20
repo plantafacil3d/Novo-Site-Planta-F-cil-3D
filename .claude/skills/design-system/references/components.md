@@ -8,9 +8,9 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 
 ### Button
 * **Propósito:** disparar ação ou navegar (com `href` vira `<Link>`, ou `<a target="_blank">` se o destino for externo).
-* **Variantes:** `primary` (verde sólido), `secondary` (contorno), `secondary-inverse` (contorno claro, para fundo escuro), `ghost` (texto), `whatsapp` (verde com borda clara e ícone do WhatsApp automático, para faixas escuras). Tamanhos: `md` (padrão), `lg`. Ícone à esquerda (`iconLeft`) e à direita (`iconRight`).
+* **Variantes:** `primary` (preto sólido, para fundo claro), `secondary` (contorno), `secondary-inverse` (contorno claro, para fundo escuro), `ghost` (texto), `accent` (verde vivo com texto preto, para fundo escuro, onde o preto sumiria), `whatsapp` (mesmo estilo do `accent` + ícone do WhatsApp automático, para faixas escuras). Tamanhos: `md` (padrão), `lg`. Ícone à esquerda (`iconLeft`) e à direita (`iconRight`).
 * **Estados:** repouso, hover, foco, ativo, disabled, loading (`loading` desabilita, mostra spinner e `aria-busy`).
-* **Tokens:** `--color-primary(-hover)`, `--color-fg-inverse`, `--color-border`, `--radius-md`, `min-h-11 px-4 py-3`, `--color-ring`.
+* **Tokens:** `--color-primary(-hover)`, `--color-accent(-hover)`, `--color-fg`, `--color-fg-inverse`, `--color-border`, `--radius-md`, `min-h-11 px-4 py-3`, `--color-ring`.
 * **Nota:** para "card inteiro clicável", passe `after:absolute after:inset-0` no `className` (o card precisa ser `relative`).
 
 ### Icon
@@ -20,7 +20,7 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 
 ### Badge
 * **Propósito:** selo sobre a imagem (Mais vendido, Lançamento).
-* **Variantes:** `solid` (verde), `accent` (lima).
+* **Variantes:** `solid` (preto), `accent` (verde vivo, texto preto).
 * **Tokens:** `--color-primary`, `--color-accent`, `--radius-sm`, `--text-xs`.
 
 ### Eyebrow
@@ -43,7 +43,7 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ## Layout e navegação (`components/layout/`, `components/navigation/`)
 
 ### Header (`layout/`)
-Logo, navegação principal, ícones de busca/favoritos/carrinho (links com `aria-label`; carrinho com contador), botão "Entrar / Cadastrar". Fundo `--color-inverse`. Recebe tudo por props. Abaixo de `lg` a navegação e o botão vão para o `MobileMenu`; o botão some abaixo de `sm`.
+Logo, navegação principal, ícones de busca/favoritos/carrinho (links com `aria-label`; carrinho com contador), botão "Entrar / Cadastrar". Fundo `--color-page` com borda inferior `--color-border`. Recebe tudo por props. Abaixo de `lg` a navegação e o botão vão para o `MobileMenu`; o botão some abaixo de `sm`.
 
 ### MainNav e MobileMenu (`navigation/`)
 Ambos `'use client'`. `MainNav` renderiza os links e marca a página atual com `aria-current` (sublinhado `--color-accent` no horizontal). `MobileMenu` é o hambúrguer com painel (`aria-expanded`, fecha com Esc e ao navegar).
@@ -52,7 +52,7 @@ Ambos `'use client'`. `MainNav` renderiza os links e marca a página atual com `
 Primeiro item da tab; leva ao conteúdo principal e só aparece com foco.
 
 ### Footer (`layout/`)
-Logo, links de navegação, redes sociais, direitos autorais e localização. Fundo `--color-inverse-strong`.
+Logo, links de navegação, redes sociais, direitos autorais e localização. Fundo `--color-page` com borda superior `--color-border`.
 
 ### Section (`layout/`)
 Container de seção: título (h2), subtítulo, link "Ver todos" e conteúdo. Variantes de fundo (`tone`): `page`, `subtle`, `tint`, `inverse`.
@@ -60,7 +60,7 @@ Container de seção: título (h2), subtítulo, link "Ver todos" e conteúdo. Va
 ## Compartilhados (`components/shared/`)
 
 ### Logo
-Ícone de casa + nome + tagline, para fundo escuro (Header e Footer). **Provisório** até existir o arquivo oficial do logotipo.
+Ícone de casa + nome + tagline. Prop `tone`: `inverse` (padrão, para fundo escuro) ou `default` (fundo claro, usado no Header e no Footer). **Provisório** até existir o arquivo oficial do logotipo.
 
 ### SearchBar
 `<form role="search" method="get">` com Input + Button `primary` + ícone; funciona sem JavaScript. Rótulo `sr-only` (a referência visual só mostra placeholder).
@@ -81,7 +81,7 @@ Card compacto: imagem, título e preço. O card inteiro é um único link, pelo 
 Ícone + título + descrição curta. `tone`: `default` ou `inverse` (fundo escuro, hero). `titleAs="h3"` quando estiver dentro de seção com h2.
 
 ### CTABanner
-Faixa de chamada para ação. Variantes: `inverse` (imagem à esquerda + painel escuro com rótulo, título, texto e botão) e `brand` (faixa `--color-inverse` com ícone de casa e botão WhatsApp, sem imagem).
+Faixa de chamada para ação. Variantes: `inverse` (imagem à esquerda + painel escuro com rótulo, título, texto e botão) e `brand` (faixa `--color-inverse` com ícone de casa e botão WhatsApp, sem imagem). O botão vem da prop `action.variant`: padrão `accent` no `inverse` e `whatsapp` no `brand` (o preto sumiria sobre o fundo escuro); aceita também `secondary-inverse`.
 
 ## Backlog (criar só quando uma tela pedir)
 

@@ -5,6 +5,9 @@ import type { ComponentProps } from 'react'
 import { cn } from './cn'
 import { Icon, type IconName } from './Icon'
 
+// Verde vivo com texto preto: para fundos escuros, onde o botão preto não apareceria.
+const onDarkStyles = 'bg-accent text-fg hover:bg-accent-hover'
+
 const buttonStyles = cva(
   'inline-flex items-center justify-center gap-2 rounded-md font-medium whitespace-nowrap transition-colors duration-150 ease-standard disabled:cursor-not-allowed disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:opacity-50',
   {
@@ -14,8 +17,8 @@ const buttonStyles = cva(
         secondary: 'border border-border bg-surface text-fg hover:bg-subtle',
         'secondary-inverse': 'border border-fg-inverse/60 text-fg-inverse hover:bg-fg-inverse/10',
         ghost: 'text-primary hover:bg-tint',
-        // Sobre faixas verdes/escuras: a borda clara mantém o botão visível.
-        whatsapp: 'border border-fg-inverse/40 bg-primary text-fg-inverse hover:bg-primary-hover',
+        accent: onDarkStyles,
+        whatsapp: onDarkStyles,
       },
       size: {
         md: 'min-h-11 px-4 py-3 text-sm',

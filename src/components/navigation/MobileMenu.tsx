@@ -33,7 +33,7 @@ export function MobileMenu({ items, cta }: MobileMenuProps) {
         aria-controls={panelId}
         aria-label={open ? 'Fechar menu' : 'Abrir menu'}
         onClick={() => setOpen((value) => !value)}
-        className="inline-flex size-11 items-center justify-center rounded-md text-fg-inverse transition-colors duration-150 ease-standard hover:bg-fg-inverse/10"
+        className="inline-flex size-11 items-center justify-center rounded-md text-fg transition-colors duration-150 ease-standard hover:bg-subtle"
       >
         <Icon name={open ? 'close' : 'menu'} className="size-6" />
       </button>
@@ -41,7 +41,7 @@ export function MobileMenu({ items, cta }: MobileMenuProps) {
       {open && (
         <div
           id={panelId}
-          className="absolute inset-x-0 top-full z-40 flex flex-col gap-4 border-t border-fg-inverse/10 bg-inverse px-4 py-4 shadow-md"
+          className="absolute inset-x-0 top-full z-40 flex flex-col gap-4 border-t border-border bg-page px-4 py-4 shadow-md"
         >
           <MainNav
             items={items}

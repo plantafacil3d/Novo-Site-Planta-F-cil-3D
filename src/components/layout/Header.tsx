@@ -16,7 +16,7 @@ type HeaderProps = {
 }
 
 const actionLink =
-  'relative inline-flex size-11 items-center justify-center rounded-md text-fg-inverse transition-colors duration-150 ease-standard hover:bg-fg-inverse/10'
+  'relative inline-flex size-11 items-center justify-center rounded-md text-fg transition-colors duration-150 ease-standard hover:bg-subtle'
 
 export function Header({ nome, tagline, items, cta, carrinhoQuantidade = 0 }: HeaderProps) {
   const actions: { href: string; label: string; icon: IconName }[] = [
@@ -25,9 +25,9 @@ export function Header({ nome, tagline, items, cta, carrinhoQuantidade = 0 }: He
   ]
 
   return (
-    <header className="relative z-40 bg-inverse text-fg-inverse">
+    <header className="relative z-40 border-b border-border bg-page text-fg">
       <div className="mx-auto flex min-h-16 max-w-content items-center gap-2 px-4 sm:gap-4 lg:gap-8">
-        <Logo nome={nome} tagline={tagline} />
+        <Logo nome={nome} tagline={tagline} tone="default" />
 
         <div className="hidden lg:mx-auto lg:block">
           <MainNav items={items} />

@@ -24,10 +24,10 @@ export function Footer({
   localizacao,
 }: FooterProps) {
   return (
-    <footer className="bg-inverse-strong text-fg-inverse">
+    <footer className="border-t border-border bg-page text-fg">
       <div className="mx-auto max-w-content px-4 py-8">
         <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <Logo nome={nome} tagline={tagline} />
+          <Logo nome={nome} tagline={tagline} tone="default" />
 
           <nav aria-label="Rodapé">
             <ul className="flex flex-wrap gap-x-6 gap-y-1">
@@ -35,7 +35,7 @@ export function Footer({
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex min-h-11 items-center text-sm text-fg-inverse/80 transition-colors duration-150 ease-standard hover:text-fg-inverse"
+                    className="inline-flex min-h-11 items-center text-sm text-fg-muted transition-colors duration-150 ease-standard hover:text-fg"
                   >
                     {link.label}
                   </Link>
@@ -52,7 +52,7 @@ export function Footer({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={rede.label}
-                  className="inline-flex size-11 items-center justify-center rounded-md text-fg-inverse transition-colors duration-150 ease-standard hover:bg-fg-inverse/10"
+                  className="inline-flex size-11 items-center justify-center rounded-md text-fg transition-colors duration-150 ease-standard hover:bg-subtle"
                 >
                   <Icon name={rede.icone} />
                 </a>
@@ -61,7 +61,7 @@ export function Footer({
           </ul>
         </div>
 
-        <div className="mt-6 flex flex-col gap-1 border-t border-fg-inverse/10 pt-6 text-xs text-fg-inverse/70 sm:flex-row sm:justify-between">
+        <div className="mt-6 flex flex-col gap-1 border-t border-border pt-6 text-xs text-fg-muted sm:flex-row sm:justify-between">
           <p>{direitosAutorais}</p>
           <p>{localizacao}</p>
         </div>

@@ -2,21 +2,21 @@
  * Design tokens: fonte única da verdade (skill `design-system`).
  * Primitivos (:root) não geram utilitários; só os semânticos (@theme) viram classes.
  * Componentes usam só os semânticos: bg-primary, text-fg-muted, border-border...
- * Valores de cor/fonte aproximados da referência visual: confirmar com o cliente.
+ * Paleta preto + verde vivo aprovada pelo usuário na home (2026-09-20); confirmar com o cliente.
  */
 
 /* Primitivos */
 :root {
   --black-900: #0b1410;
-  --green-900: #0f2a20;
-  --green-700: #1f6b3f;
-  --green-600: #268a4f;
-  --green-100: #e6f2ea;
-  --lime-400: #7ed957;
+  --black-800: #141d20;
+  --green-600: #16a34a;
+  --green-500: #22c55e;
+  --green-100: #e7f8ec;
   --white: #ffffff;
   --gray-50: #f5f8f6;
   --gray-200: #dfe6e2;
-  --gray-500: #6b7a72;
+  --gray-500: #627068;
+  --gray-700: #2b3a32;
   --gray-900: #14201a;
   --success-600: #2e7d32;
   --red-600: #c62828;
@@ -31,7 +31,7 @@
   --color-page: var(--white);
   --color-subtle: var(--gray-50);
   --color-tint: var(--green-100);
-  --color-inverse: var(--green-900);
+  --color-inverse: var(--black-800);
   --color-inverse-strong: var(--black-900);
   --color-surface: var(--white);
 
@@ -39,11 +39,12 @@
   --color-fg-muted: var(--gray-500);
   --color-fg-inverse: var(--white);
 
-  --color-accent: var(--lime-400);
-  --color-primary: var(--green-700);
-  --color-primary-hover: var(--green-600);
+  --color-accent: var(--green-500);
+  --color-accent-hover: var(--green-600);
+  --color-primary: var(--black-900);
+  --color-primary-hover: var(--gray-700);
   --color-border: var(--gray-200);
-  --color-ring: var(--lime-400);
+  --color-ring: var(--green-600);
 
   --color-success: var(--success-600);
   --color-warning: var(--amber-500);

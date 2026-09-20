@@ -8,7 +8,7 @@ import { Icon } from '../ui/Icon'
 type BannerAction = {
   label: string
   href: string
-  variant?: 'primary' | 'secondary-inverse' | 'whatsapp'
+  variant?: 'accent' | 'secondary-inverse' | 'whatsapp'
 }
 
 type InverseBannerProps = {
@@ -75,7 +75,7 @@ export function CTABanner(props: CTABannerProps) {
           {title}
         </h2>
         <p className="max-w-md text-fg-inverse/80">{description}</p>
-        <Button href={action.href} variant={action.variant ?? 'primary'} iconRight="arrow-right">
+        <Button href={action.href} variant={action.variant ?? 'accent'} iconRight="arrow-right">
           {action.label}
         </Button>
       </div>

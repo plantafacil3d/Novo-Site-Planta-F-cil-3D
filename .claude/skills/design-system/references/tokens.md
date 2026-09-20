@@ -1,6 +1,6 @@
 # Tokens
 
-Valores extraídos da referência visual da home (preto-esverdeado, verde, verde-limão e branco). **Valores aproximados: confirme com o usuário/Figma e ajuste em `src/styles/tokens.css`**, no primitivo correspondente.
+A marca é preto e branco, minimalista; o verde vivo é a única cor de destaque, para dar vida. **Paleta aprovada pelo usuário na home em 2026-09-20; ainda sem validação do cliente/Figma. Ajuste em `src/styles/tokens.css`**, no primitivo correspondente.
 
 **Fonte da verdade dos valores: `src/styles/tokens.css`.** Este documento explica os tokens e seu propósito; não duplique os valores em outros lugares.
 
@@ -19,22 +19,22 @@ Valores extraídos da referência visual da home (preto-esverdeado, verde, verde
 
 | Token | Uso de referência |
 |---|---|
-| `--black-900` | fundo do hero, rodapé, faixas escuras |
-| `--green-900` | header, seções escuras |
-| `--green-700` | botões, selos, links de ação |
-| `--green-600` | hover do verde de ação |
+| `--black-900` | botão principal, hero, ícones e preços sobre fundo claro |
+| `--black-800` | faixas escuras (banners): preto com leve tom azul-petróleo (`#141d20`) |
+| `--green-600` | hover do verde vivo e anel de foco |
+| `--green-500` | verde vivo: destaques sobre fundo escuro, botão sobre fundo escuro, selos, sublinhado do menu |
 | `--green-100` | fundo de seções claras e chips |
-| `--lime-400` | destaque em títulos sobre fundo escuro ("seu sonho") e anel de foco |
 | `--white` | fundo de página e cards |
 | `--gray-50` | fundo alternado |
 | `--gray-200` | bordas |
 | `--gray-500` | texto secundário |
+| `--gray-700` | hover do botão preto |
 | `--gray-900` | texto principal |
 | `--success-600` | mensagens de sucesso |
 | `--red-600` | erro |
 | `--amber-500` | aviso |
 
-Cinzas com leve tom esverdeado, para combinar com a marca.
+Cinzas e pretos com leve tom esverdeado, para combinar com a marca. Exceção intencional: `--black-800`, que puxa para azul-petróleo (escolha do usuário, 2026-09-20).
 
 ### Semânticos
 
@@ -43,22 +43,23 @@ Cinzas com leve tom esverdeado, para combinar com a marca.
 | `--color-page` | `--white` | fundo padrão |
 | `--color-subtle` | `--gray-50` | seções alternadas |
 | `--color-tint` | `--green-100` | seções de destaque claras (ex.: "Por que escolher") |
-| `--color-inverse` | `--green-900` | header, faixas escuras |
-| `--color-inverse-strong` | `--black-900` | hero, rodapé |
+| `--color-inverse` | `--black-800` | faixas escuras (banners) |
+| `--color-inverse-strong` | `--black-900` | hero |
 | `--color-surface` | `--white` | cards, campos |
 | `--color-fg` | `--gray-900` | texto principal |
 | `--color-fg-muted` | `--gray-500` | texto secundário |
 | `--color-fg-inverse` | `--white` | texto sobre fundo escuro |
-| `--color-accent` | `--lime-400` | destaque sobre fundo escuro |
-| `--color-primary` | `--green-700` | botão principal |
-| `--color-primary-hover` | `--green-600` | hover do botão principal |
+| `--color-accent` | `--green-500` | verde vivo: destaque e botão sobre fundo escuro, selo, sublinhado do menu. Sobre branco só como preenchimento, nunca como texto |
+| `--color-accent-hover` | `--green-600` | hover do botão verde |
+| `--color-primary` | `--black-900` | botão principal, preços, ícones e links de ação sobre fundo claro |
+| `--color-primary-hover` | `--gray-700` | hover do botão principal |
 | `--color-border` | `--gray-200` | bordas |
-| `--color-ring` | `--lime-400` | anel de foco |
-| `--color-success` | `--success-600` | sucesso (independente do verde dos botões) |
+| `--color-ring` | `--green-600` | anel de foco (passa 3:1 sobre branco e sobre preto) |
+| `--color-success` | `--success-600` | sucesso (verde escuro, para passar AA como texto) |
 | `--color-warning` | `--amber-500` | aviso |
 | `--color-danger` | `--red-600` | erro |
 
-**Contraste a verificar (AA):** branco sobre `--green-700` (texto de botão), `--gray-500` sobre branco (texto secundário), `--lime-400` sobre `--black-900`. Se algum falhar, ajuste o primitivo, não o componente.
+**Contraste (WCAG, calculado):** `--gray-900` (texto) sobre `--green-500` 7,4:1 e sobre `--green-600` 5,1:1 (botão e selo verdes, repouso e hover); `--green-500` sobre `--black-900` 8,2:1 e sobre `--black-800` 7,5:1; branco sobre `--black-800` 17,1:1; `--green-500` sobre branco 2,3:1 (só preenchimento, nunca texto); `--green-600` sobre branco 3,3:1 e sobre `--black-900` 5,7:1 (anel de foco); branco sobre `--black-900` 18,7:1 e sobre `--gray-700` 12:1. `--gray-500` (texto secundário, `#627068`) dá 5,2:1 sobre branco, 4,9:1 sobre `--gray-50` e 4,7:1 sobre `--green-100`: passa AA (4,5:1) em todos os fundos claros. Se algum contraste falhar, ajuste o primitivo, não o componente.
 
 ## Tipografia
 

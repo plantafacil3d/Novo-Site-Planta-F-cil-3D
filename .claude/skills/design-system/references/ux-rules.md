@@ -4,11 +4,12 @@ Específicas do site de venda de projetos arquitetônicos prontos (plantas, fach
 
 ## Hierarquia e ação principal
 
-* Uma ação principal por tela, em verde sólido (`--color-primary`). Ações secundárias usam contorno ou texto.
+* Uma ação principal por tela, em preto sólido (`--color-primary`); sobre fundo escuro, em verde vivo (`Button accent`). Ações secundárias usam contorno ou texto.
 * Home: a **busca** é a ação principal do hero. Em seguida: categorias, destaques, confiança, complementares, CTA final.
 * Página de projeto: preço e botão de compra visíveis sem rolar em desktop; fixos na base no mobile.
 * Títulos de seção seguidos de subtítulo curto e link "Ver todos" à direita.
-* Fundo escuro: título branco e uma palavra-chave em `--color-accent` (verde-limão), no máximo uma por título.
+* Fundo escuro: título branco e uma palavra-chave em `--color-accent` (verde vivo), no máximo uma por título.
+* Verde vivo (`--color-accent`) sobre fundo claro só como preenchimento (selo, sublinhado do menu, caixa), nunca como texto ou ícone isolado (2,3:1 sobre branco). Texto e ícones sobre claro usam `--color-fg` ou `--color-primary`.
 
 ## Card de projeto
 

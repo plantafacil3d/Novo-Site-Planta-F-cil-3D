@@ -64,8 +64,8 @@ export function HeroSection() {
         </div>
       </div>
 
-      <div className="absolute right-0 bottom-0 hidden max-w-64 items-center gap-3 bg-primary p-5 text-fg-inverse md:flex">
-        <Icon name="house" className="size-10 text-accent" strokeWidth={1.5} />
+      <div className="absolute right-0 bottom-0 hidden max-w-64 items-center gap-3 bg-accent p-5 text-fg md:flex">
+        <Icon name="house" className="size-10" strokeWidth={1.5} />
         <p className="text-sm font-medium">
           Projetos prontos, com qualidade profissional e preço acessível.
         </p>

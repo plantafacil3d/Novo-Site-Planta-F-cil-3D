@@ -19,7 +19,7 @@ function isActive(pathname: string, href: string) {
   return href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`)
 }
 
-/** Navegação principal para fundo escuro, com a página atual marcada por `aria-current`. */
+/** Navegação principal para fundo claro, com a página atual marcada por `aria-current`. */
 export function MainNav({
   items,
   label = 'Principal',
@@ -39,9 +39,9 @@ export function MainNav({
               onClick={onNavigate}
               aria-current={isActive(pathname, item.href) ? 'page' : undefined}
               className={cn(
-                'relative inline-flex min-h-11 items-center text-sm font-medium text-fg-inverse/80 transition-colors duration-150 ease-standard hover:text-fg-inverse aria-[current=page]:text-fg-inverse',
+                'relative inline-flex min-h-11 items-center text-sm font-medium text-fg-muted transition-colors duration-150 ease-standard hover:text-fg aria-[current=page]:text-fg',
                 vertical
-                  ? 'w-full rounded-md px-3 hover:bg-fg-inverse/10 aria-[current=page]:bg-fg-inverse/10'
+                  ? 'w-full rounded-md px-3 hover:bg-subtle aria-[current=page]:bg-subtle'
                   : 'after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent after:opacity-0 aria-[current=page]:after:opacity-100',
               )}
             >

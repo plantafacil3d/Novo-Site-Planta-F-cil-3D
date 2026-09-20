@@ -23,8 +23,8 @@ Leia só o que a tarefa exige:
 ## 1. Tokens em três níveis
 
 ```text
-Primitivo   → valor bruto            green-700: #1f6b3f
-Semântico   → propósito              color-primary: var(--green-700)
+Primitivo   → valor bruto            green-500: #22c55e
+Semântico   → propósito              color-accent: var(--green-500)
 Componente  → só quando necessário   button-primary-bg: var(--color-primary)
 ```
 
@@ -60,7 +60,7 @@ O projeto é escalável: à medida que cresce, surgem variações (novo tamanho,
 
 Resumo; o detalhe está em `references/ux-rules.md`.
 
-* Uma ação principal por tela, visualmente dominante (verde sólido).
+* Uma ação principal por tela, visualmente dominante (preto sólido; verde vivo sobre fundo escuro).
 * Toda tela de dados tem estados de **loading, vazio e erro**, usando os componentes padrão.
 * Foco visível, contraste AA e alvos de toque ≥ 44px são obrigatórios.
 * Mobile-first: projete do celular para o desktop.
