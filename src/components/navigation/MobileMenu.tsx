@@ -1,0 +1,59 @@
+'use client'
+
+import { useEffect, useId, useState } from 'react'
+
+import { Button } from '../ui/Button'
+import { Icon } from '../ui/Icon'
+import { MainNav, type NavItem } from './MainNav'
+
+type MobileMenuProps = {
+  items: NavItem[]
+  cta: NavItem
+}
+
+/** Menu recolhível para telas < lg. O painel abre logo abaixo do header (que é `relative`). */
+export function MobileMenu({ items, cta }: MobileMenuProps) {
+  const [open, setOpen] = useState(false)
+  const panelId = useId()
+
+  useEffect(() => {
+    if (!open) return
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('keydown', closeOnEscape)
+    return () => document.removeEventListener('keydown', closeOnEscape)
+  }, [open])
+
+  return (
+    <div className="lg:hidden">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        aria-label={open ? 'Fechar menu' : 'Abrir menu'}
+        onClick={() => setOpen((value) => !value)}
+        className="inline-flex size-11 items-center justify-center rounded-md text-fg-inverse transition-colors duration-150 ease-standard hover:bg-fg-inverse/10"
+      >
+        <Icon name={open ? 'close' : 'menu'} className="size-6" />
+      </button>
+
+      {open && (
+        <div
+          id={panelId}
+          className="absolute inset-x-0 top-full z-40 flex flex-col gap-4 border-t border-fg-inverse/10 bg-inverse px-4 py-4 shadow-md"
+        >
+          <MainNav
+            items={items}
+            label="Menu"
+            orientation="vertical"
+            onNavigate={() => setOpen(false)}
+          />
+          <Button href={cta.href} onClick={() => setOpen(false)}>
+            {cta.label}
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+}

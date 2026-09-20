@@ -10,6 +10,10 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  images: {
+    // Temporário: fotos de exemplo. Remover quando as imagens reais estiverem em public/.
+    remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }],
+  },
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }]
   },
