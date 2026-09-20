@@ -1,14 +1,14 @@
 'use client'
 
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useState, type ReactNode } from 'react'
 
-import { Button } from '../ui/Button'
 import { Icon } from '../ui/Icon'
 import { MainNav, type NavItem } from './MainNav'
 
 type MobileMenuProps = {
   items: NavItem[]
-  cta: NavItem
+  /** Botão de conta pronto; o clique nele fecha o menu. */
+  cta: ReactNode
 }
 
 /** Menu recolhível para telas < lg. O painel abre logo abaixo do header (que é `relative`). */
@@ -49,9 +49,9 @@ export function MobileMenu({ items, cta }: MobileMenuProps) {
             orientation="vertical"
             onNavigate={() => setOpen(false)}
           />
-          <Button href={cta.href} onClick={() => setOpen(false)}>
-            {cta.label}
-          </Button>
+          <div className="flex flex-col" onClick={() => setOpen(false)}>
+            {cta}
+          </div>
         </div>
       )}
     </div>

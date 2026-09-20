@@ -1,16 +1,17 @@
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 
 import { MainNav, type NavItem } from '../navigation/MainNav'
 import { MobileMenu } from '../navigation/MobileMenu'
 import { Logo } from '../shared/Logo'
-import { Button } from '../ui/Button'
 import { Icon, type IconName } from '../ui/Icon'
 
 type HeaderProps = {
   nome: string
   tagline?: string
   items: NavItem[]
-  cta: NavItem
+  /** Botão de conta (Minha conta/Painel). Vem pronto de quem monta o cabeçalho; aqui só é posicionado. */
+  conta: (variante: 'icone' | 'texto', className?: string) => ReactNode
   /** Quantidade no carrinho; o carrinho ainda não existe, então o padrão é 0. */
   carrinhoQuantidade?: number
 }
@@ -18,7 +19,7 @@ type HeaderProps = {
 const actionLink =
   'relative inline-flex size-11 items-center justify-center rounded-md text-fg transition-colors duration-150 ease-standard hover:bg-subtle'
 
-export function Header({ nome, tagline, items, cta, carrinhoQuantidade = 0 }: HeaderProps) {
+export function Header({ nome, tagline, items, conta, carrinhoQuantidade = 0 }: HeaderProps) {
   const actions: { href: string; label: string; icon: IconName }[] = [
     { href: '/projetos', label: 'Buscar projetos', icon: 'search' },
     { href: '/favoritos', label: 'Lista de desejos', icon: 'heart' },
@@ -57,10 +58,8 @@ export function Header({ nome, tagline, items, cta, carrinhoQuantidade = 0 }: He
               {carrinhoQuantidade}
             </span>
           </Link>
-          <Button href={cta.href} className="ml-2 hidden sm:inline-flex lg:ml-4">
-            {cta.label}
-          </Button>
-          <MobileMenu items={items} cta={cta} />
+          {conta('icone', actionLink)}
+          <MobileMenu items={items} cta={conta('texto')} />
         </div>
       </div>
     </header>

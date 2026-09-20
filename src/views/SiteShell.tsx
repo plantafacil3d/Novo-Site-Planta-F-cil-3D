@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { SkipLink } from '@/components/navigation/SkipLink'
+import { BotaoConta } from '@/features/conta'
 import {
   navegacaoPrincipal,
   navegacaoRodape,
@@ -20,7 +21,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
         nome={siteConfig.nome}
         tagline={siteConfig.tagline}
         items={navegacaoPrincipal}
-        cta={{ label: 'Entrar / Cadastrar', href: '/entrar' }}
+        conta={(variante, className) => <BotaoConta variante={variante} className={className} />}
       />
       <main id="conteudo">{children}</main>
       <Footer

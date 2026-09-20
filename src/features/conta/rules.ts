@@ -14,3 +14,14 @@ export function mensagemErroLogin(chave: string | undefined): string | undefined
     ? mensagensErroLogin[chave as keyof typeof mensagensErroLogin]
     : undefined
 }
+
+/** Botão de conta do cabeçalho: `null` = ainda não sabemos (ou sem sessão) → "Minha conta". */
+export function acaoDaConta(ehAdmin: boolean | null): {
+  label: string
+  href: string
+  icone: 'user' | 'dashboard'
+} {
+  return ehAdmin
+    ? { label: 'Painel', href: destinoAposEntrar(true), icone: 'dashboard' }
+    : { label: 'Minha conta', href: '/entrar', icone: 'user' }
+}
