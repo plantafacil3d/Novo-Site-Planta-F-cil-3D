@@ -82,10 +82,10 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
             <FavoriteButton variant="button" label="Adicionar aos favoritos" />
           </div>
 
-          <ul className="grid gap-3 border-t border-border pt-4 sm:grid-cols-3 xl:grid-cols-1">
+          <ul className="grid gap-3 border-t border-border pt-4 sm:grid-cols-3">
             {selosDeConfianca.map((selo) => (
               <li key={selo.title}>
-                <FeatureItem {...selo} />
+                <FeatureItem layout="stack" className="max-sm:flex-row max-sm:gap-3" {...selo} />
               </li>
             ))}
           </ul>
