@@ -79,3 +79,9 @@ Formato: `AAAA-MM-DD · o quê · por quê`
 * `--color-success` separado do verde dos botões (novo primitivo `--success-600`).
 * Espaçamento: adotada a escala padrão do Tailwind (removidos os `--space-*`).
 * Fontes definidas: Poppins (títulos) + Inter (texto).
+
+## 2026-09-20 (painel do administrador)
+
+* Novos componentes: `Table` e `SidebarNav`. Variantes novas do `Badge` (`success`, `draft`), prop `hideLabel` no `Checkbox` e `defaultValue` no `SearchBar`. Ícones novos: copy, dashboard, file-pen, folder, chart, log-out.
+* Nenhum token novo: os tokens de badge e de notificação que já existiam cobriram o painel.
+* Layout do painel separado do site (route groups `(site)` e `admin`), porque o painel usa menu lateral e não tem cabeçalho nem rodapé públicos.

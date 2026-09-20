@@ -11,9 +11,17 @@ type SearchBarProps = {
   /** Rótulo para leitores de tela (o placeholder não substitui rótulo). */
   label: string
   name?: string
+  /** Texto já digitado (ex.: a busca atual da URL). Dê uma `key` que mude com ele. */
+  defaultValue?: string
 }
 
-export function SearchBar({ action, placeholder, label, name = 'q' }: SearchBarProps) {
+export function SearchBar({
+  action,
+  placeholder,
+  label,
+  name = 'q',
+  defaultValue,
+}: SearchBarProps) {
   const inputId = useId()
 
   return (
@@ -35,6 +43,7 @@ export function SearchBar({ action, placeholder, label, name = 'q' }: SearchBarP
           id={inputId}
           name={name}
           type="search"
+          defaultValue={defaultValue}
           placeholder={placeholder}
           className="border-transparent pl-10"
         />

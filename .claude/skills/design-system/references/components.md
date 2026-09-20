@@ -37,8 +37,8 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 
 ### Badge
 * **Propósito:** selo sobre a imagem (Mais vendido, Lançamento).
-* **Variantes:** `solid` (preto), `accent` (verde vivo, texto preto).
-* **Tokens:** `--color-primary`, `--color-accent`, `--radius-sm`, `--text-xs`.
+* **Variantes:** `solid` (preto), `accent` (verde vivo, texto preto), `success` (verde suave, para status como Publicado) e `draft` (cinza com borda, para Rascunho). As duas últimas nasceram no painel do administrador.
+* **Tokens:** `--color-primary`, `--color-accent`, `--color-badge-success-*`, `--color-badge-draft-*`, `--color-draft-border`, `--radius-sm`, `--text-xs`.
 
 ### Eyebrow
 * **Propósito:** rótulo em caixa alta acima de títulos (hero e banners). Cor `--color-accent`, só para fundo escuro.
@@ -63,6 +63,12 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ### Checkbox
 * **Propósito:** caixa de marcação com rótulo (`label`); a linha inteira é clicável e tem 44px de altura. Usa `accent-primary` (a caixa nativa, com a cor da marca).
 * **Estados:** repouso, foco, marcado, disabled.
+* **`hideLabel`:** esconde o texto (fica só para leitor de tela); a caixa mantém 44px de toque. Usado nas caixas de seleção das tabelas.
+
+### Table
+* **Propósito:** tabela de dados (`Table`, `TableHead`, `TableBody`, `TableRow`, `TableHeaderCell`, `TableCell`). `caption` obrigatório (nome para leitor de tela). Em tela estreita rola na horizontal dentro da moldura, nunca a página.
+* **Estados:** `TableRow` com `data-selected="true"` ganha fundo `--color-tint`.
+* **Tokens:** `--color-surface`, `--color-subtle`, `--color-border`, `--color-fg-muted`, `--radius-lg`.
 
 ### Skeleton
 * **Propósito:** bloco pulsante no lugar do conteúdo enquanto carrega (`aria-hidden`; quem o usa avisa "Carregando…" para leitor de tela). Dê a forma com `className` (`h-5 w-3/4`, `aspect-4/3`). Respeita `prefers-reduced-motion`.
@@ -75,6 +81,9 @@ Logo, navegação principal, ícones de busca/favoritos/carrinho (links com `ari
 
 ### MainNav e MobileMenu (`navigation/`)
 Ambos `'use client'`. `MainNav` renderiza os links e marca a página atual com `aria-current` (sublinhado `--color-accent` no horizontal). `MobileMenu` é o hambúrguer com painel (`aria-expanded`, fecha com Esc e ao navegar).
+
+### SidebarNav (`navigation/`)
+`'use client'`. Menu lateral para fundo escuro (painel do administrador). No celular é uma faixa horizontal rolável; a partir de `lg`, uma coluna. Recebe `items: { label, icon, href? }[]`: sem `href` o item é estático (`aria-disabled`, texto "Em breve"). Página atual com `aria-current` e fundo `--color-fg-inverse` a 15%. Tokens: `--color-fg-inverse`, `--radius-md`.
 
 ### SkipLink (`navigation/`)
 Primeiro item da tab; leva ao conteúdo principal e só aparece com foco.
@@ -100,7 +109,7 @@ Container de seção: título (h2), subtítulo, link "Ver todos" e conteúdo. Va
 Ícone de casa + nome + tagline. Prop `tone`: `inverse` (padrão, para fundo escuro) ou `default` (fundo claro, usado no Header e no Footer). **Provisório** até existir o arquivo oficial do logotipo.
 
 ### SearchBar
-`<form role="search" method="get">` com Input + Button `primary` + ícone; funciona sem JavaScript. Rótulo `sr-only` (a referência visual só mostra placeholder).
+`<form role="search" method="get">` com Input + Button `primary` + ícone; funciona sem JavaScript. Rótulo `sr-only` (a referência visual só mostra placeholder). `defaultValue` opcional preenche o campo com a busca atual da URL (dê uma `key` que mude com ela).
 
 ### ProjectCard
 Card de projeto (ver `ux-rules.md`). Puramente visual: recebe textos e preço já formatados (a montagem fica em `features/projetos/components/ProjetosDestaque`). Compõe Badge, FavoriteButton, lista de especificações (ícone + texto) e Button. O card inteiro é um único link (botão "Ver detalhes" esticado); o coração fica acima. **Se ganhar regra de domínio, mova para `features/projetos/components/`.**
@@ -128,6 +137,9 @@ Algo falhou: `role="alert"`, ícone, título, texto simples (nunca detalhe técn
 
 ### CTABanner
 Faixa de chamada para ação. Variantes: `inverse` (imagem à esquerda + painel escuro com rótulo, título, texto e botão), `brand` (faixa `--color-inverse` com ícone de casa e botão WhatsApp, sem imagem) e `card` (cartão escuro arredondado dentro da largura da página, imagem ao fundo à direita, rótulo, título, texto, **preço** com condição e botão; usado no "Gostou deste projeto?"). O botão vem da prop `action.variant`: padrão `accent` no `inverse` e `card` e `whatsapp` no `brand` (o preto sumiria sobre o fundo escuro); aceita também `secondary-inverse`. No `card`, `action.iconLeft="cart"` põe o carrinho no botão.
+
+### FormularioLogin
+`'use client'`. E-mail e senha com botão Entrar. Recebe `action` (a ação do servidor que faz o login, passada por quem usa), então serve ao site (`/entrar`) e ao painel (`/admin/entrar`). Erro único e genérico, ligado por `aria-describedby`. `/entrar` o coloca dentro de `Tabs` (Entrar / Cadastrar).
 
 ### CheckList
 Lista com marcador de check: círculo `--color-accent` (só preenchimento) com o check em `--color-fg`. Usada em "Sobre o projeto", "Importante saber" e no resumo do que está incluso.
@@ -164,6 +176,14 @@ Ficam na feature porque conhecem o `ProjetoDetalhe`; a tela é montada em `views
 * `FiltrosAplicados`: os filtros ativos como `Chip` removível, mais "Limpar tudo"; some quando não há filtro.
 * `ProjetosSkeleton`: uma página de cards em branco (12), para a tela não pular enquanto carrega.
 * `EspecificacoesTecnicas`, `SobreProjeto`, `IncluidoNoProjeto`, `GaleriaCompleta`, `CaracteristicasAmbientes`, `PerfilProjeto`, `PerguntasFrequentes`, `ProjetosRelacionados` (reaproveita o `ProjectCard` da home, com selo "Similar").
+
+## Painel do administrador (`features/admin/components/`)
+
+Painel em `/admin` (layout próprio, fora do `SiteShell`; a tela é montada em `views/admin/`). Reaproveita `Table`, `Badge`, `Checkbox`, `SearchBar`, `Pagination`, `EmptyState`, `ErrorState` e `Skeleton`.
+
+* `TabelaProjetosAdmin`: `'use client'`. Tabela com seleção por linha e "selecionar todos" da página, barra de ações em massa (Duplicar, Mover para rascunho) e aviso de sucesso/erro com os tokens `--color-notification-*`. Quem usa dá uma `key` que muda a cada busca/página.
+* `ProjetosAdminSkeleton`: tabela em branco enquanto carrega.
+* Menu do painel: Dashboard, Projetos, Vendas e Analytics; só Projetos é link. O botão "Cadastrar Projeto" é o `Button` primário, desabilitado (só visual).
 
 ## Registro
 
