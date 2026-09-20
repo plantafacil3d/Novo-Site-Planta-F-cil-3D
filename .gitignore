@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# ambiente: versione só o .env.example
+.env*
+!.env.example
+
+.DS_Store
+npm-debug.log*

@@ -1,0 +1,34 @@
+/* Escaneia só src/: evita gerar classes a partir de docs e skills. */
+@import 'tailwindcss' source(none);
+@source '../';
+
+@import './tokens.css';
+
+@layer base {
+  body {
+    @apply bg-page font-body text-base text-fg antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading font-bold;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

@@ -96,6 +96,6 @@ Com ESLint `no-restricted-imports` (ou `eslint-plugin-boundaries` / `dependency-
 * `components/**` não importa `features/`.
 * Biblioteca de UI de terceiros (se houver) só é importada em `src/components/ui/**`.
 
-Estilização (Tailwind, CSS Modules, biblioteca de componentes) ainda não definida: registre aqui quando escolher.
+Estilização: **Tailwind v4** (config em CSS, tokens em `src/styles/tokens.css`), variantes com `class-variance-authority` e junção de classes com `clsx` + `tailwind-merge`. Prettier com `prettier-plugin-tailwindcss` ordena as classes.
 
 Dentro de uma feature, use imports relativos.

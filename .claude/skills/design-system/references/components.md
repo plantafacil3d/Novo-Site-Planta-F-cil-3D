@@ -10,17 +10,17 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 * **Propósito:** disparar ação.
 * **Variantes:** `primary` (verde sólido), `secondary` (contorno), `ghost` (texto), `whatsapp` (verde, com ícone). Tamanhos: `md` (padrão), `lg`. Aceita ícone à direita.
 * **Estados:** repouso, hover, foco, ativo, disabled, loading.
-* **Tokens:** `--color-action-primary(-hover)`, `--color-text-inverse`, `--radius-md`, `--space-3/4`, `--color-focus-ring`.
+* **Tokens:** `--color-primary(-hover)`, `--color-fg-inverse`, `--radius-md`, `px-4 py-3`, `--color-ring`.
 
 ### Badge
 * **Propósito:** selo sobre a imagem (Mais vendido, Lançamento).
 * **Variantes:** `solid` (verde), `accent` (lima).
-* **Tokens:** `--color-action-primary`, `--color-accent`, `--radius-sm`, `--text-xs`.
+* **Tokens:** `--color-primary`, `--color-accent`, `--radius-sm`, `--text-xs`.
 
 ### Chip
 * **Propósito:** categoria ou filtro selecionável.
 * **Estados:** repouso, hover, selecionado, foco.
-* **Tokens:** `--color-bg-tint`, `--color-border`, `--radius-lg`.
+* **Tokens:** `--color-tint`, `--color-border`, `--radius-lg`.
 
 ### Input / SearchBar
 * **Propósito:** campo de texto; `SearchBar` compõe Input + Button `primary` + ícone.
@@ -33,10 +33,10 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ## Layout e navegação (`components/layout/`, `components/navigation/`)
 
 ### Header
-Logo, navegação principal, busca/favoritos/carrinho, botão "Entrar / Cadastrar". Fundo `--color-bg-inverse`. Recolhe em menu no mobile.
+Logo, navegação principal, busca/favoritos/carrinho, botão "Entrar / Cadastrar". Fundo `--color-inverse`. Recolhe em menu no mobile.
 
 ### Footer
-Logo, links de navegação, redes sociais, direitos. Fundo `--color-bg-inverse-strong`.
+Logo, links de navegação, redes sociais, direitos. Fundo `--color-inverse-strong`.
 
 ### Section
 Container de seção: título, subtítulo, link "Ver todos" e conteúdo. Variantes de fundo: `page`, `subtle`, `tint`, `inverse`.
@@ -47,7 +47,7 @@ Container de seção: título, subtítulo, link "Ver todos" e conteúdo. Variant
 Card de projeto (ver `ux-rules.md`). Compõe Badge, ícone de favorito, lista de atributos e Button. **Se ganhar regra de domínio, mova para `features/projetos/components/`.**
 
 ### CategoryTile
-Ícone + rótulo em bloco clicável, fundo `--color-bg-tint`. Usa Chip como base de estados.
+Ícone + rótulo em bloco clicável, fundo `--color-tint`. Usa Chip como base de estados.
 
 ### FeatureItem
 Ícone + título + descrição curta (bloco "Por que escolher").

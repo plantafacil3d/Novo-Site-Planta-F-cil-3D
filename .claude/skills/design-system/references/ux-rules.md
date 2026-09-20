@@ -4,7 +4,7 @@ Específicas do site de venda de projetos arquitetônicos prontos (plantas, fach
 
 ## Hierarquia e ação principal
 
-* Uma ação principal por tela, em verde sólido (`--color-action-primary`). Ações secundárias usam contorno ou texto.
+* Uma ação principal por tela, em verde sólido (`--color-primary`). Ações secundárias usam contorno ou texto.
 * Home: a **busca** é a ação principal do hero. Em seguida: categorias, destaques, confiança, complementares, CTA final.
 * Página de projeto: preço e botão de compra visíveis sem rolar em desktop; fixos na base no mobile.
 * Títulos de seção seguidos de subtítulo curto e link "Ver todos" à direita.

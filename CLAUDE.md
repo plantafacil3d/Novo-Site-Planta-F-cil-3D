@@ -8,4 +8,9 @@ Antes de qualquer tarefa de código, leia as skills em `.claude/skills/`:
 
 Siga os checklists de cada skill e mostre a árvore de arquivos antes de mudanças estruturais.
 
-As cópias em `skills/`, `arquitetura/` e `design-system/` na raiz são para outras IAs (ex.: Gemini). A versão canônica para o Claude é a de `.claude/skills/`; ao alterar uma, mantenha as duas em sincronia.
+## Comandos
+
+* `npm run dev`: desenvolvimento · `npm run build`: build de produção
+* `npm run lint` · `npm run typecheck` · `npm run format`
+
+Antes de dar uma tarefa por concluída, rode `lint`, `typecheck` e, se mexeu em rotas ou config, `build`.

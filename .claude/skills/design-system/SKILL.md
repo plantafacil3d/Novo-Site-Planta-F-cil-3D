@@ -15,7 +15,7 @@ Objetivo: interface consistente, acessível e **evolutiva**: o sistema cresce a 
 
 Leia só o que a tarefa exige:
 
-* `references/tokens.md`: paleta, tipografia, espaçamento, raios, sombras, estados e o CSS dos tokens.
+* `references/tokens.md`: paleta, tipografia, espaçamento, raios, sombras, estados e como usar os tokens no Tailwind (os valores ficam em `src/styles/tokens.css`).
 * `references/ux-rules.md`: hierarquia, padrões de tela, estados, acessibilidade e responsivo.
 * `references/components.md`: catálogo de componentes (propósito, variantes, estados, tokens usados).
 * `changelog.md`: histórico de decisões e mudanças.
@@ -24,8 +24,8 @@ Leia só o que a tarefa exige:
 
 ```text
 Primitivo   → valor bruto            green-700: #1f6b3f
-Semântico   → propósito              color-action-primary: var(--green-700)
-Componente  → só quando necessário   button-primary-bg: var(--color-action-primary)
+Semântico   → propósito              color-primary: var(--green-700)
+Componente  → só quando necessário   button-primary-bg: var(--color-primary)
 ```
 
 * **Componentes usam só tokens semânticos.** Nunca hex, px ou sombra soltos.
@@ -60,7 +60,7 @@ Resumo; o detalhe está em `references/ux-rules.md`.
 ## 4. Integração com a arquitetura
 
 * Tokens vivem em `src/styles/`; primitivos de UI em `src/components/ui/`.
-* Estilização (Tailwind, CSS Modules...) ainda não foi escolhida. Os tokens são **CSS variables**, que funcionam com qualquer uma. Quando escolher, registre em `../arquitetura/references/stack.md` e mapeie os tokens (ex.: `tailwind.config`) sem duplicar valores.
+* Estilização: **Tailwind v4**. Os tokens vivem em `src/styles/tokens.css` (`@theme`) e viram utilitários (`bg-primary`); variantes com `cva`, junção de classes com `cn`. Não há `tailwind.config`.
 * Componentes de `ui/` são de apresentação: props entram, callbacks saem.
 
 ## Checklist
