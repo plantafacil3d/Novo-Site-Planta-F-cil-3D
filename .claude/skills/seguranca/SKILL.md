@@ -88,7 +88,15 @@ Front → Service → Edge Function → Serviço externo
 * SQL sempre parametrizado.
 * Não expor stack trace, tokens ou detalhes internos ao usuário.
 
-## 9. HTTPS e navegador
+## 8.1 Consultas e volume
+
+Uma consulta sem limite também é um risco de segurança: quem pede "tudo" (ou uma página gigante) pode derrubar o banco e o site. Organização da paginação em `arquitetura` §3.1.
+
+* Página, tamanho, busca, filtro e ordenação vêm da URL e são não confiáveis. Valide com Zod no servidor: `pagina` inteiro ≥ 1; `porPagina` com **teto fixo** (ex.: 48); texto de busca com tamanho máximo (ex.: 100).
+* O teto vale no servidor/repository, não só na tela. Sem página ou tamanho válidos, use o padrão em vez de erro.
+* Ordenação e filtro só por campos de uma lista permitida; nunca aceite nome de coluna vindo do cliente.
+* Texto do usuário não vira filtro montado à mão (ex.: `.or()` do Supabase com o texto concatenado): use os métodos parametrizados.
+* Vale igual para o painel administrativo, que também exige autenticação e autorização (§5).
 
 * Usar HTTPS.
 * Configurar cabeçalhos de segurança em `headers()` do `next.config.ts`: CSP, HSTS, `X-Content-Type-Options` e `Referrer-Policy`. Modelo em `stack.md`.
@@ -126,6 +134,7 @@ Também testar RLS, Storage, rotas e Edge Functions quando existirem.
 * [ ] Recursos protegidos contra acesso por outro usuário?
 * [ ] Storage protegido?
 * [ ] Entradas e uploads validados?
+* [ ] Listagens com teto de itens por página e parâmetros validados no servidor?
 * [ ] Integrações com segredo protegidas?
 * [ ] HTTPS e cabeçalhos adequados?
 * [ ] Cenários permitidos e negados testados?

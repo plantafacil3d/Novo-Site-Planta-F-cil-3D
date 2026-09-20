@@ -99,6 +99,19 @@ export const <dominio>Repository: <Dominio>Repository = new Supabase<Dominio>Rep
 * Não grave no banco identificadores presos ao fornecedor (URL do Supabase, ID proprietário). Grave chaves neutras, como o path do arquivo. O adapter resolve a URL.
 * Regra de negócio fica no código da feature, não em funções proprietárias do backend.
 
+## 3.1 Listas e volume de dados
+
+Pense no pior caso: 10 mil projetos no banco. Nenhuma tela pode depender de a lista ser pequena. Buscar mais dados do que a tela mostra (*overfetching*) sobrecarrega banco, rede e navegador.
+
+* **Nunca busque "tudo".** Toda listagem que pode crescer (projetos, complementares, interiores, favoritos, pedidos, painel do admin) é **paginada no servidor**. O contrato do repository recebe página e tamanho e devolve `Pagina<T>` = `{ itens, total, pagina, porPagina }` (tipo global em `types/`, criado junto da primeira listagem paginada).
+* **Busca, filtro e ordenação rodam no banco**, dentro do repository. Baixar a lista e filtrar no navegador é proibido.
+* **Só o que a tela usa:** a lista devolve o resumo do item (o que o card mostra, ex.: `ProjetoResumo`); o detalhe completo só na página do item. Sem `select *`.
+* **Tamanho da página** tem padrão (12 em grades de cards, 20 em tabelas do admin) e teto, definidos no repository. O teto e a validação dos parâmetros estão em `seguranca` §8.1.
+* **Estado na URL** (`?pagina=2&q=casa&quartos=3`): o Server Component lê os `searchParams` e chama o loader da feature. Assim o botão "voltar" funciona, o link é compartilhável e o Google enxerga as páginas.
+* **Busca ao vivo** (resultados enquanto digita, autocomplete): use *debounce* (esperar ~300 ms depois da última tecla, mínimo de 2 letras) e coloque o texto na chave do TanStack Query, para descartar resposta antiga. Formulário com botão "Buscar" (`SearchBar`) não precisa.
+* **Índices:** coluna usada para buscar, filtrar ou ordenar ganha índice na migration. Detalhes do Supabase em `references/stack.md`.
+* **Exceção:** listas curtas e de tamanho fixo (selos, FAQ, relacionados, destaques) não têm paginação, mas o repository ainda define a quantidade máxima.
+
 ## 4. Componentes de UI
 
 Do mais genérico ao mais específico: `components/ui/` (primitivos: Button, Input, Modal) → `layout/` e `navigation/` → `shared/` (composições sem domínio) → `features/<x>/components/` (UI do domínio).
@@ -156,6 +169,7 @@ features/<dominio>/
 * Já existe algo que resolva? Reutilizei?
 * Usei os componentes de `ui/` em vez de criar CSS ou botão novo?
 * A infraestrutura está atrás de um contrato?
+* A listagem pode crescer? Está paginada no servidor, com busca e filtro no banco?
 * A regra existe em um único lugar?
 * Evitei nomes como `utils2`, `helpers-final`, `service-new`, `temp`, `mockFinal`?
 

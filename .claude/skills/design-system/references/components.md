@@ -128,6 +128,8 @@ Injeta dados estruturados (schema.org) para o Google. Escapa o `<` para o conte�
 
 Pagination, Toast, Select, Checkbox, Chip, Skeleton/EmptyState/ErrorState.
 
+`Pagination` é obrigatório na primeira tela de listagem (`/projetos`); o comportamento já está definido em `ux-rules.md` (Listas e paginação). Nasce em `navigation/`, como componente de apresentação (props: página atual, total de páginas, função que monta o link).
+
 ## Componentes de domínio (`features/projetos/components/`)
 
 Ficam na feature porque conhecem o `ProjetoDetalhe`; a tela é montada em `views/ProjetoView.tsx`. Reaproveitam os componentes acima; nenhum tem estilo próprio fora dos tokens.

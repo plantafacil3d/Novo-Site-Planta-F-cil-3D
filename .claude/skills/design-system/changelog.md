@@ -4,6 +4,13 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-20 (paginação e volume de dados)
+
+* Regra nova em `ux-rules.md` (Listas e paginação): nenhuma lista que pode crescer aparece inteira; catálogo com páginas numeradas e número na URL, 12 cards por página em grade e 20 linhas em tabela do admin.
+* `Pagination` continua no backlog, mas agora é obrigatório na primeira listagem (`/projetos`). Sem token novo.
+* Por quê: o site é um marketplace e pode chegar a milhares de projetos. Buscar tudo de uma vez sobrecarregaria banco, rede e navegador, e o painel do admin sofre o mesmo. Melhor definir a regra antes de ligar o banco. As regras de dados estão em `arquitetura` §3.1 e os limites de segurança em `seguranca` §8.1.
+* Decisão: "Carregar mais" só em listas privadas e curtas; no catálogo público, páginas numeradas, por serem melhores para o Google e para o botão "voltar".
+
 ## 2026-09-20 (página do projeto)
 
 * Primeira leva de componentes para a página `/projetos/[slug]`: `IconButton`, `Modal`, `Accordion` (ui); `Breadcrumb`, `Tabs` (navigation); `MediaGallery`, `Lightbox`, `Carousel`, `VideoBanner`, `CheckList`, `JsonLd` (shared). Saem do backlog: Modal, Tabs, Breadcrumb e Carrossel/Galeria. Detalhes em `components.md`.

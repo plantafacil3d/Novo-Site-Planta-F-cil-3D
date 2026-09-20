@@ -37,6 +37,16 @@ Motivo da escolha: o site precisa ser encontrado no Google. O conteúdo público
 * Chave pública (`anon`/publishable) no navegador. `service_role` só no servidor, em variável **sem** prefixo `NEXT_PUBLIC_`, e somente onde for indispensável.
 * Prefira lógica no código da feature. RPC, function ou trigger só para integridade ou atomicidade, e documente o motivo.
 
+### Listas grandes
+
+Regra geral em `SKILL.md` §3.1. No adapter Supabase:
+
+* Pagine com `.range(de, ate)` e peça o total com `{ count: 'exact' }` na mesma consulta.
+* Selecione só as colunas do resumo (`.select('id, slug, titulo, ...')`), nunca `select('*')`.
+* Ordene sempre por um campo estável **mais o `id`**; sem isso, itens podem repetir ou sumir entre uma página e outra.
+* Busca de texto com `ilike '%termo%'` fica lenta em tabela grande: crie índice (`pg_trgm`) ou use busca de texto do Postgres (`to_tsvector`), na migration.
+* Por ora, paginação por página (offset). Se uma lista passar de algumas dezenas de milhares e as páginas finais ficarem lentas, migrar essa lista para paginação por cursor (o contrato `Pagina<T>` permite trocar sem mexer nas telas).
+
 ### Storage
 
 * Contrato `FileStorage` em `services/storage/` (enviar, remover, resolver URL) + adapter `SupabaseFileStorage`.

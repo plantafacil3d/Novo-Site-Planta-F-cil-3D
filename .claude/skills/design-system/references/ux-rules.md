@@ -35,6 +35,19 @@ Sempre exibe, nesta ordem: imagem, selo (Mais vendido, Lançamento), título, me
 * Erro ao lado do campo, ligado por `aria-describedby`; valide ao sair do campo, não a cada tecla.
 * Busca: aceite tipo, metragem e nº de quartos; mostre quantidade de resultados; filtros aplicados visíveis e removíveis.
 
+## Listas e paginação
+
+Regra de dados em `arquitetura` §3.1. Nenhuma lista que pode crescer aparece inteira.
+
+* **Catálogo (projetos, complementares, interiores):** páginas numeradas, com o número na URL (`?pagina=2`). 12 cards por página em grade, que fecha certo em 1, 2, 3 e 4 colunas.
+* **Barra de paginação:** "Anterior", números com reticências (1 … 4 5 6 … 40) e "Próxima". Fica em `<nav aria-label="Paginação">`, a página atual com `aria-current="page"`, e alvos ≥ 44px. Botões sem destino ficam desabilitados.
+* **Contagem visível:** "Mostrando 13–24 de 480 projetos", junto da busca e dos filtros.
+* **Ao trocar de página**, volte ao topo da lista e mova o foco para o título dela.
+* **Loading:** skeleton com a mesma quantidade de cards da página, para o layout não pular. **Vazio e erro:** componentes padrão (Estados).
+* **"Carregar mais"** só em listas privadas e curtas (ex.: favoritos), nunca no catálogo público (não é indexável e quebra o botão "voltar").
+* **Tabelas do admin:** 20 linhas por página, mesma barra de paginação.
+* **Busca ao vivo:** espere o usuário parar de digitar (debounce), mostre um indicador discreto de "buscando" e a contagem de resultados. Mudar busca ou filtro volta para a página 1.
+
 ## Acessibilidade (obrigatório)
 
 * Contraste AA: 4.5:1 para texto normal, 3:1 para texto grande e componentes.
