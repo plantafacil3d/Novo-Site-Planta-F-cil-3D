@@ -16,6 +16,20 @@
     @apply font-heading font-bold;
   }
 
+  /* O Tailwind zera o cursor dos botões (seta). Aqui todo elemento clicável mostra a mãozinha. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  summary,
+  select:not(:disabled),
+  input:is([type='checkbox'], [type='radio'], [type='submit']):not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* "X" que o navegador desenha dentro do campo de busca. */
+  input[type='search']::-webkit-search-cancel-button {
+    cursor: pointer;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;

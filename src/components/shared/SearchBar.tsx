@@ -1,4 +1,6 @@
-import { useId } from 'react'
+'use client'
+
+import { useEffect, useId, useRef } from 'react'
 
 import { Button } from '../ui/Button'
 import { Icon } from '../ui/Icon'
@@ -23,6 +25,27 @@ export function SearchBar({
   defaultValue,
 }: SearchBarProps) {
   const inputId = useId()
+  const campo = useRef<HTMLInputElement>(null)
+
+  // O "X" nativo do campo só apaga o texto e não envia o formulário. Se havia uma busca aplicada,
+  // enviamos o campo vazio para voltar à lista completa. Enter já envia sozinho (evita envio duplo).
+  useEffect(() => {
+    const input = campo.current
+    if (!input || !defaultValue) return
+    let apertouEnter = false
+    const aoTeclar = (evento: KeyboardEvent) => {
+      apertouEnter = evento.key === 'Enter'
+    }
+    const aoBuscar = () => {
+      if (input.value === '' && !apertouEnter) input.form?.requestSubmit()
+    }
+    input.addEventListener('keydown', aoTeclar)
+    input.addEventListener('search', aoBuscar)
+    return () => {
+      input.removeEventListener('keydown', aoTeclar)
+      input.removeEventListener('search', aoBuscar)
+    }
+  }, [defaultValue])
 
   return (
     <form
@@ -40,6 +63,7 @@ export function SearchBar({
           className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-fg"
         />
         <Input
+          ref={campo}
           id={inputId}
           name={name}
           type="search"
