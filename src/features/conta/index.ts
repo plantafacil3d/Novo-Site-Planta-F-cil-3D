@@ -1,3 +1,4 @@
-export { entrarNaConta } from './actions'
+export { entrarComGoogle, entrarNaConta } from './actions'
+export { concluirLoginGoogle } from './callback'
 export { levarLogadoParaDestino } from './queries'
-export { destinoAposEntrar } from './rules'
+export { destinoAposEntrar, mensagemErroLogin } from './rules'

@@ -30,6 +30,27 @@ export class SupabaseAuthService implements AuthService {
     return paraUsuarioLogado(supabase, data.user)
   }
 
+  async iniciarLoginGoogle(retornoUrl: string): Promise<string> {
+    const supabase = await criarClienteServidor()
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: retornoUrl },
+    })
+    if (error || !data.url) {
+      throw new AppError('falha_inesperada', 'Não foi possível entrar com o Google.')
+    }
+    return data.url
+  }
+
+  async concluirLoginGoogle(code: string): Promise<UsuarioLogado> {
+    const supabase = await criarClienteServidor()
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    if (error || !data.user) {
+      throw new AppError('credenciais_invalidas', 'Não foi possível entrar com o Google.')
+    }
+    return paraUsuarioLogado(supabase, data.user)
+  }
+
   async sair(): Promise<void> {
     const supabase = await criarClienteServidor()
     await supabase.auth.signOut()

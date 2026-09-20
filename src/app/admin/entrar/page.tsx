@@ -1,11 +1,16 @@
 import type { Metadata } from 'next'
 
-import { levarLogadoParaDestino } from '@/features/conta'
+import { levarLogadoParaDestino, mensagemErroLogin } from '@/features/conta'
 import { LoginAdminView } from '@/views/admin/LoginAdminView'
 
 export const metadata: Metadata = { title: 'Entrar' }
 
-export default async function EntrarPage() {
+export default async function EntrarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ erro?: string | string[] }>
+}) {
   await levarLogadoParaDestino()
-  return <LoginAdminView />
+  const { erro } = await searchParams
+  return <LoginAdminView erro={mensagemErroLogin(typeof erro === 'string' ? erro : undefined)} />
 }

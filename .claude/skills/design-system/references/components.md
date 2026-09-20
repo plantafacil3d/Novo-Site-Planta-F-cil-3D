@@ -141,6 +141,9 @@ Faixa de chamada para ação. Variantes: `inverse` (imagem à esquerda + painel 
 ### FormularioLogin
 `'use client'`. E-mail e senha com botão Entrar. Recebe `action` (a ação do servidor que faz o login, passada por quem usa), então serve ao site (`/entrar`) e ao painel (`/admin/entrar`). Erro único e genérico, ligado por `aria-describedby`. `/entrar` o coloca dentro de `Tabs` (Entrar / Cadastrar).
 
+### BotaoGoogle
+`'use client'`. Botão "Entrar com Google" (`Button` `secondary` com ícone `google`, largura total). Recebe `action` (ação do servidor que inicia o login, passada por quem usa) e vira um formulário; mostra `loading` enquanto vai ao Google. Usado no `/admin/entrar`, acima do formulário de e-mail e senha.
+
 ### CheckList
 Lista com marcador de check: círculo `--color-accent` (só preenchimento) com o check em `--color-fg`. Usada em "Sobre o projeto", "Importante saber" e no resumo do que está incluso.
 

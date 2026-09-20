@@ -8,6 +8,10 @@ export type UsuarioLogado = {
 export interface AuthService {
   /** Lança `AppError` (`credenciais_invalidas`) quando e-mail ou senha não conferem. */
   entrar(email: string, senha: string): Promise<UsuarioLogado>
+  /** Começa o login com Google. Devolve o endereço do Google para onde levar o navegador. */
+  iniciarLoginGoogle(retornoUrl: string): Promise<string>
+  /** Termina o login com Google trocando o `code` recebido por uma sessão. Lança `AppError` se falhar. */
+  concluirLoginGoogle(code: string): Promise<UsuarioLogado>
   sair(): Promise<void>
   /** `null` sem sessão válida. A sessão é conferida no servidor de autenticação, não só no cookie. */
   usuarioAtual(): Promise<UsuarioLogado | null>

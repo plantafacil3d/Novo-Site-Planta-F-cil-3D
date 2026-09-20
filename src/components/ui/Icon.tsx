@@ -58,7 +58,7 @@ import {
 import type { ComponentType, SVGProps } from 'react'
 
 import { cn } from './cn'
-import { Facebook, Instagram, WhatsApp, YouTube } from './icons/brand'
+import { Facebook, Google, Instagram, WhatsApp, YouTube } from './icons/brand'
 
 // Único ponto que conhece a biblioteca de ícones: trocar de biblioteca muda só este arquivo.
 const icons = {
@@ -118,6 +118,7 @@ const icons = {
   waves: Waves,
   close: X,
   facebook: Facebook,
+  google: Google,
   instagram: Instagram,
   whatsapp: WhatsApp,
   youtube: YouTube,

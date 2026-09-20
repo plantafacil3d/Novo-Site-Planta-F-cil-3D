@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 
 import type { EstadoFormularioLogin } from '@/components/shared/FormularioLogin'
+import { siteUrl } from '@/features/site'
 import { authService } from '@/services/auth'
 import { AppError } from '@/types/erro'
 
@@ -33,4 +34,14 @@ export async function entrarNaConta(
   }
 
   redirect(destinoAposEntrar(ehAdmin))
+}
+
+export async function entrarComGoogle(): Promise<void> {
+  let urlGoogle: string
+  try {
+    urlGoogle = await authService.iniciarLoginGoogle(`${siteUrl}/auth/callback`)
+  } catch {
+    redirect('/admin/entrar?erro=falha_login')
+  }
+  redirect(urlGoogle)
 }

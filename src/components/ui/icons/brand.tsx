@@ -45,6 +45,15 @@ export function Facebook(props: BrandIconProps) {
   )
 }
 
+export function Google(props: BrandIconProps) {
+  return (
+    <BrandSvg {...props}>
+      <path d="M21 12h-9" />
+      <path d="M19.2 7.2A8.5 8.5 0 1 0 20.5 12" />
+    </BrandSvg>
+  )
+}
+
 export function WhatsApp(props: BrandIconProps) {
   return (
     <BrandSvg {...props}>
