@@ -1,6 +1,6 @@
 # Catálogo de componentes
 
-Começa com o que a home já exige. Cresce a cada componente novo (regra em `skill-design-system.md` §2). Localização segue `arquitetura` §4.
+Começa com o que a home já exige. Cresce a cada componente novo (regra em `../SKILL.md` §2). Localização segue `arquitetura` §4.
 
 Formato de cada entrada: propósito, variantes, estados, tokens usados, onde vive.
 

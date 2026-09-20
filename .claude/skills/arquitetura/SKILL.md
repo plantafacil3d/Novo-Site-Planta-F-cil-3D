@@ -46,7 +46,7 @@ Modelo, não lista obrigatória: crie só o necessário.
 src/
 ├── app/                  # Next App Router: page/layout/metadata/sitemap; finos, só chamam views e features
 ├── providers/            # providers de cliente (ex.: TanStack Query)
-├── views/                # composição de telas; sem dados nem regras (não use "pages/": o Next reserva o nome)
+├── views/                # composição de telas; chamam os loaders da feature, sem regra de negócio (não use "pages/": o Next reserva o nome)
 ├── features/<dominio>/
 │   ├── components/       # UI do domínio; subcomponentes ficam ao lado do pai
 │   ├── hooks/            # estado, loading, erro e acesso a dados
@@ -126,7 +126,7 @@ Teste onde há lógica: `rules.ts`, hooks e repositories com mapeamento não tri
 
 ## 8. Imposição por lint
 
-Imponha as regras de dependência com lint no início do projeto: SDK do fornecedor só em `lib/`, `repositories/` e `services/`; features só via `index.ts`; `components/` e `views/` não importam `repositories/` nem `services/`; `app/` só importa `views/` e features. Lint barra a violação sem gastar tokens e dá erro concreto para corrigir.
+Imponha as regras de dependência (§1) com lint desde o início. A fonte da verdade é `eslint.config.mjs`; o que ele não cobre está em `references/stack.md` (Lint). Lint barra a violação sem gastar tokens e dá erro concreto para corrigir.
 
 ## 9. Árvore antes de mudanças
 

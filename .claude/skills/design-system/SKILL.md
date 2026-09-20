@@ -41,11 +41,20 @@ Antes de criar ou alterar UI:
 2. **Já existe componente?** Reutilize; estenda com prop/variante em vez de duplicar.
 3. **Faltou um valor?** Proponha um **novo token semântico** (nome, valor, motivo) em vez de usar hex solto. Novo primitivo só se a paleta realmente precisar dele.
 4. **Componente novo?** Crie em `components/ui/` (ou `shared/`) e registre em `components.md`: propósito, variantes, estados e tokens usados.
-5. **Registre no `changelog.md`** toda decisão que muda token, regra ou catálogo (data, o quê, por quê).
+5. **Registre no `changelog.md`** toda decisão que muda token ou regra, ou que tenha um "porquê" a lembrar (data, o quê, por quê). Componente ou variante novos só precisam da entrada em `components.md`.
 
 * Adicionar token ou componente dentro do sistema: registre e prossiga.
 * **Alterar ou remover** token/componente existente: mostre o impacto (onde é usado) e **aguarde confirmação**.
 * Pergunte ao usuário quando a decisão é de marca (nova cor, nova fonte); não invente.
+
+### Por que componentes de UI e variantes
+
+O projeto é escalável: à medida que cresce, surgem variações (novo tamanho, novo fundo, novo estado). Sem organização, cada tela reinventa o seu botão e o sistema perde consistência. Por isso toda variação vive no componente, num só lugar, e é registrada no catálogo.
+
+* **Não crie variantes por antecipação.** Não conhecemos o futuro: a variante nasce quando uma tela real pede, não "para o caso de".
+* **Ao surgir a necessidade, salve no lugar certo:** a variante entra no `cva` do próprio componente (`variants`), nunca como `className` avulso na tela; o componente novo entra em `ui/` ou `shared/`.
+* **Registre na hora:** variante nova na entrada do componente em `components.md`. O `changelog.md` fica para mudança de token, regra ou decisão que tenha um "porquê" a lembrar.
+* Uma variante que só uma tela usa e que não se repete ainda pode ficar como `className` pontual; ao repetir na segunda tela, promova a variante.
 
 ## 3. Regras de UX
 
@@ -71,6 +80,6 @@ Resumo; o detalhe está em `references/ux-rules.md`.
 * O valor novo virou token semântico e foi registrado?
 * Cobri loading, vazio, erro, hover, foco e disabled?
 * Contraste AA e alvo de toque ≥ 44px?
-* Atualizei `components.md` e `changelog.md`?
+* Atualizei `components.md` (e o `changelog.md`, se houve decisão de token ou regra)?
 
 **Consistência hoje, biblioteca completa só quando o uso pedir.**

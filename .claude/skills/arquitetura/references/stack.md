@@ -86,14 +86,11 @@ export default nextConfig
 
 ## Lint (configurar no início do projeto)
 
-Com ESLint `no-restricted-imports` (ou `eslint-plugin-boundaries` / `dependency-cruiser`):
+As regras de dependência (SDK só na infraestrutura, features só via `index.ts`, `components/` e `views/` sem infraestrutura, `app/` fino) são impostas por `no-restricted-imports` em `eslint.config.mjs`, que é a fonte da verdade. Ao criar uma camada nova, atualize o config.
 
-* `@supabase/*` só pode ser importado em `src/lib/**`, `src/repositories/**` e `src/services/**`.
-* `components/**`, `views/**` e `features/*/components/**` não importam `repositories/`, `services/` nem `lib/`.
-* Arquivos de `src/app/**` importam só `views/` e `features/<x>` (o `index.ts`); nunca `repositories/`, `services/` ou `lib/` diretamente.
+O que o config não cobre:
+
 * Código que só roda no servidor (`lib/supabase/server.ts`, repositories usados no servidor) importa `server-only`, para o build falhar se vazar para o cliente.
-* Ninguém importa `features/<x>/<subpasta>`; só `features/<x>` (o `index.ts`).
-* `components/**` não importa `features/`.
 * Biblioteca de UI de terceiros (se houver) só é importada em `src/components/ui/**`.
 
 Estilização: **Tailwind v4** (config em CSS, tokens em `src/styles/tokens.css`), variantes com `class-variance-authority` e junção de classes com `clsx` + `tailwind-merge`. Prettier com `prettier-plugin-tailwindcss` ordena as classes.

@@ -4,6 +4,10 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-20
+
+* `SKILL.md` §2: explicitado por que existem componentes de UI e variantes (projeto escalável) e a regra de crescimento: variante só quando uma tela pede, dentro do `cva` do componente, registrada em `components.md` e neste changelog. Sem mudança de token, componente ou código.
+
 ## 2026-09-19 (home)
 
 * Primeira leva de componentes para a home: `Button`, `Icon`, `Badge`, `Eyebrow`, `Input` (ui); `Header`, `Footer`, `Section`, `MainNav`, `MobileMenu`, `SkipLink`; `Logo`, `SearchBar`, `ProjectCard`, `MediaCard`, `FavoriteButton`, `CategoryTile`, `FeatureItem`, `CTABanner` (shared). Registrados em `components.md`.

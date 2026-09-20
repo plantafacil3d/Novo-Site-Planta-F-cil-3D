@@ -5,7 +5,7 @@ description: Regras de segurança para aplicações web com React + Supabase. Us
 
 # Segurança
 
-Esta skill define **como proteger o sistema**. Complementa `architecture` e não repete regras de organização do código.
+Esta skill define **como proteger o sistema**. Complementa `arquitetura` e não repete regras de organização do código.
 
 **Princípio central:** tudo vindo do navegador é não confiável. Segurança real deve ser garantida no servidor, banco ou infraestrutura confiável.
 
