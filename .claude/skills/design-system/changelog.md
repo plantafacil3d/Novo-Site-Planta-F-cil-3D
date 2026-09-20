@@ -4,6 +4,15 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-20 (página do projeto)
+
+* Primeira leva de componentes para a página `/projetos/[slug]`: `IconButton`, `Modal`, `Accordion` (ui); `Breadcrumb`, `Tabs` (navigation); `MediaGallery`, `Lightbox`, `Carousel`, `VideoBanner`, `CheckList`, `JsonLd` (shared). Saem do backlog: Modal, Tabs, Breadcrumb e Carrossel/Galeria. Detalhes em `components.md`.
+* Variantes novas: `FeatureItem layout="stack"`, `FavoriteButton variant="button"`, `CTABanner variant="card"` (com preço). O `Button` de link externo passou a incluir "(abre em uma nova aba)" para leitor de tela; vale também para o WhatsApp da home.
+* Sem token novo. Verde vivo continua só como preenchimento (círculo do check, selo "Mais vendido", botão sobre fundo escuro); aba ativa e botão de compra em `--color-primary`.
+* Decisão: `Modal` usa `<dialog>` nativo e `Accordion` usa `<details>` nativo, em vez de biblioteca ou JavaScript próprio. Por quê: foco, Esc e teclado já vêm prontos, e o texto do FAQ fica no HTML para o Google.
+* Decisão: a referência mostra o botão flutuante do WhatsApp; o usuário decidiu **não incluir por enquanto**.
+* Pendente (conteúdo, não de design): fotos, vídeo e link de checkout são de exemplo; os textos do FAQ e do "Importante saber" (`features/projetos/conteudo.ts`) são provisórios e precisam de revisão do cliente.
+
 ## 2026-09-20 (tokens de estado)
 
 * Novas famílias de estado `-solid/-subtle/-border/-fg` para success, warning, danger e **info** (azul `--blue-600`), mais `draft-*` (rascunho, neutro) e gerais `border-strong`, `link`, `overlay`, `bg-disabled`, `fg-disabled`. Por quê: só havia uma cor sólida por estado, sem fundo suave nem texto AA.

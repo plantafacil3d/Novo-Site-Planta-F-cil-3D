@@ -2,7 +2,9 @@ export {
   navegacaoPrincipal,
   navegacaoRodape,
   redesSociais,
+  selosDeConfianca,
   siteConfig,
+  siteUrl,
   textoDireitosAutorais,
   urlWhatsapp,
 } from './config'

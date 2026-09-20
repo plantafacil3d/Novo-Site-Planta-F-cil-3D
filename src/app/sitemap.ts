@@ -1,8 +1,19 @@
 import type { MetadataRoute } from 'next'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+import { hrefProjeto, listarSlugsProjetos } from '@/features/projetos'
+import { siteUrl } from '@/features/site'
 
-// Só a home existe por enquanto; acrescente as páginas públicas conforme forem criadas.
-export default function sitemap(): MetadataRoute.Sitemap {
-  return [{ url: siteUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 }]
+// Acrescente as demais páginas públicas conforme forem criadas.
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const slugs = await listarSlugsProjetos()
+
+  return [
+    { url: siteUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
+    ...slugs.map((slug) => ({
+      url: `${siteUrl}${hrefProjeto({ slug })}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
+  ]
 }

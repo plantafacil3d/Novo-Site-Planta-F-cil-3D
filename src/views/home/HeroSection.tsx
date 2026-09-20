@@ -4,22 +4,13 @@ import { FeatureItem } from '@/components/shared/FeatureItem'
 import { SearchBar } from '@/components/shared/SearchBar'
 import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Icon } from '@/components/ui/Icon'
+import { selosDeConfianca } from '@/features/site'
 
 // TEMPORÁRIO: foto de exemplo. Trocar por arquivo em public/.
 const imagemHero = {
   src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=75',
   alt: 'Casa moderna de dois pavimentos com vidros e madeira, iluminada ao entardecer',
 }
-
-const beneficios = [
-  { icon: 'shield-check', title: 'Compra segura', description: 'Seus dados protegidos' },
-  { icon: 'cloud-download', title: 'Entrega imediata', description: 'Acesso rápido após a compra' },
-  {
-    icon: 'headphones',
-    title: 'Suporte especializado',
-    description: 'Tire suas dúvidas com a gente',
-  },
-] as const
 
 export function HeroSection() {
   return (
@@ -55,9 +46,9 @@ export function HeroSection() {
           />
 
           <ul className="grid gap-4 sm:grid-cols-3">
-            {beneficios.map((beneficio) => (
-              <li key={beneficio.title}>
-                <FeatureItem tone="inverse" {...beneficio} />
+            {selosDeConfianca.map((selo) => (
+              <li key={selo.title}>
+                <FeatureItem tone="inverse" {...selo} />
               </li>
             ))}
           </ul>

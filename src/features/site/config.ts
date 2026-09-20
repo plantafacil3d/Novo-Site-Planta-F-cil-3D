@@ -4,7 +4,21 @@ export const siteConfig = {
   localizacao: 'Caxias - MA | Brasil',
 }
 
+/** Endereço público do site, sem barra no final. Usado em sitemap, robots, metadados e JSON-LD. */
+export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+
 export type LinkNavegacao = { label: string; href: string }
+
+/** Selos de confiança exibidos no hero da home e na página do projeto. */
+export const selosDeConfianca = [
+  { icon: 'shield-check', title: 'Compra segura', description: 'Seus dados protegidos' },
+  { icon: 'cloud-download', title: 'Entrega imediata', description: 'Acesso rápido após a compra' },
+  {
+    icon: 'headphones',
+    title: 'Suporte especializado',
+    description: 'Tire suas dúvidas com a gente',
+  },
+] as const
 
 export const navegacaoPrincipal: LinkNavegacao[] = [
   { label: 'Início', href: '/' },

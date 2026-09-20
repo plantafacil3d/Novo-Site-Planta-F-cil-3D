@@ -1,0 +1,65 @@
+'use client'
+
+import Image from 'next/image'
+import { useId, useState } from 'react'
+
+import { Badge } from '../ui/Badge'
+import { IconButton } from '../ui/IconButton'
+import { Modal } from '../ui/Modal'
+
+type VideoBannerProps = {
+  title: string
+  description: string
+  /** Imagem de fundo do bloco. */
+  image: { src: string; alt: string }
+  videoSrc: string
+  /** Ex.: "04:32". Sem valor, o selo de duração não aparece. */
+  duration?: string
+}
+
+/** Bloco escuro com imagem ao fundo e um grande botão de play que abre o vídeo em uma janela. */
+export function VideoBanner({ title, description, image, videoSrc, duration }: VideoBannerProps) {
+  const headingId = useId()
+  const [open, setOpen] = useState(false)
+
+  return (
+    <section aria-labelledby={headingId} className="py-12 md:py-16">
+      <div className="mx-auto max-w-content px-4">
+        <div className="relative isolate flex min-h-72 flex-col overflow-hidden rounded-lg bg-inverse text-fg-inverse md:min-h-80">
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            sizes="(min-width: 1200px) 1168px, 100vw"
+            className="-z-20 object-cover"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-inverse/80 md:bg-transparent md:bg-linear-to-r md:from-inverse md:via-inverse/70 md:to-transparent"
+          />
+
+          <div className="max-w-md p-6 md:p-10">
+            <h2 id={headingId} className="text-2xl md:text-3xl">
+              {title}
+            </h2>
+            <p className="mt-2 text-fg-inverse/80">{description}</p>
+          </div>
+
+          <IconButton
+            icon="play"
+            size="lg"
+            label="Assistir ao vídeo do projeto"
+            onClick={() => setOpen(true)}
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 md:top-1/2 md:bottom-auto md:-translate-y-1/2 [&_svg]:fill-current"
+          />
+
+          {duration && <Badge className="absolute right-3 bottom-3">{duration}</Badge>}
+        </div>
+      </div>
+
+      <Modal open={open} onClose={() => setOpen(false)} label="Vídeo do projeto">
+        <video src={videoSrc} controls autoPlay playsInline className="aspect-video w-full" />
+      </Modal>
+    </section>
+  )
+}

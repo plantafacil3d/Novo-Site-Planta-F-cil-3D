@@ -7,27 +7,31 @@ type FeatureItemProps = {
   description: string
   /** `inverse` para fundos escuros (hero). */
   tone?: 'default' | 'inverse'
+  /** `row`: ícone ao lado do texto. `stack`: ícone em cima do texto (grades de características). */
+  layout?: 'row' | 'stack'
   /** Use `h3` quando o item estiver dentro de uma seção com h2, para não pular nível. */
   titleAs?: 'p' | 'h3'
   className?: string
 }
 
-/** Ícone + título + descrição curta, lado a lado. */
+/** Ícone + título + descrição curta. */
 export function FeatureItem({
   icon,
   title,
   description,
   tone = 'default',
+  layout = 'row',
   titleAs: Title = 'p',
   className,
 }: FeatureItemProps) {
   const inverse = tone === 'inverse'
+  const stack = layout === 'stack'
 
   return (
-    <div className={cn('flex items-start gap-3', className)}>
+    <div className={cn('flex items-start', stack ? 'flex-col gap-2' : 'gap-3', className)}>
       <Icon
         name={icon}
-        className={cn('size-8', inverse ? 'text-accent' : 'text-primary')}
+        className={cn(stack ? 'size-7' : 'size-8', inverse ? 'text-accent' : 'text-primary')}
         strokeWidth={1.5}
       />
       <div>

@@ -1,22 +1,8 @@
-import { ProjectCard, type ProjectSpec } from '@/components/shared/ProjectCard'
+import { ProjectCard } from '@/components/shared/ProjectCard'
 
-import { descreverProjeto, formatarPreco, hrefProjeto } from '../rules'
+import { formatarPreco, hrefProjeto } from '../rules'
 import type { Projeto } from '../types'
-
-function especificacoes(projeto: Projeto): ProjectSpec[] {
-  const texto = descreverProjeto(projeto)
-  return [
-    { icon: 'ruler', label: texto.medidas },
-    { icon: 'bed-double', label: texto.suites },
-    { icon: 'bed-single', label: texto.quartos },
-    { icon: 'car', label: texto.vagas },
-    { icon: 'layers', label: texto.pavimentos },
-    {
-      icon: projeto.diferencial.tipo === 'piscina' ? 'waves' : 'utensils',
-      label: texto.diferencial,
-    },
-  ]
-}
+import { especificacoesDoCard } from './especificacoes'
 
 export function ProjetosDestaque({ projetos }: { projetos: Projeto[] }) {
   return (
@@ -28,7 +14,7 @@ export function ProjetosDestaque({ projetos }: { projetos: Projeto[] }) {
             title={projeto.titulo}
             image={projeto.imagem}
             badge={projeto.selo}
-            specs={especificacoes(projeto)}
+            specs={especificacoesDoCard(projeto)}
             price={formatarPreco(projeto.precoCentavos)}
             favoriteLabel={`Favoritar ${projeto.titulo}`}
           />

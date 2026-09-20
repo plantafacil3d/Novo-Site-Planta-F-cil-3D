@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Poppins } from 'next/font/google'
 
+import { siteUrl } from '@/features/site'
 import { SiteShell } from '@/views/SiteShell'
 
 import '@/styles/globals.css'
@@ -12,8 +13,6 @@ const poppins = Poppins({
   variable: '--font-poppins',
   display: 'swap',
 })
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

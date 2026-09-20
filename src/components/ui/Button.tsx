@@ -78,6 +78,7 @@ export function Button({
           {...anchorProps}
         >
           {content}
+          <span className="sr-only">(abre em uma nova aba)</span>
         </a>
       )
     }
