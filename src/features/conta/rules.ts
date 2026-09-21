@@ -23,5 +23,5 @@ export function acaoDaConta(ehAdmin: boolean | null): {
 } {
   return ehAdmin
     ? { label: 'Painel', href: destinoAposEntrar(true), icone: 'dashboard' }
-    : { label: 'Minha conta', href: '/entrar', icone: 'user' }
+    : { label: 'Minha conta', href: '/admin/entrar', icone: 'user' }
 }

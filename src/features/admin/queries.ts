@@ -7,6 +7,7 @@ import { projetoAdminRepository } from '@/repositories/projetos-admin'
 import { authService } from '@/services/auth'
 
 import { PROJETOS_ADMIN_POR_PAGINA } from './rules'
+import { schemaId } from './schemas'
 import type { ParametrosAdminProjetos } from './types'
 
 // Loaders para Server Components do painel. Toda leitura confere o administrador no servidor
@@ -21,6 +22,15 @@ export async function exigirAdmin() {
   if (!usuario) redirect('/admin/entrar')
   if (!usuario.ehAdmin) notFound()
   return usuario
+}
+
+/** Projeto para o formulário de edição; id inválido ou inexistente = página "não existe". */
+export async function carregarProjetoAdmin(id: string) {
+  await exigirAdmin()
+  if (!schemaId.safeParse(id).success) notFound()
+  const projeto = await projetoAdminRepository.buscarCompleto(id)
+  if (!projeto) notFound()
+  return projeto
 }
 
 export async function listarProjetosAdmin(params: ParametrosAdminProjetos) {

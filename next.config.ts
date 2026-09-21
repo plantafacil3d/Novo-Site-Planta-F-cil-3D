@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
     // Temporário: fotos de exemplo. Remover quando as imagens reais estiverem em public/.
     remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }],
   },
+  async redirects() {
+    // Só existe uma tela de login; links antigos para /entrar levam a ela.
+    return [{ source: '/entrar', destination: '/admin/entrar', permanent: true }]
+  },
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }]
   },

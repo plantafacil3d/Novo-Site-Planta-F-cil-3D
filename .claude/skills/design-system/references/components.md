@@ -55,6 +55,16 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 * **Estados:** repouso, foco, erro (`invalid`), disabled.
 * **Tokens:** `--color-surface`, `--color-border`, `--radius-md`, `--color-danger`.
 
+### Textarea
+* **Propósito:** campo de texto longo (resumo, descrição). Mesma aparência do `Input` (borda, raio, erro), com altura mínima e redimensionável na vertical. Sempre com `<label>` (use o `Field`).
+* **Estados:** repouso, foco, erro (`invalid`), disabled.
+* **Tokens:** os mesmos do `Input`.
+
+### Field
+* **Propósito:** rótulo + campo + dica ou erro, para formulários. Envolve `Input`, `Select` ou `Textarea`; o `htmlFor` liga o rótulo ao campo. Com `error`, a mensagem substitui a dica e ganha o id `<htmlFor>-erro` (o campo aponta para ela com `aria-describedby`).
+* **Props:** `label`, `htmlFor`, `hint?`, `error?`, `className?`.
+* **Tokens:** `--color-fg-muted` (dica), `--color-danger-fg` (erro, AA sobre o fundo claro).
+
 ### Select
 * **Propósito:** lista de opções nativa (`<select>`): funciona sem JavaScript, o celular abre o seletor do sistema e o teclado já vem pronto. Sempre com `<label>`. Ícone de seta (`chevron-down`) sobreposto; o resto igual ao `Input`.
 * **Estados:** repouso, foco, erro (`invalid`), disabled.
@@ -139,7 +149,7 @@ Algo falhou: `role="alert"`, ícone, título, texto simples (nunca detalhe técn
 Faixa de chamada para ação. Variantes: `inverse` (imagem à esquerda + painel escuro com rótulo, título, texto e botão), `brand` (faixa `--color-inverse` com ícone de casa e botão WhatsApp, sem imagem) e `card` (cartão escuro arredondado dentro da largura da página, imagem ao fundo à direita, rótulo, título, texto, **preço** com condição e botão; usado no "Gostou deste projeto?"). O botão vem da prop `action.variant`: padrão `accent` no `inverse` e `card` e `whatsapp` no `brand` (o preto sumiria sobre o fundo escuro); aceita também `secondary-inverse`. No `card`, `action.iconLeft="cart"` põe o carrinho no botão.
 
 ### FormularioLogin
-`'use client'`. E-mail e senha com botão Entrar. Recebe `action` (a ação do servidor que faz o login, passada por quem usa), então serve ao site (`/entrar`) e ao painel (`/admin/entrar`). Erro único e genérico, ligado por `aria-describedby`. `/entrar` o coloca dentro de `Tabs` (Entrar / Cadastrar).
+`'use client'`. E-mail e senha com botão Entrar. Recebe `action` (a ação do servidor que faz o login, passada por quem usa), e hoje serve à única tela de login, `/admin/entrar` (o botão "Minha conta" do cabeçalho também leva a ela; `/entrar` só redireciona). Erro único e genérico, ligado por `aria-describedby`.
 
 ### BotaoGoogle
 `'use client'`. Botão "Entrar com Google" (`Button` `secondary` com ícone `google`, largura total). Recebe `action` (ação do servidor que inicia o login, passada por quem usa) e vira um formulário; mostra `loading` enquanto vai ao Google. Usado no `/admin/entrar`, acima do formulário de e-mail e senha.
@@ -186,7 +196,8 @@ Painel em `/admin` (layout próprio, fora do `SiteShell`; a tela é montada em `
 
 * `TabelaProjetosAdmin`: `'use client'`. Tabela com seleção por linha e "selecionar todos" da página, barra de ações em massa (Duplicar, Mover para rascunho) e aviso de sucesso/erro com os tokens `--color-notification-*`. Quem usa dá uma `key` que muda a cada busca/página.
 * `ProjetosAdminSkeleton`: tabela em branco enquanto carrega.
-* Menu do painel: Dashboard, Projetos, Vendas e Analytics; só Projetos é link. O botão "Cadastrar Projeto" é o `Button` primário, desabilitado (só visual).
+* `FormularioProjeto`: `'use client'`. Cadastro e edição do projeto, hoje com as etapas 1 (Básico) e 2 (Especificações) numa página só, em seções. Usa `Field`, `Input`, `Select`, `Textarea`, `Checkbox` e `Button`. Salva sempre como rascunho pela Server Action `salvarProjeto`; erros aparecem por campo e num aviso no topo (com foco, para leitor de tela). Recebe as listas de tipos e estilos por props, porque o catálogo mora em `features/projetos` (código de servidor). O envio é manual (`onSubmit`) para o React não limpar os campos quando há erro. Vira passo a passo (`Stepper`) quando as etapas de mídia, "Sobre", perfil e publicação existirem.
+* Menu do painel: Dashboard, Projetos, Vendas e Analytics; só Projetos é link. O botão "Cadastrar Projeto" é o `Button` primário e leva a `/admin/projetos/novo`; o título de cada projeto na tabela leva a `/admin/projetos/[id]/editar`.
 
 ## Registro
 

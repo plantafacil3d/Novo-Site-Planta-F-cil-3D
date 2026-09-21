@@ -4,8 +4,10 @@ import type { PostgrestError } from '@supabase/supabase-js'
 
 import type {
   ConsultaProjetosAdmin,
+  DadosCadastroProjeto,
   NovoProjetoAdmin,
   ProjetoAdmin,
+  ProjetoAdminCompleto,
   StatusProjeto,
 } from '@/features/admin'
 import { criarClienteServidor } from '@/lib/supabase/server'
@@ -29,6 +31,82 @@ type Linha = {
   preco_centavos: number
   status: StatusProjeto
   criado_em: string
+}
+
+/** Colunas do cadastro (etapas 1 e 2), além das da tabela. */
+const COLUNAS_COMPLETAS = `${COLUNAS}, estilo, selo, checkout_url, resumo, descricao, largura_m, profundidade_m, area_construida_m2, quartos, suites, banheiros, vagas, pavimentos, piscina, closet, area_gourmet, diferencial_tipo, diferencial_rotulo`
+
+type LinhaCompleta = Linha & {
+  estilo: ProjetoAdminCompleto['estilo'] | null
+  selo: ProjetoAdminCompleto['selo'] | null
+  checkout_url: string | null
+  resumo: string | null
+  descricao: string | null
+  largura_m: number | null
+  profundidade_m: number | null
+  area_construida_m2: number | null
+  quartos: number | null
+  suites: number | null
+  banheiros: number | null
+  vagas: number | null
+  pavimentos: number | null
+  piscina: boolean
+  closet: boolean
+  area_gourmet: boolean
+  diferencial_tipo: ProjetoAdminCompleto['diferencialTipo'] | null
+  diferencial_rotulo: string | null
+}
+
+function paraProjetoCompleto(linha: LinhaCompleta): ProjetoAdminCompleto {
+  return {
+    ...paraProjeto(linha),
+    estilo: linha.estilo ?? undefined,
+    selo: linha.selo ?? undefined,
+    checkoutUrl: linha.checkout_url ?? undefined,
+    resumo: linha.resumo ?? undefined,
+    descricao: linha.descricao ?? undefined,
+    larguraM: linha.largura_m ?? undefined,
+    profundidadeM: linha.profundidade_m ?? undefined,
+    areaConstruidaM2: linha.area_construida_m2 ?? undefined,
+    quartos: linha.quartos ?? undefined,
+    suites: linha.suites ?? undefined,
+    banheiros: linha.banheiros ?? undefined,
+    vagas: linha.vagas ?? undefined,
+    pavimentos: linha.pavimentos ?? undefined,
+    piscina: linha.piscina,
+    closet: linha.closet,
+    areaGourmet: linha.area_gourmet,
+    diferencialTipo: linha.diferencial_tipo ?? undefined,
+    diferencialRotulo: linha.diferencial_rotulo ?? undefined,
+  }
+}
+
+/** Formulário → colunas. Campo em branco vira `null`, para a edição conseguir limpar um valor. */
+function paraColunas(dados: DadosCadastroProjeto) {
+  return {
+    slug: dados.slug,
+    titulo: dados.titulo,
+    tipo: dados.tipo,
+    preco_centavos: dados.precoCentavos,
+    estilo: dados.estilo ?? null,
+    selo: dados.selo ?? null,
+    checkout_url: dados.checkoutUrl ?? null,
+    resumo: dados.resumo ?? null,
+    descricao: dados.descricao ?? null,
+    largura_m: dados.larguraM ?? null,
+    profundidade_m: dados.profundidadeM ?? null,
+    area_construida_m2: dados.areaConstruidaM2 ?? null,
+    quartos: dados.quartos ?? null,
+    suites: dados.suites ?? null,
+    banheiros: dados.banheiros ?? null,
+    vagas: dados.vagas ?? null,
+    pavimentos: dados.pavimentos ?? null,
+    piscina: dados.piscina,
+    closet: dados.closet,
+    area_gourmet: dados.areaGourmet,
+    diferencial_tipo: dados.diferencialTipo ?? null,
+    diferencial_rotulo: dados.diferencialRotulo ?? null,
+  }
 }
 
 function paraProjeto(linha: Linha): ProjetoAdmin {
@@ -89,6 +167,43 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
       .overrideTypes<Linha[], { merge: false }>()
     if (error) throw traduzir(error)
     return data.map(paraProjeto)
+  }
+
+  async buscarCompleto(id: string): Promise<ProjetoAdminCompleto | null> {
+    const supabase = await criarClienteServidor()
+    const { data, error } = await supabase
+      .from('projetos')
+      .select(COLUNAS_COMPLETAS)
+      .eq('id', id)
+      .limit(1)
+      .overrideTypes<LinhaCompleta[], { merge: false }>()
+    if (error) throw traduzir(error)
+    return data[0] ? paraProjetoCompleto(data[0]) : null
+  }
+
+  async criarRascunho(dados: DadosCadastroProjeto): Promise<string> {
+    const supabase = await criarClienteServidor()
+    const { data, error } = await supabase
+      .from('projetos')
+      .insert({ ...paraColunas(dados), status: 'rascunho' })
+      .select('id')
+      .overrideTypes<{ id: string }[], { merge: false }>()
+    if (error) throw traduzir(error)
+    const criado = data[0]
+    if (!criado) throw new AppError('falha_inesperada', 'Não foi possível concluir a operação.')
+    return criado.id
+  }
+
+  async atualizar(id: string, dados: DadosCadastroProjeto): Promise<void> {
+    const supabase = await criarClienteServidor()
+    // O `select` devolve só a linha que a policy deixou alterar: vazio = não existe ou sem permissão.
+    const { data, error } = await supabase
+      .from('projetos')
+      .update({ ...paraColunas(dados), atualizado_em: new Date().toISOString() })
+      .eq('id', id)
+      .select('id')
+    if (error) throw traduzir(error)
+    if (data.length === 0) throw new AppError('dados_invalidos', 'Projeto não encontrado.')
   }
 
   async criar(projetos: NovoProjetoAdmin[]): Promise<number> {

@@ -4,6 +4,14 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-20 (cadastro de projeto no painel)
+
+* Componentes novos: `Textarea` e `Field` (ui) e `FormularioProjeto` (feature admin), com as etapas 1 e 2 do cadastro. Detalhes em `components.md`. O botão "Cadastrar Projeto" deixou de ser só visual.
+* Sem token novo. Erro de campo usa `--color-danger-fg` (como o `FormularioLogin`), não `--color-danger`, que é o tom sólido de borda e não garante contraste AA como texto.
+* Decisão: sem ícone novo; o botão "Salvar rascunho" usa o `check` que já existe.
+* Decisão: `Field` não clona nem injeta nada no campo; quem monta o formulário liga o campo ao erro com `aria-describedby`. Por quê: mantém o `Field` simples e o `Input`/`Select`/`Textarea` independentes dele.
+* Pendente: `Stepper` (passo a passo) e o campo de vídeo do YouTube entram com as etapas seguintes; sem elas o formulário fica numa página só.
+
 ## 2026-09-20 (listagem `/projetos`)
 
 * Primeira tela de listagem: filtros, paginação e estados de loading, vazio e erro. Componentes novos: `Select`, `Checkbox`, `Chip`, `Skeleton` (ui); `Pagination` (navigation); `CollapsiblePanel`, `EmptyState`, `ErrorState` (shared); `FormularioDeFiltros`, `FiltrosAplicados`, `ProjetosSkeleton` (feature). Todos saíram do backlog. Detalhes em `components.md`. Ícones novos: `chevron-down`, `sliders`.

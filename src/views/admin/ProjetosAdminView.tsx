@@ -17,7 +17,7 @@ import { formatarPreco, tiposDeProjeto, totalDePaginas } from '@/features/projet
 
 const rotulosDeTipo = Object.fromEntries(tiposDeProjeto.map((tipo) => [tipo.valor, tipo.rotulo]))
 
-/** Aba Projetos do painel: título, "Cadastrar Projeto" (só visual), busca, tabela e paginação. */
+/** Aba Projetos do painel: título, "Cadastrar Projeto", busca, tabela e paginação. */
 export async function ProjetosAdminView({ params }: { params: ParametrosAdminProjetos }) {
   const resultado = await listarProjetosAdmin(params)
   const paginas = totalDePaginas(resultado.total, PROJETOS_ADMIN_POR_PAGINA)
@@ -43,8 +43,7 @@ export async function ProjetosAdminView({ params }: { params: ParametrosAdminPro
           <h1 className="text-3xl">Projetos</h1>
           <p className="mt-2 text-fg-muted">Todos os projetos cadastrados no site.</p>
         </div>
-        {/* Só visual por enquanto: o formulário de cadastro vem quando o escopo estiver aprovado. */}
-        <Button iconLeft="plus" disabled title="Em breve">
+        <Button iconLeft="plus" href="/admin/projetos/novo">
           Cadastrar Projeto
         </Button>
       </div>

@@ -14,6 +14,47 @@ export const rotuloDeStatus: Record<StatusProjeto, string> = {
   rascunho: 'Rascunho',
 }
 
+export const selosDeProjeto = [
+  { valor: 'mais-vendido', rotulo: 'Mais vendido' },
+  { valor: 'lancamento', rotulo: 'Lançamento' },
+] as const
+
+export const diferenciaisDeProjeto = [
+  { valor: 'piscina', rotulo: 'Piscina' },
+  { valor: 'varanda-gourmet', rotulo: 'Varanda gourmet' },
+] as const
+
+const SLUG_MAXIMO = 100
+
+/** "Sobrado Pequeno & Moderno!" → "sobrado-pequeno-moderno" (sem acento, só letras, números e hífen). */
+export function gerarSlug(titulo: string): string {
+  return titulo
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, SLUG_MAXIMO)
+    .replace(/-+$/g, '')
+}
+
+/**
+ * Lê o preço digitado em reais ("399,90", "1.299,90", "R$ 399") e devolve centavos inteiros.
+ * Vazio vira 0 (rascunho sem preço); texto que não é preço devolve `null`.
+ */
+export function lerPrecoEmCentavos(texto: string): number | null {
+  const limpo = texto.replace(/R\$|\s/g, '')
+  if (limpo === '') return 0
+  const normal = limpo.includes(',') ? limpo.replace(/\./g, '').replace(',', '.') : limpo
+  if (!/^\d{1,7}(\.\d{1,2})?$/.test(normal)) return null
+  return Math.round(Number(normal) * 100)
+}
+
+/** 39990 → "399,90" para preencher o campo; 0 (sem preço) vira vazio. */
+export function centavosParaCampo(centavos: number): string {
+  return centavos > 0 ? (centavos / 100).toFixed(2).replace('.', ',') : ''
+}
+
 /** Endereço da listagem com busca e página na URL (página 1 e busca vazia não aparecem). */
 export function montarHrefAdminProjetos({ q, pagina }: ParametrosAdminProjetos): string {
   const params = new URLSearchParams()

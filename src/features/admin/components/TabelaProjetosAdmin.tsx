@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState, useTransition } from 'react'
 
 import { Badge } from '@/components/ui/Badge'
@@ -126,7 +127,11 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
                 />
               </TableCell>
               <TableCell className="whitespace-nowrap text-fg-muted">{linha.codigo}</TableCell>
-              <TableCell className="min-w-56 font-medium">{linha.titulo}</TableCell>
+              <TableCell className="min-w-56 font-medium">
+                <Link href={`/admin/projetos/${linha.id}/editar`} className="hover:underline">
+                  {linha.titulo}
+                </Link>
+              </TableCell>
               <TableCell className="whitespace-nowrap">{linha.tipoRotulo}</TableCell>
               <TableCell className="whitespace-nowrap">{linha.precoFormatado}</TableCell>
               <TableCell>
