@@ -79,7 +79,7 @@ export const camposDeCaracteristicas = [
   { chave: 'areaConstruida', rotulo: 'Área construída (m²)', decimal: false, min: 1, max: 5000 },
   { chave: 'quartos', rotulo: 'Quartos', decimal: false, min: 0, max: 20 },
   { chave: 'suites', rotulo: 'Suítes', decimal: false, min: 0, max: 20 },
-  { chave: 'closets', rotulo: 'Closets', decimal: false, min: 0, max: 20 },
+  { chave: 'suiteMaster', rotulo: 'Suíte master', decimal: false, min: 0, max: 20 },
   { chave: 'banheiros', rotulo: 'Banheiros', decimal: false, min: 0, max: 30 },
   { chave: 'lavabo', rotulo: 'Lavabo', decimal: false, min: 0, max: 10 },
   { chave: 'vagas', rotulo: 'Vagas de garagem', decimal: false, min: 0, max: 20 },

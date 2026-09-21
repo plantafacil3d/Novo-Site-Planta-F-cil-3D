@@ -222,7 +222,7 @@ export function dadosVazios(): DadosProjeto {
     areaConstruida: '',
     quartos: '',
     suites: '',
-    closets: '',
+    suiteMaster: '',
     banheiros: '',
     lavabo: '',
     vagas: '',

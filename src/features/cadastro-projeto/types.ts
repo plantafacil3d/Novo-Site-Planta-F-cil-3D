@@ -76,7 +76,7 @@ export type DadosProjeto = {
   areaConstruida: string
   quartos: string
   suites: string
-  closets: string
+  suiteMaster: string
   banheiros: string
   lavabo: string
   vagas: string
