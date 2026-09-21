@@ -4,6 +4,16 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-21 (cadastro de projeto recriado, só interface)
+
+* O `FormularioProjeto` da etapa anterior (2 seções numa página só, ligado ao Supabase) foi **apagado** e o cadastro foi recriado em `features/cadastro-projeto/`, com 7 abas e todas as regras do briefing. Por enquanto **nada é gravado nem enviado**: é para o usuário aprovar o visual antes da etapa do banco e do Storage. Detalhes em `components.md`.
+* Componentes novos em `ui/`: `FileInput` (área tracejada para escolher arquivos) e `Alert` (aviso success/error/warning/info). Extensões compatíveis: `Tabs` ganhou `orientation="vertical"`, aba controlada (`value`/`onValueChange`), marcador por aba (`status`) e `footer`; `Field` ganhou `counter`. Ícones novos: `upload`, `trash`, `circle-check`, `circle-alert`.
+* Sem token novo: borda tracejada em `--color-border-strong`, marcador "completa" em `--color-accent` com check `--color-fg` (só preenchimento, como manda `ux-rules.md`), avisos nos tokens `notification-*`.
+* Decisão: menu de abas como `Tabs` vertical em vez de um componente novo (`Stepper`). Por quê: a necessidade é a de abas com marcador; estender o `Tabs` evita duplicar o que já existe. A galeria pública, que também usa `Tabs`, foi conferida e segue igual.
+* Decisão: marcador "Opcional" nas abas 5 e 6 enquanto vazias, em vez de check. Por quê: um check numa aba que ninguém tocou passaria a impressão de que ela foi preenchida.
+* Decisão: erros de campo só aparecem ao sair do campo (e, depois de "Salvar", em todos), como diz `ux-rules.md`; o aviso "Faltam informações em…" acompanha o estado atual e some sozinho quando não sobra pendência.
+* Pendente: o link "Enviar arquivos" (aba 5) aponta para `/admin/biblioteca`, página que ainda não existe. A `TabelaProjetosAdmin` ainda tem uma cópia das classes do `Alert`.
+
 ## 2026-09-20 (cadastro de projeto no painel)
 
 * Componentes novos: `Textarea` e `Field` (ui) e `FormularioProjeto` (feature admin), com as etapas 1 e 2 do cadastro. Detalhes em `components.md`. O botão "Cadastrar Projeto" deixou de ser só visual.

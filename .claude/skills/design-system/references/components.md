@@ -62,8 +62,20 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 
 ### Field
 * **Propósito:** rótulo + campo + dica ou erro, para formulários. Envolve `Input`, `Select` ou `Textarea`; o `htmlFor` liga o rótulo ao campo. Com `error`, a mensagem substitui a dica e ganha o id `<htmlFor>-erro` (o campo aponta para ela com `aria-describedby`).
-* **Props:** `label`, `htmlFor`, `hint?`, `error?`, `className?`.
-* **Tokens:** `--color-fg-muted` (dica), `--color-danger-fg` (erro, AA sobre o fundo claro).
+* **Props:** `label`, `htmlFor`, `hint?`, `error?`, `counter?` (contador de caracteres à direita, ex.: "35/120"), `className?`.
+* **Tokens:** `--color-fg-muted` (dica e contador), `--color-danger-fg` (erro, AA sobre o fundo claro).
+
+### FileInput
+* **Propósito:** área tracejada para escolher arquivos (imagens, PDF, ZIP). O `<input type="file">` fica invisível por cima de tudo, então clicar, o teclado e arrastar arquivos para dentro funcionam nativamente. Não valida nada: entrega os arquivos escolhidos em `onFiles(arquivos)` e quem usa confere tipo e tamanho. Depois de escolher, limpa a seleção (dá para enviar de novo o mesmo arquivo).
+* **Props:** `label` (texto principal e nome acessível), `hint?`, `invalid?`, `onFiles`, mais as do `<input>` (`accept`, `multiple`, `id`, `disabled`, `aria-describedby`).
+* **Estados:** repouso, hover, foco (anel no contorno, via `has-[:focus-visible]`), erro (`invalid`), disabled.
+* **Tokens:** `--color-border-strong` (borda tracejada), `--color-danger`, `--color-surface`, `--color-subtle` (hover), `--color-ring`, `--radius-lg`.
+
+### Alert
+* **Propósito:** aviso em faixa dentro da tela (resultado de "Salvar", erro que exige atenção, dica de tela). Ícone + texto.
+* **Variantes:** `success`, `error`, `warning`, `info` (padrão). `error` usa `role="alert"` (lido na hora); as outras, `role="status"`. Aceita `ref` e `tabIndex={-1}` para receber o foco quando aparece.
+* **Tokens:** os de notificação, `--color-notification-{success|error|warning|info}-{bg|border|fg|icon}`.
+* **Nota:** as cópias dessas mesmas classes que existiam na `TabelaProjetosAdmin` ainda não foram trocadas por este componente.
 
 ### Select
 * **Propósito:** lista de opções nativa (`<select>`): funciona sem JavaScript, o celular abre o seletor do sistema e o teclado já vem pronto. Sempre com `<label>`. Ícone de seta (`chevron-down`) sobreposto; o resto igual ao `Input`.
@@ -102,7 +114,12 @@ Primeiro item da tab; leva ao conteúdo principal e só aparece com foco.
 Trilha "Início › Projetos › Sobrados › Projeto" (`<nav aria-label>` + `<ol>`). Item sem `href` é a página atual (`aria-current="page"`). Links com altura mínima de 44px.
 
 ### Tabs (`navigation/`)
-`'use client'`. Abas acessíveis (`role="tablist"`/`tab`/`tabpanel`): setas, Home e End trocam de aba e movem o foco. Recebe `items: { id, label, content }[]`; todos os painéis ficam no HTML, só escondidos. Aba ativa em `--color-primary` com texto `--color-fg-inverse`; as outras com hover `--color-subtle`. No celular a lista rola na horizontal.
+`'use client'`. Abas acessíveis (`role="tablist"`/`tab`/`tabpanel`): setas, Home e End trocam de aba e movem o foco. Recebe `items: { id, label, content, status? }[]`; todos os painéis ficam no HTML, só escondidos. Aba ativa em `--color-primary` com texto `--color-fg-inverse`; as outras com hover `--color-subtle`. No celular a lista rola na horizontal.
+* **Props opcionais** (nasceram no cadastro de projeto; sem elas o componente funciona como antes, como na galeria da página do projeto):
+  * `orientation="vertical"`: a partir de `lg`, o menu vira uma coluna de 16rem ao lado do conteúdo (cartão com borda, fixo ao rolar); no celular continua faixa rolável. Setas dos dois eixos funcionam.
+  * `value` + `onValueChange`: aba controlada por quem usa (botões Anterior/Próxima). Quando a troca vem de fora, o foco vai para o painel novo e a tela volta ao topo dele.
+  * `items[].status`: marcador ao lado do nome. `complete` (círculo `--color-accent` com check `--color-fg`, mais "(completa)" para leitor de tela), `pending` (círculo vazio com borda `--color-border-strong`, "(pendente)") e `optional` (texto "Opcional").
+  * `footer`: conteúdo abaixo dos painéis, na mesma coluna (botões de navegação e de salvar).
 
 ### Pagination (`navigation/`)
 Paginação da listagem (regras em `ux-rules.md`, "Listas e paginação"). Props: `pagina` (atual, começa em 1), `totalPaginas`, `hrefPagina(n)` (quem usa monta o endereço; a página vive na URL). Mostra "Anterior 1 … 4 5 6 … 40 Próxima": primeira, última e vizinhas da atual, com "…" nos saltos. Cada número é um `Button` link (`primary` na página atual, com `aria-current="page"`; `secondary` nas demais); Anterior/Próxima ficam desabilitados nas pontas. Com uma página só, não renderiza nada. `<nav aria-label="Paginação">`, alvos de 44px.
@@ -194,10 +211,19 @@ Ficam na feature porque conhecem o `ProjetoDetalhe`; a tela é montada em `views
 
 Painel em `/admin` (layout próprio, fora do `SiteShell`; a tela é montada em `views/admin/`). Reaproveita `Table`, `Badge`, `Checkbox`, `SearchBar`, `Pagination`, `EmptyState`, `ErrorState` e `Skeleton`.
 
-* `TabelaProjetosAdmin`: `'use client'`. Tabela com seleção por linha e "selecionar todos" da página, barra de ações em massa (Duplicar, Mover para rascunho) e aviso de sucesso/erro com os tokens `--color-notification-*`. Quem usa dá uma `key` que muda a cada busca/página.
+* `TabelaProjetosAdmin`: `'use client'`. Tabela com seleção por linha e "selecionar todos" da página, barra de ações em massa (Duplicar, Mover para rascunho) e aviso de sucesso/erro com os tokens `--color-notification-*`. Quem usa dá uma `key` que muda a cada busca/página. O título do projeto é só texto por enquanto: a tela de edição volta na etapa do banco.
 * `ProjetosAdminSkeleton`: tabela em branco enquanto carrega.
-* `FormularioProjeto`: `'use client'`. Cadastro e edição do projeto, hoje com as etapas 1 (Básico) e 2 (Especificações) numa página só, em seções. Usa `Field`, `Input`, `Select`, `Textarea`, `Checkbox` e `Button`. Salva sempre como rascunho pela Server Action `salvarProjeto`; erros aparecem por campo e num aviso no topo (com foco, para leitor de tela). Recebe as listas de tipos e estilos por props, porque o catálogo mora em `features/projetos` (código de servidor). O envio é manual (`onSubmit`) para o React não limpar os campos quando há erro. Vira passo a passo (`Stepper`) quando as etapas de mídia, "Sobre", perfil e publicação existirem.
-* Menu do painel: Dashboard, Projetos, Vendas e Analytics; só Projetos é link. O botão "Cadastrar Projeto" é o `Button` primário e leva a `/admin/projetos/novo`; o título de cada projeto na tabela leva a `/admin/projetos/[id]/editar`.
+* Menu do painel: Dashboard, Projetos, Vendas e Analytics; só Projetos é link. O botão "Cadastrar Projeto" é o `Button` primário e leva a `/admin/projetos/novo`.
+
+## Cadastro de projeto (`features/cadastro-projeto/components/`)
+
+Recriado do zero em 2026-09-21, **só interface**: nada é gravado nem enviado (sem Supabase nem Storage). A tela é montada em `views/admin/ProjetoFormAdminView.tsx`. Reaproveita `Tabs`, `Field`, `Input`, `Select`, `Textarea`, `Checkbox`, `Button`, `IconButton`, `Icon`, `EmptyState`; usa os novos `FileInput` e `Alert`. Sem token novo.
+
+* `FormularioProjeto`: `'use client'`. 7 abas num `Tabs` vertical (menu ao lado, só o painel da aba escolhida aparece, marcador de completa/pendente/opcional em cada uma). Rodapé com **Anterior**, **Próxima etapa**, **Salvar rascunho** (`secondary`) e **Salvar** (`primary`, a ação principal). O mesmo formulário serve para criar e editar: `projetoInicial?` já vem preenchido; `aoSalvar?` é o ponto de ligação com o banco (sem ele, "Salvar" só confere e avisa "nada foi gravado ainda"). Salvar rascunho exige só o título; Salvar confere tudo, abre a primeira aba com pendência e foca o primeiro campo com erro. Erro de campo aparece ao sair do campo (não a cada tecla) e, depois de "Salvar", em todos. O estado e as ações moram em `hooks/useFormularioProjeto.ts`; a conferência, em `schemas.ts`.
+* Abas: `EtapaInformacoesGerais` (com `CampoTags`: tags com Enter, máx. 10), `EtapaImagens` (com `GradeDeImagens`: miniaturas com remover e, nas plantas, nome editável), `EtapaCaracteristicas`, `EtapaItensIncluidos`, `EtapaArquivosExemplo` (biblioteca vazia mostra `Alert` com link "Enviar arquivos"), `EtapaComplementares` (com `CartaoComplementar`: `<details>` que abre e fecha, com o botão de remover) e `EtapaEntrega` (com `ListaDeAnexos`: nome, tamanho e remover).
+* Auxiliares: `PainelDaEtapa` (cartão com título de cada aba) e `MensagensDeArquivo` (erro do campo e lista do que foi recusado).
+* Regras visuais: `<` e `>` são removidos ao digitar em todo campo de texto; imagens JPG/PNG/WEBP até 2 MB; PDF, ZIP e RAR até 20 MB (no total, na entrega do projeto). Campos começam vazios; placeholders são só dicas.
+* Ícones novos no registro: `upload`, `trash`, `circle-check`, `circle-alert`.
 
 ## Registro
 
