@@ -42,6 +42,8 @@ export const LIMITES = {
   imagemMaxBytes: 2 * MB,
   /** Vale para cada PDF de complementar e para a soma dos arquivos de entrega do projeto. */
   anexoMaxBytes: 20 * MB,
+  /** Quantos arquivos entram numa chamada de `prepararEnvioEmLote`/`confirmarEnvioEmLote`. */
+  loteDeArquivosMax: 12,
 } as const
 
 /** Tipos aceitos por extensão. Navegadores nem sempre informam o MIME de ZIP e RAR: vazio também passa. */

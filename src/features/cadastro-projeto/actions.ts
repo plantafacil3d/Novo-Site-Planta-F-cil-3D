@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
+import { executarComLimite } from '@/lib/executarComLimite'
 import { projetoAdminRepository } from '@/repositories/projetos-admin'
 import { authService } from '@/services/auth'
 import { fileStorage } from '@/services/storage'
@@ -26,7 +27,13 @@ import {
   tipoDeConteudoDaExtensao,
 } from './rules'
 import { lerPayload, validarEtapas } from './schemas'
-import type { CadastroGravavel, PayloadProjeto, ProjetoCriado, ResultadoCadastro } from './types'
+import type {
+  CadastroGravavel,
+  PayloadProjeto,
+  ProjetoCriado,
+  ResultadoCadastro,
+  ResultadoDoItem,
+} from './types'
 
 // Server Actions são endpoints públicos (skill `seguranca` §9.1): cada uma confere o administrador
 // aqui e valida tudo que recebe, sem confiar no formulário que a chamou. O banco (RLS) e o Storage
@@ -48,6 +55,9 @@ async function rodarComoAdmin<T extends object>(
   try {
     return await agir()
   } catch (erro) {
+    // A mensagem para o navegador continua genérica (skill `seguranca` §8); isto é só o log do
+    // servidor, sem o qual uma falha aqui não deixa nenhum rastro para diagnosticar.
+    console.error(erro)
     const mensagem =
       erro instanceof AppError ? erro.message : 'Não foi possível concluir a operação.'
     return falha(mensagem)
@@ -78,10 +88,20 @@ const lerId = (entrada: unknown) => {
   return lido.data
 }
 
-const lerArquivo = (entrada: unknown) => {
-  const lido = schemaArquivo.safeParse(entrada)
-  if (!lido.success) throw new AppError('dados_invalidos', 'Os dados do arquivo são inválidos.')
+const schemaLoteDeArquivos = z.array(schemaArquivo).min(1).max(LIMITES.loteDeArquivosMax)
+
+const lerLote = (entrada: unknown): DadosDoArquivo[] => {
+  const lido = schemaLoteDeArquivos.safeParse(entrada)
+  if (!lido.success) throw new AppError('dados_invalidos', 'Os dados dos arquivos são inválidos.')
   return lido.data
+}
+
+/** Mensagem para UM item do lote: `AppError` vira a mensagem dela; qualquer outro erro é logado (como
+ *  o catch de `rodarComoAdmin`), sem derrubar os outros itens do lote junto. */
+function mensagemDoItem(erro: unknown): string {
+  if (erro instanceof AppError) return erro.message
+  console.error(erro)
+  return 'Não foi possível concluir a operação com este arquivo.'
 }
 
 /** Onde o arquivo vai ficar, já com a extensão e o tipo conferidos pelo papel dele. */
@@ -109,14 +129,40 @@ function resolverDestino(projetoId: string, arquivo: DadosDoArquivo) {
   }
 }
 
-/** Os arquivos da entrega somam no máximo 20 MB, contando o que já está gravado. */
-async function conferirSomaDaEntrega(projetoId: string, arquivo: DadosDoArquivo, tamanho: number) {
-  if (arquivo.papel !== 'entrega') return
+/**
+ * Soma dos arquivos `entrega` já gravados no banco, ignorando os ids que estão neste lote (evita
+ * contar um arquivo duas vezes se ele já foi registrado numa tentativa anterior). Uma leitura só por
+ * chamada, não uma por arquivo.
+ */
+async function somaGravadaDaEntrega(
+  projetoId: string,
+  arquivos: DadosDoArquivo[],
+): Promise<number> {
+  if (!arquivos.some((arquivo) => arquivo.papel === 'entrega')) return 0
   const gravados = await projetoAdminRepository.listarArquivos(projetoId)
-  const soma = gravados
-    .filter((gravado) => gravado.papel === 'entrega' && gravado.id !== arquivo.id)
+  const idsDoLote = new Set(arquivos.map((arquivo) => arquivo.id))
+  return gravados
+    .filter((gravado) => gravado.papel === 'entrega' && !idsDoLote.has(gravado.id))
     .reduce((total, gravado) => total + gravado.tamanhoBytes, 0)
-  if (soma + tamanho > LIMITES.anexoMaxBytes) {
+}
+
+/**
+ * Os arquivos da entrega somam no máximo 20 MB. Olha junto todos os arquivos `entrega` DESTE lote
+ * (que são processados em paralelo, então nenhum vê o registro do outro no banco ainda) + o que já
+ * estava gravado, em vez de cada um checar sozinho — senão dois anexos do mesmo lote poderiam passar
+ * do limite juntos sem que nenhum, isoladamente, percebesse.
+ */
+function conferirSomaDoLote(
+  arquivo: DadosDoArquivo,
+  todosDoLote: DadosDoArquivo[],
+  somaGravada: number,
+  tamanho: number,
+) {
+  if (arquivo.papel !== 'entrega') return
+  const somaDoLote = todosDoLote
+    .filter((item) => item.papel === 'entrega')
+    .reduce((total, item) => total + (item.id === arquivo.id ? tamanho : item.tamanho), 0)
+  if (somaGravada + somaDoLote > LIMITES.anexoMaxBytes) {
     throw new AppError(
       'dados_invalidos',
       `${arquivo.nomeArquivo}: passa do limite de 20 MB no total dos arquivos da entrega.`,
@@ -225,81 +271,123 @@ export async function salvarProjeto(
 }
 
 // ── Arquivos ─────────────────────────────────────────────────────────────────────────────────────
+//
+// As duas ações abaixo recebem um LOTE de arquivos (não um por chamada): autenticam uma única vez
+// para o lote inteiro (`rodarComoAdmin`), em vez de uma vez por arquivo, e processam os itens em
+// paralelo por dentro, devolvendo um resultado por item — um arquivo inválido no meio do lote não
+// derruba os outros. Importante: os LOTES em si (vindos do hook) rodam em sequência, um depois do
+// outro; é isso que garante que `somaGravadaDaEntrega` de um lote já enxergue o que o lote anterior
+// gravou. Nunca chame estas ações para o mesmo projeto em paralelo entre si.
 
-/** Confere o arquivo escolhido e autoriza o navegador a enviá-lo direto ao Storage. */
-export async function prepararEnvio(
+/** Confere os arquivos escolhidos e autoriza o navegador a enviá-los direto ao Storage. */
+export async function prepararEnvioEmLote(
   projetoId: unknown,
   entrada: unknown,
-): Promise<ResultadoCadastro<{ envio: EnvioAutorizado }>> {
+): Promise<ResultadoCadastro<{ itens: ResultadoDoItem<{ envio: EnvioAutorizado }>[] }>> {
   return rodarComoAdmin(async () => {
     const id = lerId(projetoId)
-    const arquivo = lerArquivo(entrada)
+    const arquivos = lerLote(entrada)
+    const somaGravada = await somaGravadaDaEntrega(id, arquivos)
 
-    const { tipoDoConteudo, destino } = resolverDestino(id, arquivo)
-    await conferirSomaDaEntrega(id, arquivo, arquivo.tamanho)
+    const itens = await Promise.all(
+      arquivos.map(async (arquivo): Promise<ResultadoDoItem<{ envio: EnvioAutorizado }>> => {
+        try {
+          const { tipoDoConteudo, destino } = resolverDestino(id, arquivo)
+          conferirSomaDoLote(arquivo, arquivos, somaGravada, arquivo.tamanho)
 
-    const envio = await fileStorage.autorizarEnvio({ ...destino, tipoDoConteudo })
-    return { ok: true, mensagem: 'Envio autorizado.', envio }
+          const envio = await fileStorage.autorizarEnvio({ ...destino, tipoDoConteudo })
+          return { id: arquivo.id, ok: true, mensagem: 'Envio autorizado.', envio }
+        } catch (erro) {
+          return { id: arquivo.id, ok: false, mensagem: mensagemDoItem(erro) }
+        }
+      }),
+    )
+    return { ok: true, mensagem: 'Envio autorizado.', itens }
   })
 }
 
+/** Quantas inspeções de Storage (as mais caras: leem os primeiros bytes do arquivo, com até 15s de
+ *  timeout cada) rodam ao mesmo tempo dentro de um lote, independente do tamanho dele. */
+const CONCORRENCIA_DE_INSPECAO = 6
+
 /**
- * Depois do envio: o servidor olha o arquivo que chegou ao Storage (tamanho real e primeiros bytes),
- * e só então registra no banco. Arquivo que não confere é apagado.
+ * Depois do envio: o servidor olha cada arquivo que chegou ao Storage (tamanho real e primeiros
+ * bytes), e só então registra no banco. Arquivo que não confere é apagado.
  */
-export async function confirmarEnvio(
+export async function confirmarEnvioEmLote(
   projetoId: unknown,
   entrada: unknown,
-): Promise<ResultadoCadastro> {
-  return rodarComoAdmin<object>(async () => {
+): Promise<ResultadoCadastro<{ itens: ResultadoDoItem[] }>> {
+  return rodarComoAdmin(async () => {
     const id = lerId(projetoId)
-    const arquivo = lerArquivo(entrada)
-    const { extensao, tipoDoConteudo, destino } = resolverDestino(id, arquivo)
+    const arquivos = lerLote(entrada)
+    const somaGravada = await somaGravadaDaEntrega(id, arquivos)
 
-    const noStorage = await fileStorage.inspecionar(destino)
-    if (!noStorage) {
-      return falha(`${arquivo.nomeArquivo}: o arquivo não chegou ao armazenamento. Tente de novo.`)
-    }
+    const itens = await executarComLimite(
+      arquivos,
+      CONCORRENCIA_DE_INSPECAO,
+      async (arquivo): Promise<ResultadoDoItem> => {
+        try {
+          const { extensao, tipoDoConteudo, destino } = resolverDestino(id, arquivo)
 
-    const motivo =
-      erroDoArquivoDoPapel(arquivo.papel, {
-        nomeArquivo: arquivo.nomeArquivo,
-        tamanho: noStorage.tamanho,
-        tipo: tipoDoConteudo,
-      }) ??
-      (formatoConfere(extensao, noStorage.inicio) ? null : 'O conteúdo não é do formato indicado.')
-    if (motivo) {
-      await fileStorage.remover([destino])
-      return falha(`${arquivo.nomeArquivo}: ${motivo}`)
-    }
+          const noStorage = await fileStorage.inspecionar(destino)
+          if (!noStorage) {
+            return {
+              id: arquivo.id,
+              ok: false,
+              mensagem: `${arquivo.nomeArquivo}: o arquivo não chegou ao armazenamento. Tente de novo.`,
+            }
+          }
 
-    try {
-      await conferirSomaDaEntrega(id, arquivo, noStorage.tamanho)
-      await projetoAdminRepository.registrarArquivo({
-        id: arquivo.id,
-        projetoId: id,
-        papel: arquivo.papel,
-        complementarId: arquivo.complementarId,
-        caminho: destino.caminho,
-        nomeOriginal: arquivo.nomeArquivo,
-        rotulo: arquivo.rotulo || null,
-        tamanhoBytes: noStorage.tamanho,
-        tipoMime: tipoDoConteudo,
-        ordem: arquivo.ordem,
-      })
-    } catch (erro) {
-      // Já estava registrado (a resposta anterior se perdeu): vale como sucesso, e o arquivo fica.
-      const gravados = await projetoAdminRepository.listarArquivos(id)
-      if (
-        gravados.some((gravado) => gravado.id === arquivo.id && gravado.caminho === destino.caminho)
-      ) {
-        return { ok: true, mensagem: 'Arquivo salvo.' }
-      }
-      await fileStorage.remover([destino]).catch(() => undefined)
-      throw erro
-    }
+          const motivo =
+            erroDoArquivoDoPapel(arquivo.papel, {
+              nomeArquivo: arquivo.nomeArquivo,
+              tamanho: noStorage.tamanho,
+              tipo: tipoDoConteudo,
+            }) ??
+            (formatoConfere(extensao, noStorage.inicio)
+              ? null
+              : 'O conteúdo não é do formato indicado.')
+          if (motivo) {
+            await fileStorage.remover([destino])
+            return { id: arquivo.id, ok: false, mensagem: `${arquivo.nomeArquivo}: ${motivo}` }
+          }
 
-    return { ok: true, mensagem: 'Arquivo salvo.' }
+          try {
+            conferirSomaDoLote(arquivo, arquivos, somaGravada, noStorage.tamanho)
+            await projetoAdminRepository.registrarArquivo({
+              id: arquivo.id,
+              projetoId: id,
+              papel: arquivo.papel,
+              complementarId: arquivo.complementarId,
+              caminho: destino.caminho,
+              nomeOriginal: arquivo.nomeArquivo,
+              rotulo: arquivo.rotulo || null,
+              tamanhoBytes: noStorage.tamanho,
+              tipoMime: tipoDoConteudo,
+              ordem: arquivo.ordem,
+            })
+          } catch (erro) {
+            // Já estava registrado (a resposta anterior se perdeu): vale como sucesso, e o arquivo fica.
+            const gravados = await projetoAdminRepository.listarArquivos(id)
+            if (
+              gravados.some(
+                (gravado) => gravado.id === arquivo.id && gravado.caminho === destino.caminho,
+              )
+            ) {
+              return { id: arquivo.id, ok: true, mensagem: 'Arquivo salvo.' }
+            }
+            await fileStorage.remover([destino]).catch(() => undefined)
+            throw erro
+          }
+
+          return { id: arquivo.id, ok: true, mensagem: 'Arquivo salvo.' }
+        } catch (erro) {
+          return { id: arquivo.id, ok: false, mensagem: mensagemDoItem(erro) }
+        }
+      },
+    )
+    return { ok: true, mensagem: 'Arquivos conferidos.', itens }
   })
 }
 

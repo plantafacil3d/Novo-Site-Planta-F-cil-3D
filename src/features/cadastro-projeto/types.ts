@@ -228,3 +228,7 @@ export type EstadoParaPublicar = {
 /** Resposta das ações do servidor: ou deu certo (com o que a ação devolve) ou vem a mensagem do problema. */
 export type ResultadoCadastro<T extends object = object> =
   ({ ok: true; mensagem: string } & T) | { ok: false; mensagem: string }
+
+/** Resultado de UM item dentro de uma ação em lote: mesmo formato de `ResultadoCadastro`, com o id do
+ *  item para o chamador casar a resposta com o arquivo que a gerou. */
+export type ResultadoDoItem<T extends object = object> = { id: string } & ResultadoCadastro<T>

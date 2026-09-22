@@ -3,7 +3,12 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 
 import { fileUploader } from '@/services/upload'
 
-import { confirmarEnvio, prepararEnvio, publicarProjeto, salvarProjeto } from '../actions'
+import {
+  confirmarEnvioEmLote,
+  prepararEnvioEmLote,
+  publicarProjeto,
+  salvarProjeto,
+} from '../actions'
 import { etapasDoCadastro, type ChaveDeCaracteristica } from '../catalogo'
 import {
   ARQUIVOS_DE_ENTREGA,
@@ -378,42 +383,101 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial }: Opcoe
       : null
   const avisoAtual = aviso && aviso.dados === dados ? aviso : null
 
-  /** Autoriza, envia direto ao Storage e confirma. Se o envio falhar mas o arquivo já estiver lá, vale. */
-  async function enviarArquivo(
-    id: string,
-    { papel, arquivo, ordem, complementarId, rotulo }: ArquivoDoFormulario<ArquivoEscolhido>,
-    arquivoLocal: File,
-  ) {
-    const dadosDoArquivo = {
-      id: arquivo.id,
-      papel,
-      nomeArquivo: arquivo.nomeArquivo,
-      tamanho: arquivo.tamanho,
-      tipo: arquivo.tipo,
-      complementarId,
-      rotulo,
-      ordem,
-    }
-    const preparo = await prepararEnvio(id, dadosDoArquivo)
-    if (!preparo.ok) return preparo
+  const paraDadosDoArquivo = ({
+    papel,
+    arquivo,
+    ordem,
+    complementarId,
+    rotulo,
+  }: ArquivoDoFormulario<ArquivoEscolhido>) => ({
+    id: arquivo.id,
+    papel,
+    nomeArquivo: arquivo.nomeArquivo,
+    tamanho: arquivo.tamanho,
+    tipo: arquivo.tipo,
+    complementarId,
+    rotulo,
+    ordem,
+  })
 
-    let falhouNoEnvio = false
-    try {
-      await fileUploader.enviar(preparo.envio, arquivoLocal)
-    } catch {
-      falhouNoEnvio = true
+  type ResultadoDoEnvio = { ok: boolean; mensagem: string }
+  type PendenteDeEnvio = { item: ArquivoDoFormulario<ArquivoEscolhido>; arquivoLocal: File }
+
+  /**
+   * Autoriza, envia e confirma um LOTE inteiro em só 2 idas ao servidor (em vez de 2 por arquivo):
+   * autentica uma vez para o lote todo. Devolve um resultado por arquivo, para quem chamar marcar
+   * como salvo só quem realmente deu certo, mesmo que outros itens do lote tenham falhado.
+   */
+  async function enviarLote(
+    id: string,
+    itens: PendenteDeEnvio[],
+  ): Promise<Map<string, ResultadoDoEnvio>> {
+    const dadosDosArquivos = itens.map(({ item }) => paraDadosDoArquivo(item))
+
+    const preparo = await prepararEnvioEmLote(id, dadosDosArquivos)
+    if (!preparo.ok) {
+      // Falha do lote inteiro (ex.: sessão expirou): nenhum item deste lote foi autorizado.
+      return new Map(itens.map(({ item }) => [item.arquivo.id, preparo]))
     }
-    const conferido = await confirmarEnvio(id, dadosDoArquivo)
-    if (conferido.ok || !falhouNoEnvio) return conferido
-    return {
-      ok: false as const,
-      mensagem: `Não foi possível enviar "${arquivo.nomeArquivo}". Confira a conexão e salve de novo.`,
-    }
+    const preparoPorId = new Map(preparo.itens.map((resultado) => [resultado.id, resultado]))
+
+    const falhasNoEnvio = new Set<string>()
+    await Promise.all(
+      itens.map(async ({ item, arquivoLocal }) => {
+        const preparoItem = preparoPorId.get(item.arquivo.id)
+        if (!preparoItem?.ok) return
+        try {
+          await fileUploader.enviar(preparoItem.envio, arquivoLocal)
+        } catch {
+          falhasNoEnvio.add(item.arquivo.id)
+        }
+      }),
+    )
+
+    const paraConfirmar = dadosDosArquivos.filter((dados) => preparoPorId.get(dados.id)?.ok)
+    const confirmado =
+      paraConfirmar.length > 0
+        ? await confirmarEnvioEmLote(id, paraConfirmar)
+        : { ok: true as const, mensagem: '', itens: [] }
+    const confirmadoPorId = new Map(
+      confirmado.ok ? confirmado.itens.map((resultado) => [resultado.id, resultado]) : [],
+    )
+
+    return new Map(
+      itens.map(({ item }): [string, ResultadoDoEnvio] => {
+        const idArquivo = item.arquivo.id
+        const preparoItem = preparoPorId.get(idArquivo)
+        if (!preparoItem?.ok) {
+          return [
+            idArquivo,
+            { ok: false, mensagem: preparoItem?.mensagem ?? 'Não foi possível preparar o envio.' },
+          ]
+        }
+        const confirmadoItem = confirmadoPorId.get(idArquivo)
+        if (confirmadoItem?.ok) return [idArquivo, confirmadoItem]
+        if (falhasNoEnvio.has(idArquivo)) {
+          return [
+            idArquivo,
+            {
+              ok: false,
+              mensagem: `Não foi possível enviar "${item.arquivo.nomeArquivo}". Confira a conexão e salve de novo.`,
+            },
+          ]
+        }
+        if (!confirmado.ok) return [idArquivo, confirmado]
+        return [
+          idArquivo,
+          confirmadoItem ?? { ok: false, mensagem: 'Não foi possível confirmar o arquivo.' },
+        ]
+      }),
+    )
   }
 
   /**
-   * Os passos do salvamento: 1) dados do projeto, 2) cada arquivo novo, um a um, 3) no "Salvar", a
+   * Os passos do salvamento: 1) dados do projeto, 2) os arquivos novos, em lotes, 3) no "Salvar", a
    * publicação. Se algo falhar no meio, o que já foi gravado fica e o próximo "Salvar" continua dali.
+   * Os LOTES rodam em sequência, um depois do outro (nunca em paralelo entre si) — dentro de cada
+   * lote os arquivos sobem juntos, autorizados e confirmados numa chamada só ao servidor.
    */
   async function gravar(modo: ModoSalvar): Promise<{ ok: boolean; mensagem: string }> {
     setProgresso('Salvando as informações…')
@@ -422,18 +486,29 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial }: Opcoe
     const id = salvo.projetoId
     setProjetoId(id)
 
-    const pendentes = listarArquivosDoFormulario(dados).flatMap((item) =>
+    const pendentes: PendenteDeEnvio[] = listarArquivosDoFormulario(dados).flatMap((item) =>
       item.arquivo.arquivo && !salvos.has(item.arquivo.id)
         ? [{ item, arquivoLocal: item.arquivo.arquivo }]
         : [],
     )
     const gravados = new Set(salvos)
-    for (const [indice, { item, arquivoLocal }] of pendentes.entries()) {
-      setProgresso(`Enviando arquivo ${indice + 1} de ${pendentes.length}…`)
-      const enviado = await enviarArquivo(id, item, arquivoLocal)
-      if (!enviado.ok) return enviado
-      gravados.add(item.arquivo.id)
+    for (let inicio = 0; inicio < pendentes.length; inicio += LIMITES.loteDeArquivosMax) {
+      const lote = pendentes.slice(inicio, inicio + LIMITES.loteDeArquivosMax)
+      const ultimo = Math.min(inicio + LIMITES.loteDeArquivosMax, pendentes.length)
+      setProgresso(
+        pendentes.length > 1
+          ? `Enviando arquivos ${inicio + 1}–${ultimo} de ${pendentes.length}…`
+          : 'Enviando arquivo…',
+      )
+      const resultados = await enviarLote(id, lote)
+      for (const { item } of lote) {
+        if (resultados.get(item.arquivo.id)?.ok) gravados.add(item.arquivo.id)
+      }
       setSalvos(new Set(gravados))
+      const falha = lote
+        .map(({ item }) => resultados.get(item.arquivo.id))
+        .find((resultado) => resultado && !resultado.ok)
+      if (falha) return falha
     }
 
     if (modo === 'rascunho') {
