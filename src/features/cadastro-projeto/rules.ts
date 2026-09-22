@@ -2,15 +2,19 @@ import type { AcessoDoArquivo } from '@/types/envio'
 
 import { etapasDoCadastro } from './catalogo'
 import type {
+  ArquivoCompletoDoBanco,
   ArquivoDoPayload,
   ArquivoEscolhido,
+  CadastroCompletoDoBanco,
   CadastroGravavel,
   ComplementarGravavel,
+  ComplementarProjeto,
   DadosProjeto,
   DadosValidaveis,
   EstadoParaPublicar,
   EtapaId,
   ErrosDaEtapa,
+  ImagemProjeto,
   MetaArquivo,
   PapelDoArquivo,
   PayloadProjeto,
@@ -500,4 +504,105 @@ export function montarComplementares(dados: DadosValidaveis): ComplementarGravav
     link: complementar.entrega === 'link' ? textoOuNulo(complementar.link) : null,
     ordem: indice,
   }))
+}
+
+// ── Edição (banco → formulário) ─────────────────────────────────────────────────────────────────
+
+/** Inverso de `lerPrecoEmCentavos`: 129990 → "1299,90". */
+const centavosParaTexto = (centavos: number | null) =>
+  centavos === null ? '' : (centavos / 100).toFixed(2).replace('.', ',')
+
+/** Inverso de `lerNumero`. */
+const numeroParaTexto = (numero: number | null) =>
+  numero === null ? '' : String(numero).replace('.', ',')
+
+/** Inverso de `simNaoParaBoolean`. */
+const booleanParaSimNao = (valor: boolean | null): SimNao =>
+  valor === null ? '' : valor ? 'sim' : 'nao'
+
+/** Arquivo já gravado, no formato que os campos do formulário esperam: sem `File` (dado de exibição). */
+function paraArquivoEscolhido(arquivo: ArquivoCompletoDoBanco): ArquivoEscolhido {
+  return {
+    id: arquivo.id,
+    nomeArquivo: arquivo.nomeOriginal,
+    tamanho: arquivo.tamanhoBytes,
+    tipo: arquivo.tipoMime,
+  }
+}
+
+function paraImagem(arquivo: ArquivoCompletoDoBanco, url: string): ImagemProjeto {
+  return { ...paraArquivoEscolhido(arquivo), url }
+}
+
+/**
+ * Dados gravados de um projeto, no formato do formulário (`DadosProjeto`), para abrir a tela de
+ * edição. Inverso de `montarCadastro`/`montarComplementares`. `urlDoArquivo` resolve a URL de
+ * exibição de cada imagem — só as imagens precisam: PDF e outros anexos só mostram nome e tamanho
+ * (ver `ListaDeAnexos`), por isso a função continua pura e testável sem Storage de verdade.
+ */
+export function paraDadosProjeto(
+  cadastro: CadastroCompletoDoBanco,
+  urlDoArquivo: (arquivo: ArquivoCompletoDoBanco) => string,
+): DadosProjeto {
+  const porOrdem = (a: ArquivoCompletoDoBanco, b: ArquivoCompletoDoBanco) => a.ordem - b.ordem
+  const doPapel = (papel: PapelDoArquivo) =>
+    cadastro.arquivos.filter((arquivo) => arquivo.papel === papel).sort(porOrdem)
+  const pdfDoComplementar = (complementarId: string) =>
+    cadastro.arquivos.find(
+      (arquivo) =>
+        arquivo.papel === 'complementar_pdf' && arquivo.complementarId === complementarId,
+    )
+
+  const principal = doPapel('principal')[0]
+
+  const complementares: ComplementarProjeto[] = cadastro.complementares
+    .slice()
+    .sort((a, b) => a.ordem - b.ordem)
+    .map((complementar) => {
+      const pdf = pdfDoComplementar(complementar.id)
+      return {
+        id: complementar.id,
+        titulo: complementar.titulo ?? '',
+        valor: centavosParaTexto(complementar.valorCentavos),
+        descricao: complementar.descricao ?? '',
+        entrega: complementar.entrega ?? '',
+        link: complementar.link ?? '',
+        pdf: pdf ? paraArquivoEscolhido(pdf) : null,
+      }
+    })
+
+  return {
+    titulo: cadastro.titulo,
+    precoNormal: centavosParaTexto(cadastro.precoCentavos),
+    precoPromocional: centavosParaTexto(cadastro.precoPromocionalCentavos),
+    categoria: cadastro.categoria ?? '',
+    estilo: cadastro.estilo ?? '',
+    resumo: cadastro.resumo ?? '',
+    descricao: cadastro.descricao ?? '',
+    tags: [...cadastro.tags],
+    videoUrl: cadastro.videoUrl ?? '',
+    imagemPrincipal: principal ? paraImagem(principal, urlDoArquivo(principal)) : null,
+    imagens: doPapel('galeria').map((arquivo) => paraImagem(arquivo, urlDoArquivo(arquivo))),
+    plantas: doPapel('planta').map((arquivo) => ({
+      ...paraImagem(arquivo, urlDoArquivo(arquivo)),
+      nome: arquivo.rotulo ?? '',
+    })),
+    larguraTerreno: numeroParaTexto(cadastro.larguraM),
+    profundidadeTerreno: numeroParaTexto(cadastro.profundidadeM),
+    areaConstruida: numeroParaTexto(cadastro.areaConstruidaM2),
+    quartos: numeroParaTexto(cadastro.quartos),
+    suites: numeroParaTexto(cadastro.suites),
+    suiteMaster: numeroParaTexto(cadastro.suiteMaster),
+    banheiros: numeroParaTexto(cadastro.banheiros),
+    lavabo: numeroParaTexto(cadastro.lavabo),
+    vagas: numeroParaTexto(cadastro.vagas),
+    pavimentos: numeroParaTexto(cadastro.pavimentos),
+    piscina: booleanParaSimNao(cadastro.piscina),
+    areaGourmet: booleanParaSimNao(cadastro.areaGourmet),
+    itens: [...cadastro.itens],
+    arquivosExemplo: [],
+    complementares,
+    entregaArquivos: doPapel('entrega').map(paraArquivoEscolhido),
+    entregaLink: cadastro.entregaLink ?? '',
+  }
 }

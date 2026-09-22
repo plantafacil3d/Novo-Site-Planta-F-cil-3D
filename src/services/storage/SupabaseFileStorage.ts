@@ -89,6 +89,11 @@ export class SupabaseFileStorage implements FileStorage {
     return { tamanho: info.size ?? 0, inicio: await lerInicio(leitura.signedUrl) }
   }
 
+  async urlPublica({ acesso, caminho }: DestinoDeArquivo): Promise<string> {
+    const bucket = await armazem(acesso)
+    return bucket.getPublicUrl(caminho).data.publicUrl
+  }
+
   async remover(destinos: DestinoDeArquivo[]): Promise<void> {
     for (const acesso of ['publico', 'privado'] as const) {
       const caminhos = destinos.filter((item) => item.acesso === acesso).map((item) => item.caminho)

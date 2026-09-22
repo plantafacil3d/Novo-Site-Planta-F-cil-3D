@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-import { acessoDoPapel } from '@/features/cadastro-projeto'
+import { acessoDoPapel, publicarProjeto } from '@/features/cadastro-projeto'
 import { projetoAdminRepository } from '@/repositories/projetos-admin'
 import { authService } from '@/services/auth'
 import { fileStorage } from '@/services/storage'
@@ -64,6 +64,23 @@ async function mudarStatus(ids: string[], status: StatusProjeto) {
 /** Passa os projetos selecionados para rascunho (saem do site público). */
 export async function moverParaRascunho(ids: string[]): Promise<ResultadoAcao> {
   return rodarComoAdmin(ids, (validos) => mudarStatus(validos, 'rascunho'))
+}
+
+/**
+ * Publica um projeto (menu de ações de uma linha): mesma regra do "Salvar" no cadastro, falha se
+ * faltar algum arquivo obrigatório. Só usa o primeiro id — nasceu para a ação de uma linha só, como
+ * `moverParaRascunho` quando chamada com `[id]`.
+ *
+ * Reexporta `publicarProjeto` (de `cadastro-projeto`) envolvido em `rodarComoAdmin`: chamar a Server
+ * Action de outra feature direto do componente cliente puxaria, pelo `index.ts` dela, o loader
+ * server-only da tela de edição (`buscarProjetoParaEditar`) para o bundle do navegador.
+ */
+export async function publicarProjetos(ids: string[]): Promise<ResultadoAcao> {
+  return rodarComoAdmin(ids, async (validos) => {
+    const resultado = await publicarProjeto(validos[0])
+    if (!resultado.ok) throw new AppError('dados_invalidos', resultado.mensagem)
+    return resultado.mensagem
+  })
 }
 
 /**

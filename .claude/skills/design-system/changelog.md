@@ -4,6 +4,17 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-22 (menu de ações e edição de projetos no painel)
+
+* Componente novo: `DropdownMenu` (ui) — menu de contexto (botão ⋮) para as ações de uma linha da `TabelaProjetosAdmin`: Editar projeto, Salvar como rascunho ↔ Publicar projeto, Excluir. Detalhes em `components.md`.
+* Decisão: o painel do `DropdownMenu` usa o `popover` nativo do navegador (mesma família do `<dialog>` já usado no `Modal`), em vez de um portal React com listeners manuais de clique-fora/Esc. Por quê: a `Table` tem `overflow-x-auto` (que também recorta a vertical), e um painel `absolute` comum seria cortado nas linhas perto da borda; o `popover` renderiza na *top layer* do navegador e já fecha sozinho com Esc e clique fora, sem código extra — o mesmo raciocínio que já levou o `Modal` a usar `<dialog>` nativo.
+* Ícones novos: `more-vertical` (botão ⋮; não confundir com `move-vertical`, ícone diferente já registrado) e `pencil` (Editar projeto).
+* Resolvida a rota `/admin/projetos/[id]/editar`, citada como pendente em 2026-09-21: reaproveita o `FormularioProjeto` existente (já previsto para criar e editar), agora carregando o cadastro completo do banco (`buscarProjetoParaEditar`) e salvando como atualização (`projetoId` inicial no `useFormularioProjeto`, para o primeiro "Salvar" não duplicar o projeto).
+* Resolvida a dívida da `TabelaProjetosAdmin`: o banner de aviso, que copiava as classes do `Alert` à mão, agora usa o componente `Alert` diretamente (citada como pendente em 2026-09-21).
+* Confirmação de sucesso após editar: a listagem lê `?salvo=1` (fora do schema de paginação/busca, para não "grudar" nos links) e mostra um `Alert` de sucesso. Não é um sistema de toast novo (esse continua no backlog) — reaproveita o mesmo padrão de estado-na-URL que a busca e a paginação já usam.
+* Sem token novo: o `DropdownMenu` reaproveita `--shadow-md` (já documentado em `tokens.md` como "sombra de card em hover, dropdown"), `--color-border`, `--color-surface`, `--color-subtle` e `--color-danger-fg` (o item "Excluir" só muda a cor do texto — vermelho sólido continua exclusivo do `Button danger` dentro do `DialogoDeConfirmacao`).
+* Pendente: "Ver no site" na coluna Ações continua sem existir (mesmo motivo de 2026-09-21: o site público ainda lê a lista em memória).
+
 ## 2026-09-21 (exclusão de projetos no painel)
 
 * Componente novo: `DialogoDeConfirmacao` (shared) — última parada antes de uma ação sem volta. Detalhes em `components.md`.

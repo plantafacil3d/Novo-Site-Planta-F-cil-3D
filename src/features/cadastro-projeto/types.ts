@@ -174,6 +174,27 @@ export type ComplementarGravavel = {
 
 export type ProjetoCriado = { id: string; codigo: string; slug: string }
 
+/** Um arquivo gravado, com tudo que a tela de edição precisa (nome, tamanho e o papel dele). */
+export type ArquivoCompletoDoBanco = {
+  id: string
+  papel: PapelDoArquivo
+  complementarId: string | null
+  caminho: string
+  nomeOriginal: string
+  /** Nome que o cliente vê (só as plantas). */
+  rotulo: string | null
+  tamanhoBytes: number
+  tipoMime: string
+  ordem: number
+}
+
+/** O projeto como está gravado, para carregar a tela de edição: dados, complementares e arquivos. */
+export type CadastroCompletoDoBanco = CadastroGravavel & {
+  id: string
+  complementares: ComplementarGravavel[]
+  arquivos: ArquivoCompletoDoBanco[]
+}
+
 /** Um arquivo que já está gravado (linha em `projeto_arquivos`). */
 export type ArquivoGravado = {
   id: string

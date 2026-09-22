@@ -11,6 +11,7 @@ import type {
 } from '@/features/admin'
 import type {
   ArquivoGravado,
+  CadastroCompletoDoBanco,
   CadastroGravavel,
   ComplementarGravavel,
   EstadoParaPublicar,
@@ -133,6 +134,110 @@ type LinhaParaPublicar = {
   projeto_arquivos: { papel: PapelDoArquivo; complementar_id: string | null }[]
 }
 
+/** Colunas de `CadastroGravavel` + `id`, para a tela de edição. */
+const COLUNAS_DO_CADASTRO_COMPLETO =
+  'id, titulo, categoria, estilo, preco_centavos, preco_promocional_centavos, resumo, descricao, ' +
+  'tags, video_url, largura_m, profundidade_m, area_construida_m2, quartos, suites, suite_master, ' +
+  'banheiros, lavabo, vagas, pavimentos, piscina, area_gourmet, itens, entrega_link, ' +
+  'projeto_complementares (id, titulo, valor_centavos, descricao, entrega, link, ordem), ' +
+  'projeto_arquivos (id, papel, complementar_id, caminho, nome_original, rotulo, tamanho_bytes, tipo_mime, ordem)'
+
+type LinhaCadastroCompleto = {
+  id: string
+  titulo: string
+  categoria: string | null
+  estilo: string | null
+  preco_centavos: number | null
+  preco_promocional_centavos: number | null
+  resumo: string | null
+  descricao: string | null
+  tags: string[]
+  video_url: string | null
+  largura_m: number | null
+  profundidade_m: number | null
+  area_construida_m2: number | null
+  quartos: number | null
+  suites: number | null
+  suite_master: number | null
+  banheiros: number | null
+  lavabo: number | null
+  vagas: number | null
+  pavimentos: number | null
+  piscina: boolean | null
+  area_gourmet: boolean | null
+  itens: string[]
+  entrega_link: string | null
+  projeto_complementares: {
+    id: string
+    titulo: string | null
+    valor_centavos: number | null
+    descricao: string | null
+    entrega: 'link' | 'pdf' | null
+    link: string | null
+    ordem: number
+  }[]
+  projeto_arquivos: {
+    id: string
+    papel: PapelDoArquivo
+    complementar_id: string | null
+    caminho: string
+    nome_original: string
+    rotulo: string | null
+    tamanho_bytes: number
+    tipo_mime: string
+    ordem: number
+  }[]
+}
+
+function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoBanco {
+  return {
+    id: linha.id,
+    titulo: linha.titulo,
+    categoria: linha.categoria,
+    estilo: linha.estilo,
+    precoCentavos: linha.preco_centavos,
+    precoPromocionalCentavos: linha.preco_promocional_centavos,
+    resumo: linha.resumo,
+    descricao: linha.descricao,
+    tags: linha.tags,
+    videoUrl: linha.video_url,
+    larguraM: linha.largura_m,
+    profundidadeM: linha.profundidade_m,
+    areaConstruidaM2: linha.area_construida_m2,
+    quartos: linha.quartos,
+    suites: linha.suites,
+    suiteMaster: linha.suite_master,
+    banheiros: linha.banheiros,
+    lavabo: linha.lavabo,
+    vagas: linha.vagas,
+    pavimentos: linha.pavimentos,
+    piscina: linha.piscina,
+    areaGourmet: linha.area_gourmet,
+    itens: linha.itens,
+    entregaLink: linha.entrega_link,
+    complementares: linha.projeto_complementares.map((complementar) => ({
+      id: complementar.id,
+      titulo: complementar.titulo,
+      valorCentavos: complementar.valor_centavos,
+      descricao: complementar.descricao,
+      entrega: complementar.entrega,
+      link: complementar.link,
+      ordem: complementar.ordem,
+    })),
+    arquivos: linha.projeto_arquivos.map((arquivo) => ({
+      id: arquivo.id,
+      papel: arquivo.papel,
+      complementarId: arquivo.complementar_id,
+      caminho: arquivo.caminho,
+      nomeOriginal: arquivo.nome_original,
+      rotulo: arquivo.rotulo,
+      tamanhoBytes: arquivo.tamanho_bytes,
+      tipoMime: arquivo.tipo_mime,
+      ordem: arquivo.ordem,
+    })),
+  }
+}
+
 export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
   async listar({ busca, pagina, porPagina }: ConsultaProjetosAdmin): Promise<Pagina<ProjetoAdmin>> {
     const tamanho = Math.min(Math.max(1, porPagina), POR_PAGINA_MAXIMO)
@@ -232,6 +337,18 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
       .select('id')
     if (error) throw traduzir(error)
     if (data.length === 0) throw new AppError('dados_invalidos', 'Projeto não encontrado.')
+  }
+
+  async buscarCadastroCompleto(id: string): Promise<CadastroCompletoDoBanco | null> {
+    const supabase = await criarClienteServidor()
+    const { data, error } = await supabase
+      .from('projetos')
+      .select(COLUNAS_DO_CADASTRO_COMPLETO)
+      .eq('id', id)
+      .maybeSingle()
+      .overrideTypes<LinhaCadastroCompleto, { merge: false }>()
+    if (error) throw traduzir(error)
+    return data ? paraCadastroCompleto(data) : null
   }
 
   async sincronizarComplementares(

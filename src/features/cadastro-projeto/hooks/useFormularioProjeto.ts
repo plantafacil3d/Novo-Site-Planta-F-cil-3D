@@ -43,10 +43,12 @@ type Aviso = { tipo: 'sucesso' | 'erro'; mensagem: string; dados: DadosProjeto }
 type Opcoes = {
   /** Projeto para editar. Sem ele, o formulário nasce vazio. */
   projetoInicial?: DadosProjeto
+  /** Id do projeto em edição: sem ele, o primeiro "Salvar" cria um projeto novo em vez de atualizar. */
+  projetoIdInicial?: string
 }
 
-/** Onde o cadastro vai depois de publicar. */
-const LISTA_DE_PROJETOS = '/admin/projetos'
+/** Onde o cadastro vai depois de publicar, com um sinal para a listagem mostrar a confirmação. */
+const LISTA_DE_PROJETOS = '/admin/projetos?salvo=1'
 
 /** Campos do formulário cujo valor é um texto simples. */
 type ChaveDeTexto = {
@@ -67,11 +69,12 @@ const metadados = (arquivo: File) => ({
  * Estado e ações do cadastro de projeto: dados, aba atual, erros, envio de arquivos e salvamento.
  * As telas só leem daqui e chamam as ações; a conferência mora em `schemas.ts`.
  */
-export function useFormularioProjeto({ projetoInicial }: Opcoes) {
+export function useFormularioProjeto({ projetoInicial, projetoIdInicial }: Opcoes) {
   const router = useRouter()
   const [dados, setDados] = useState<DadosProjeto>(() => projetoInicial ?? dadosVazios())
   // Depois do primeiro "Salvar" o projeto já existe: salvar de novo atualiza em vez de duplicar.
-  const [projetoId, setProjetoId] = useState<string | null>(null)
+  // Na edição, já nasce preenchido (senão o primeiro "Salvar" criaria um projeto novo).
+  const [projetoId, setProjetoId] = useState<string | null>(projetoIdInicial ?? null)
   // Arquivos que já chegaram ao Storage nesta tela; um novo "Salvar" não os envia de novo.
   const [salvos, setSalvos] = useState<ReadonlySet<string>>(new Set())
   const [progresso, setProgresso] = useState<string | null>(null)

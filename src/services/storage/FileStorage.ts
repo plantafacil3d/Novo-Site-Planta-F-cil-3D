@@ -14,5 +14,7 @@ export interface FileStorage {
   autorizarEnvio(destino: DestinoDeArquivo & { tipoDoConteudo: string }): Promise<EnvioAutorizado>
   /** `null` se o arquivo não está lá. */
   inspecionar(destino: DestinoDeArquivo): Promise<ArquivoNoStorage | null>
+  /** URL pública e estável de um arquivo já gravado (só serve para acesso "publico"). */
+  urlPublica(destino: DestinoDeArquivo): Promise<string>
   remover(destinos: DestinoDeArquivo[]): Promise<void>
 }

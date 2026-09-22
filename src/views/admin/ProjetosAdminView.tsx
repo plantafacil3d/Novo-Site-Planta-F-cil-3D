@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { Pagination } from '@/components/navigation/Pagination'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { SearchBar } from '@/components/shared/SearchBar'
+import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import {
   PROJETOS_ADMIN_POR_PAGINA,
@@ -23,8 +24,14 @@ const rotulosDeCategoria: Record<string, string> = Object.fromEntries(
 /** Rascunho pode estar sem categoria ou preço: a tabela mostra um traço. */
 const SEM_VALOR = '—'
 
+type ProjetosAdminViewProps = {
+  params: ParametrosAdminProjetos
+  /** Veio de um "Salvar" na edição de projeto: mostra a confirmação de sucesso. */
+  salvo?: boolean
+}
+
 /** Aba Projetos do painel: título, "Cadastrar Projeto", busca, tabela e paginação. */
-export async function ProjetosAdminView({ params }: { params: ParametrosAdminProjetos }) {
+export async function ProjetosAdminView({ params, salvo }: ProjetosAdminViewProps) {
   const resultado = await listarProjetosAdmin(params)
   const paginas = totalDePaginas(resultado.total, PROJETOS_ADMIN_POR_PAGINA)
 
@@ -56,6 +63,8 @@ export async function ProjetosAdminView({ params }: { params: ParametrosAdminPro
           Cadastrar Projeto
         </Button>
       </div>
+
+      {salvo && <Alert variant="success">Projeto salvo com sucesso.</Alert>}
 
       <SearchBar
         key={chave}

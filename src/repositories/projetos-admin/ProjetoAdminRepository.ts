@@ -7,6 +7,7 @@ import type {
 } from '@/features/admin'
 import type {
   ArquivoGravado,
+  CadastroCompletoDoBanco,
   CadastroGravavel,
   ComplementarGravavel,
   EstadoParaPublicar,
@@ -36,6 +37,8 @@ export interface ProjetoAdminRepository {
   criarCadastro(cadastro: CadastroGravavel, slug: string): Promise<ProjetoCriado>
   /** Atualiza os dados do projeto (o slug e o status não mudam). Lança `dados_invalidos` se ele não existe. */
   atualizarCadastro(id: string, cadastro: CadastroGravavel): Promise<void>
+  /** Cadastro completo do projeto (dados, complementares e arquivos), para a tela de edição. `null` se não existir. */
+  buscarCadastroCompleto(id: string): Promise<CadastroCompletoDoBanco | null>
   /** Deixa os complementares do projeto exatamente como a lista: cria, atualiza e apaga o que sobrou. */
   sincronizarComplementares(
     projetoId: string,

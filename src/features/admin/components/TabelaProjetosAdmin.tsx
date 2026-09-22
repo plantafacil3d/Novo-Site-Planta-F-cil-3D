@@ -3,9 +3,11 @@
 import { useState, useTransition } from 'react'
 
 import { DialogoDeConfirmacao } from '@/components/shared/DialogoDeConfirmacao'
+import { Alert } from '@/components/ui/Alert'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Checkbox'
+import { DropdownMenu } from '@/components/ui/DropdownMenu'
 import {
   Table,
   TableBody,
@@ -14,8 +16,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table'
-
-import { duplicarProjetos, excluirProjetos, moverParaRascunho } from '../actions'
+import { duplicarProjetos, excluirProjetos, moverParaRascunho, publicarProjetos } from '../actions'
 import { contarProjetos, rotuloDeStatus } from '../rules'
 import type { LinhaProjetoAdmin, ResultadoAcao } from '../types'
 
@@ -100,18 +101,7 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
         </Button>
       </div>
 
-      {aviso && (
-        <p
-          role={aviso.ok ? 'status' : 'alert'}
-          className={
-            aviso.ok
-              ? 'rounded-md border border-notification-success-border bg-notification-success-bg px-4 py-3 text-sm text-notification-success-fg'
-              : 'rounded-md border border-notification-error-border bg-notification-error-bg px-4 py-3 text-sm text-notification-error-fg'
-          }
-        >
-          {aviso.mensagem}
-        </p>
-      )}
+      {aviso && <Alert variant={aviso.ok ? 'success' : 'error'}>{aviso.mensagem}</Alert>}
 
       <Table caption="Projetos cadastrados">
         <TableHead>
@@ -162,17 +152,40 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
                 {linha.criadoEmRotulo}
               </TableCell>
               <TableCell>
-                <div className="flex justify-end gap-1">
-                  <Button
-                    variant="ghost"
-                    iconLeft="trash"
+                <div className="flex justify-end">
+                  <DropdownMenu
+                    // O leitor de tela ouve "Ações de Sobrado com Piscina", não 20 menus iguais.
+                    label={`Ações de ${linha.titulo}`}
                     disabled={pendente}
-                    onClick={() => setExclusao([linha.id])}
-                  >
-                    Excluir
-                    {/* O leitor de tela ouve "Excluir Sobrado com Piscina", não 20 "Excluir". */}
-                    <span className="sr-only"> {linha.titulo}</span>
-                  </Button>
+                    items={[
+                      {
+                        key: 'editar',
+                        label: 'Editar projeto',
+                        icon: 'pencil',
+                        href: `/admin/projetos/${linha.id}/editar`,
+                      },
+                      linha.status === 'rascunho'
+                        ? {
+                            key: 'publicar',
+                            label: 'Publicar projeto',
+                            icon: 'check',
+                            onSelect: () => executar(publicarProjetos, [linha.id]),
+                          }
+                        : {
+                            key: 'rascunho',
+                            label: 'Salvar como rascunho',
+                            icon: 'file-pen',
+                            onSelect: () => executar(moverParaRascunho, [linha.id]),
+                          },
+                      {
+                        key: 'excluir',
+                        label: 'Excluir',
+                        icon: 'trash',
+                        tone: 'danger',
+                        onSelect: () => setExclusao([linha.id]),
+                      },
+                    ]}
+                  />
                 </div>
               </TableCell>
             </TableRow>

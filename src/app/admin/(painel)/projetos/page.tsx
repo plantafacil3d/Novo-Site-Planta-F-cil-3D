@@ -10,6 +10,9 @@ type ProjetosAdminPageProps = {
 }
 
 export default async function ProjetosAdminPage({ searchParams }: ProjetosAdminPageProps) {
-  const params = lerParametrosAdminProjetos(await searchParams)
-  return <ProjetosAdminView params={params} />
+  const brutos = await searchParams
+  const params = lerParametrosAdminProjetos(brutos)
+  // Fora do schema de paginação/busca de propósito: não deve "grudar" nos links de página/busca.
+  const salvo = brutos.salvo === '1'
+  return <ProjetosAdminView params={params} salvo={salvo} />
 }

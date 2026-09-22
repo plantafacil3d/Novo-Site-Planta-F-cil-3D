@@ -1,17 +1,27 @@
-import { FormularioProjeto } from '@/features/cadastro-projeto'
+import { FormularioProjeto, type DadosProjeto } from '@/features/cadastro-projeto'
 
-/** Tela de cadastro de projeto do painel. */
-export function ProjetoFormAdminView() {
+type ProjetoFormAdminViewProps = {
+  /** Id do projeto em edição. Sem ele, a tela é de cadastro (novo projeto). */
+  projetoId?: string
+  projetoInicial?: DadosProjeto
+}
+
+/** Tela de cadastro ou edição de projeto do painel (o mesmo formulário serve para os dois). */
+export function ProjetoFormAdminView({ projetoId, projetoInicial }: ProjetoFormAdminViewProps) {
+  const editando = projetoId !== undefined
+
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-3xl">Cadastrar projeto</h1>
+        <h1 className="text-3xl">{editando ? 'Editar projeto' : 'Cadastrar projeto'}</h1>
         <p className="mt-2 text-fg-muted">
-          Preencha as 7 etapas. Para salvar como rascunho, basta o título.
+          {editando
+            ? 'Altere os dados do projeto e salve para atualizar.'
+            : 'Preencha as 7 etapas. Para salvar como rascunho, basta o título.'}
         </p>
       </div>
 
-      <FormularioProjeto />
+      <FormularioProjeto projetoId={projetoId} projetoInicial={projetoInicial} />
     </div>
   )
 }
