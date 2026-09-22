@@ -10,6 +10,7 @@ export {
 } from './rules'
 export { lerParametrosAdminProjetos } from './schemas'
 export type {
+  ArquivoDeProjeto,
   ConsultaProjetosAdmin,
   LinhaProjetoAdmin,
   NovoProjetoAdmin,

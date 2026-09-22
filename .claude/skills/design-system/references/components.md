@@ -8,9 +8,10 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 
 ### Button
 * **Propósito:** disparar ação ou navegar (com `href` vira `<Link>`, ou `<a target="_blank">` se o destino for externo).
-* **Variantes:** `primary` (preto sólido, para fundo claro), `secondary` (contorno), `secondary-inverse` (contorno claro, para fundo escuro), `ghost` (texto), `accent` (verde vivo com texto preto, para fundo escuro, onde o preto sumiria), `whatsapp` (mesmo estilo do `accent` + ícone do WhatsApp automático, para faixas escuras). Tamanhos: `md` (padrão), `lg`. Ícone à esquerda (`iconLeft`) e à direita (`iconRight`).
+* **Variantes:** `primary` (preto sólido, para fundo claro), `secondary` (contorno), `secondary-inverse` (contorno claro, para fundo escuro), `ghost` (texto), `accent` (verde vivo com texto preto, para fundo escuro, onde o preto sumiria), `whatsapp` (mesmo estilo do `accent` + ícone do WhatsApp automático, para faixas escuras), `danger` (vermelho sólido com texto claro). Tamanhos: `md` (padrão), `lg`. Ícone à esquerda (`iconLeft`) e à direita (`iconRight`).
+* **Quando usar `danger`:** só para **confirmar** o que não tem volta, dentro do `DialogoDeConfirmacao`. O botão que *abre* a confirmação fica `ghost` ou `secondary` — se cada linha de uma tabela fosse vermelha, o vermelho perderia o sentido.
 * **Estados:** repouso, hover, foco, ativo, disabled, loading (`loading` desabilita, mostra spinner e `aria-busy`).
-* **Tokens:** `--color-primary(-hover)`, `--color-accent(-hover)`, `--color-fg`, `--color-fg-inverse`, `--color-border`, `--radius-md`, `min-h-11 px-4 py-3`, `--color-ring`.
+* **Tokens:** `--color-primary(-hover)`, `--color-accent(-hover)`, `--color-danger-solid`, `--color-danger-hover`, `--color-fg`, `--color-fg-inverse`, `--color-border`, `--radius-md`, `min-h-11 px-4 py-3`, `--color-ring`.
 * **Nota:** para "card inteiro clicável", passe `after:absolute after:inset-0` no `className` (o card precisa ser `relative`).
 * **Link externo:** abre em nova aba (`noopener noreferrer`) e ganha um texto só para leitor de tela: "(abre em uma nova aba)".
 
@@ -21,9 +22,10 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 * **Tokens:** `--color-surface`, `--color-inverse`, `--color-fg`, `--color-fg-inverse`, `--shadow-md`.
 
 ### Modal
-* **Propósito:** janela por cima da página (fotos em tela cheia, vídeo). `'use client'`, feita com `<dialog>` nativo: foco preso, Esc e clique no fundo fecham, botão "Fechar" embutido. O conteúdo só existe enquanto aberto (o vídeo para de tocar) e a página de trás não rola.
-* **Props:** `open`, `onClose`, `label` (nome acessível), `className` (moldura interna).
-* **Tokens:** `--color-overlay` (fundo), `--color-inverse-strong`, `--radius-lg`.
+* **Propósito:** janela por cima da página (fotos em tela cheia, vídeo, diálogos). `'use client'`, feita com `<dialog>` nativo: foco preso, Esc e clique no fundo fecham, botão "Fechar" embutido. O conteúdo só existe enquanto aberto (o vídeo para de tocar) e a página de trás não rola.
+* **Props:** `open`, `onClose`, `label` (nome acessível), `tone`, `className` (moldura interna).
+* **`tone`:** `inverse` (padrão) é a moldura escura de foto e vídeo; `surface` é a clara, para diálogo de texto (nasceu com o `DialogoDeConfirmacao`). O botão "Fechar" acompanha o tom.
+* **Tokens:** `--color-overlay` (fundo), `--color-inverse-strong`, `--color-surface`, `--radius-lg`.
 
 ### Accordion
 * **Propósito:** perguntas que abrem e fecham (FAQ). `<details>` nativo: funciona sem JavaScript, teclado de graça e o texto já vem no HTML (SEO). Recebe `items: { title, content }[]`.
@@ -159,6 +161,12 @@ Card compacto: imagem, título e preço. O card inteiro é um único link, pelo 
 ### EmptyState
 Lista sem resultado: ícone, título, texto e uma ação opcional (`action: { label, href }`, botão `secondary`). Fundo `--color-subtle`, borda `--color-border`, `--radius-lg`. Sempre oferece um caminho ("Limpar filtros"), nunca uma tela vazia.
 
+### DialogoDeConfirmacao
+* **Propósito:** última parada antes de uma ação sem volta (excluir projetos). `'use client'`. Compõe o `Modal` (`tone="surface"`) com dois `Button`: pergunta, o que vai acontecer, a lista do que será afetado e os botões de sair ou seguir.
+* **Props:** `aberto`, `titulo` (também o nome acessível), `descricao`, `itens?` (nomes do que será afetado; lista longa rola dentro da moldura), `rotuloConfirmar`, `carregando?`, `aoConfirmar`, `aoCancelar`.
+* **Regras:** "Cancelar" (`secondary`) vem **antes** de "Confirmar" (`danger`) no HTML, então é ele que recebe o foco ao abrir — quem aperta Enter sai sem estragar nada. `carregando` desabilita cancelar e põe o spinner no confirmar. Foco preso, Esc e trava de rolagem vêm do `Modal`.
+* **Tokens:** `--color-surface`, `--color-subtle` e `--color-border` (a lista), `--color-fg-muted` (a descrição), `--radius-md`; o vermelho vem do `Button` `danger`.
+
 ### ErrorState
 Algo falhou: `role="alert"`, ícone, título, texto simples (nunca detalhe técnico) e "Tentar novamente" (`onRetry`, só aparece se passado). Usa os tokens de notificação de erro (`--color-notification-error-*`), como manda `tokens.md`. Usado em `app/projetos/error.tsx`.
 
@@ -211,7 +219,9 @@ Ficam na feature porque conhecem o `ProjetoDetalhe`; a tela é montada em `views
 
 Painel em `/admin` (layout próprio, fora do `SiteShell`; a tela é montada em `views/admin/`). Reaproveita `Table`, `Badge`, `Checkbox`, `SearchBar`, `Pagination`, `EmptyState`, `ErrorState` e `Skeleton`.
 
-* `TabelaProjetosAdmin`: `'use client'`. Tabela com seleção por linha e "selecionar todos" da página, barra de ações em massa (Duplicar, Mover para rascunho) e aviso de sucesso/erro com os tokens `--color-notification-*`. Quem usa dá uma `key` que muda a cada busca/página. O título do projeto é só texto por enquanto: a tela de edição volta na etapa do banco.
+* `TabelaProjetosAdmin`: `'use client'`. Tabela com seleção por linha e "selecionar todos" da página, barra de ações em massa (Duplicar, Mover para rascunho, Excluir), coluna "Ações" por linha e aviso de sucesso/erro com os tokens `--color-notification-*`. Quem usa dá uma `key` que muda a cada busca/página.
+  * **Excluir** (em massa ou de uma linha) passa pelo `DialogoDeConfirmacao`, que diz quantos e quais projetos saem; um só estado (`exclusao: string[] | null`) atende os dois casos. O botão da linha é `ghost`, com o título do projeto em `sr-only` para o leitor de tela ouvir "Excluir Sobrado com Piscina" em vez de vinte "Excluir" iguais.
+  * **Pendente na coluna "Ações":** "Editar" (a rota `/admin/projetos/[id]/editar` ainda não existe) e "Ver no site" (o site público lê da lista em memória, então o link daria 404). O título do projeto também segue como texto, não link, pelo mesmo motivo.
 * `ProjetosAdminSkeleton`: tabela em branco enquanto carrega.
 * Menu do painel: Dashboard, Projetos, Vendas e Analytics; só Projetos é link. O botão "Cadastrar Projeto" é o `Button` primário e leva a `/admin/projetos/novo`.
 

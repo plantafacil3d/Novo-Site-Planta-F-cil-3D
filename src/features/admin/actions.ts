@@ -3,8 +3,10 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
+import { acessoDoPapel } from '@/features/cadastro-projeto'
 import { projetoAdminRepository } from '@/repositories/projetos-admin'
 import { authService } from '@/services/auth'
+import { fileStorage } from '@/services/storage'
 import { AppError } from '@/types/erro'
 
 import { contarProjetos, montarCopia } from './rules'
@@ -62,6 +64,35 @@ async function mudarStatus(ids: string[], status: StatusProjeto) {
 /** Passa os projetos selecionados para rascunho (saem do site público). */
 export async function moverParaRascunho(ids: string[]): Promise<ResultadoAcao> {
   return rodarComoAdmin(ids, (validos) => mudarStatus(validos, 'rascunho'))
+}
+
+/**
+ * Apaga os projetos selecionados de vez, com os arquivos. Não há como desfazer: quem chama confirma
+ * com o usuário antes. Os complementares e os registros de arquivo saem por cascade no banco.
+ */
+export async function excluirProjetos(ids: string[]): Promise<ResultadoAcao> {
+  return rodarComoAdmin(ids, async (validos) => {
+    // Os caminhos precisam ser lidos antes: o cascade apaga `projeto_arquivos` junto com o projeto.
+    const arquivos = await projetoAdminRepository.listarArquivosDeProjetos(validos)
+
+    const excluidos = await projetoAdminRepository.remover(validos)
+    if (excluidos.length === 0) throw new AppError('dados_invalidos', 'Projetos não encontrados.')
+
+    // Só os arquivos de quem realmente saiu: se o banco tivesse apagado parte dos ids, limpar a
+    // lista inteira destruiria arquivo de projeto que continua lá.
+    const apagados = new Set(excluidos)
+    try {
+      await fileStorage.remover(
+        arquivos
+          .filter((arquivo) => apagados.has(arquivo.projetoId))
+          .map((arquivo) => ({ acesso: acessoDoPapel(arquivo.papel), caminho: arquivo.caminho })),
+      )
+    } catch {
+      // O projeto já saiu do banco; arquivo que fique no Storage é só espaço (limpeza futura).
+    }
+
+    return `${contarProjetos(excluidos.length)} excluído${excluidos.length === 1 ? '' : 's'}.`
+  })
 }
 
 export async function sairDoPainel() {

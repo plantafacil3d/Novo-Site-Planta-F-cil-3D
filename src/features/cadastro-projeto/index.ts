@@ -1,5 +1,6 @@
 export { FormularioProjeto } from './components/FormularioProjeto'
 export { categoriasDoCadastro } from './catalogo'
+export { acessoDoPapel } from './rules'
 export type {
   ArquivoDeExemplo,
   ArquivoGravado,

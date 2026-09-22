@@ -11,6 +11,8 @@ import type { ArquivoNoStorage, FileStorage } from './FileStorage'
 const BYTES_DE_INICIO = 16
 /** Segundos de validade do link temporário usado só para ler o começo do arquivo. */
 const VALIDADE_DA_LEITURA = 60
+/** Quantos caminhos vão por requisição ao apagar arquivos. */
+const CAMINHOS_POR_LOTE = 100
 
 type ErroDoStorage = { message: string; status?: number; statusCode?: string }
 
@@ -91,8 +93,14 @@ export class SupabaseFileStorage implements FileStorage {
     for (const acesso of ['publico', 'privado'] as const) {
       const caminhos = destinos.filter((item) => item.acesso === acesso).map((item) => item.caminho)
       if (caminhos.length === 0) continue
-      const { error } = await (await armazem(acesso)).remove(caminhos)
-      if (error) throw traduzir(error)
+      const armazemDoAcesso = await armazem(acesso)
+      // Em lotes: excluir vários projetos de uma vez pode somar milhares de caminhos, e uma
+      // requisição só desse tamanho é recusada.
+      for (let inicio = 0; inicio < caminhos.length; inicio += CAMINHOS_POR_LOTE) {
+        const lote = caminhos.slice(inicio, inicio + CAMINHOS_POR_LOTE)
+        const { error } = await armazemDoAcesso.remove(lote)
+        if (error) throw traduzir(error)
+      }
     }
   }
 }

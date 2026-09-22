@@ -1,4 +1,5 @@
 import type {
+  ArquivoDeProjeto,
   ConsultaProjetosAdmin,
   NovoProjetoAdmin,
   ProjetoAdmin,
@@ -23,6 +24,11 @@ export interface ProjetoAdminRepository {
   criar(projetos: NovoProjetoAdmin[]): Promise<number>
   /** Devolve quantos projetos mudaram de status. */
   definirStatus(ids: string[], status: StatusProjeto): Promise<number>
+  /**
+   * Apaga os projetos de vez e devolve os ids que realmente saíram. Complementares e registros de
+   * arquivo saem por cascade; os arquivos no Storage são de quem chama.
+   */
+  remover(ids: string[]): Promise<string[]>
 
   // ── Cadastro completo ──────────────────────────────────────────────────────────────────────────
 
@@ -36,6 +42,11 @@ export interface ProjetoAdminRepository {
     complementares: ComplementarGravavel[],
   ): Promise<void>
   listarArquivos(projetoId: string): Promise<ArquivoGravado[]>
+  /**
+   * Os arquivos gravados de vários projetos, só com o que o Storage precisa. Serve à exclusão, que
+   * tem de ler os caminhos antes de apagar (o cascade leva a tabela de arquivos junto).
+   */
+  listarArquivosDeProjetos(ids: string[]): Promise<ArquivoDeProjeto[]>
   registrarArquivo(arquivo: NovoArquivoProjeto): Promise<void>
   removerArquivos(ids: string[]): Promise<void>
   /** Muda o nome que o cliente vê nas plantas já gravadas. */

@@ -10,6 +10,11 @@ type ModalProps = {
   onClose: () => void
   /** Nome acessível do diálogo (ex.: "Fotos do projeto"). */
   label: string
+  /**
+   * Cor da moldura: `inverse` (padrão) é o escuro de foto e vídeo em tela cheia; `surface` é o
+   * claro, para diálogos de texto.
+   */
+  tone?: 'inverse' | 'surface'
   children: ReactNode
   className?: string
 }
@@ -18,7 +23,7 @@ type ModalProps = {
  * Janela por cima da página, feita com o `<dialog>` nativo: o foco fica preso dentro, Esc fecha
  * e o clique no fundo escuro também. O conteúdo só existe enquanto aberto (vídeo para de tocar).
  */
-export function Modal({ open, onClose, label, children, className }: ModalProps) {
+export function Modal({ open, onClose, label, tone = 'inverse', children, className }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -48,12 +53,18 @@ export function Modal({ open, onClose, label, children, className }: ModalProps)
       className="m-auto max-h-dvh w-full max-w-5xl bg-transparent p-0 backdrop:bg-overlay"
     >
       {open && (
-        <div className={cn('relative overflow-hidden rounded-lg bg-inverse-strong', className)}>
+        <div
+          className={cn(
+            'relative overflow-hidden rounded-lg',
+            tone === 'inverse' ? 'bg-inverse-strong' : 'bg-surface',
+            className,
+          )}
+        >
           {children}
           <IconButton
             icon="close"
             label="Fechar"
-            tone="inverse"
+            tone={tone}
             onClick={onClose}
             className="absolute top-2 right-2 z-10"
           />

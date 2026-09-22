@@ -4,6 +4,16 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-21 (exclusão de projetos no painel)
+
+* Componente novo: `DialogoDeConfirmacao` (shared) — última parada antes de uma ação sem volta. Detalhes em `components.md`.
+* Token novo: `--color-danger-hover: var(--red-800)`, o hover do botão destrutivo. Por quê: os tokens de perigo já existiam, mas faltava o tom de hover, e a paleta não tem `--red-700`. Reaproveitar o vermelho escuro que já está lá evita um primitivo novo só para isso. Branco sobre `#c62828` dá 5,6:1 e sobre `#8e1c1c` dá 9,0:1 — os dois passam AA.
+* Variante nova: `Button` `danger` (vermelho sólido). Regra de uso: só para **confirmar** o que não tem volta, nunca para abrir o caminho até lá. Por quê: se cada linha da tabela tivesse um botão vermelho, vinte linhas virariam uma parede de alerta e o vermelho perderia o sentido — o botão de excluir na linha é `ghost`, e o vermelho aparece só dentro da confirmação.
+* Extensão compatível: `Modal` ganhou `tone` (`inverse` padrão, `surface` nova). Por quê: o `Modal` nasceu para foto e vídeo em tela cheia e a moldura era sempre escura, fundo errado para um diálogo de texto. O padrão é `inverse`, então `Lightbox`, `MediaGallery` e `VideoBanner` seguem idênticos.
+* Decisão: no diálogo, "Cancelar" vem antes de "Confirmar" no HTML. Por quê: o `showModal()` dá foco ao primeiro elemento focável, então quem abre e aperta Enter sai sem estragar nada.
+* Sem ícone novo: o botão de excluir usa o `trash` que já existe.
+* Pendente: a coluna "Ações" da `TabelaProjetosAdmin` ainda não tem "Editar" (a rota não existe) nem "Ver no site" (o site público ainda lê da lista em memória, então o link daria 404). A cópia das classes do `Alert` na mesma tabela também continua lá.
+
 ## 2026-09-21 (cadastro de projeto recriado, só interface)
 
 * O `FormularioProjeto` da etapa anterior (2 seções numa página só, ligado ao Supabase) foi **apagado** e o cadastro foi recriado em `features/cadastro-projeto/`, com 7 abas e todas as regras do briefing. Por enquanto **nada é gravado nem enviado**: é para o usuário aprovar o visual antes da etapa do banco e do Storage. Detalhes em `components.md`.

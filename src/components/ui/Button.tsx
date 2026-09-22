@@ -19,6 +19,8 @@ const buttonStyles = cva(
         ghost: 'text-primary hover:bg-tint',
         accent: onDarkStyles,
         whatsapp: onDarkStyles,
+        // Só para confirmar o que não tem volta (excluir de vez), nunca para abrir o caminho até lá.
+        danger: 'bg-danger-solid text-fg-inverse hover:bg-danger-hover',
       },
       size: {
         md: 'min-h-11 px-4 py-3 text-sm',

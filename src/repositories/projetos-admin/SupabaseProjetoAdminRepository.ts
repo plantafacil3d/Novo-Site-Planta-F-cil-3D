@@ -3,6 +3,7 @@ import 'server-only'
 import type { PostgrestError } from '@supabase/supabase-js'
 
 import type {
+  ArquivoDeProjeto,
   ConsultaProjetosAdmin,
   NovoProjetoAdmin,
   ProjetoAdmin,
@@ -119,6 +120,13 @@ type LinhaDeArquivo = {
   tamanho_bytes: number
 }
 
+/** Só o que a limpeza do Storage precisa saber de um arquivo, com o projeto a que ele pertence. */
+type LinhaDeArquivoDeProjeto = {
+  projeto_id: string
+  papel: PapelDoArquivo
+  caminho: string
+}
+
 type LinhaParaPublicar = {
   entrega_link: string | null
   projeto_complementares: { id: string; entrega: 'link' | 'pdf' | null }[]
@@ -184,6 +192,20 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
       .select('id')
     if (error) throw traduzir(error)
     return data.length
+  }
+
+  async remover(ids: string[]): Promise<string[]> {
+    if (ids.length === 0) return []
+    const supabase = await criarClienteServidor()
+    // O `select` devolve só as linhas que a policy deixou apagar, então a lista é a real.
+    const { data, error } = await supabase
+      .from('projetos')
+      .delete()
+      .in('id', ids)
+      .select('id')
+      .overrideTypes<{ id: string }[], { merge: false }>()
+    if (error) throw traduzir(error)
+    return data.map((linha) => linha.id)
   }
 
   // ── Cadastro completo ────────────────────────────────────────────────────────────────────────
@@ -279,6 +301,22 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
       complementarId: linha.complementar_id,
       caminho: linha.caminho,
       tamanhoBytes: linha.tamanho_bytes,
+    }))
+  }
+
+  async listarArquivosDeProjetos(ids: string[]): Promise<ArquivoDeProjeto[]> {
+    if (ids.length === 0) return []
+    const supabase = await criarClienteServidor()
+    const { data, error } = await supabase
+      .from('projeto_arquivos')
+      .select('projeto_id, papel, caminho')
+      .in('projeto_id', ids)
+      .overrideTypes<LinhaDeArquivoDeProjeto[], { merge: false }>()
+    if (error) throw traduzir(error)
+    return data.map((linha) => ({
+      projetoId: linha.projeto_id,
+      papel: linha.papel,
+      caminho: linha.caminho,
     }))
   }
 

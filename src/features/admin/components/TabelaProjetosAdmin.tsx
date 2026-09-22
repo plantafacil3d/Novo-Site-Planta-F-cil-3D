@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 
+import { DialogoDeConfirmacao } from '@/components/shared/DialogoDeConfirmacao'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Checkbox'
@@ -14,7 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/Table'
 
-import { duplicarProjetos, moverParaRascunho } from '../actions'
+import { duplicarProjetos, excluirProjetos, moverParaRascunho } from '../actions'
 import { contarProjetos, rotuloDeStatus } from '../rules'
 import type { LinhaProjetoAdmin, ResultadoAcao } from '../types'
 
@@ -23,17 +24,24 @@ type TabelaProjetosAdminProps = {
 }
 
 /**
- * Tabela de projetos com seleção e ações em massa (duplicar, mover para rascunho).
- * Quem usa dá uma `key` que muda a cada página ou busca, para a seleção começar vazia.
+ * Tabela de projetos com seleção, ações em massa (duplicar, mover para rascunho, excluir) e as
+ * ações de cada linha. Quem usa dá uma `key` que muda a cada página ou busca, para a seleção
+ * começar vazia.
  */
 export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
   const [selecionados, setSelecionados] = useState<ReadonlySet<string>>(new Set())
   const [aviso, setAviso] = useState<ResultadoAcao | null>(null)
+  // Quais projetos estão esperando a confirmação de exclusão: `null` é diálogo fechado. O mesmo
+  // estado serve para a ação em massa e para o botão de uma linha, que manda um id só.
+  const [exclusao, setExclusao] = useState<string[] | null>(null)
   const [pendente, iniciar] = useTransition()
 
   const quantidade = selecionados.size
   const todos = quantidade === linhas.length
   const algum = quantidade > 0
+  const titulosDaExclusao = exclusao
+    ? linhas.filter((linha) => exclusao.includes(linha.id)).map((linha) => linha.titulo)
+    : []
 
   function alternar(id: string) {
     const proximo = new Set(selecionados)
@@ -41,10 +49,16 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
     setSelecionados(proximo)
   }
 
-  function executar(acao: (ids: string[]) => Promise<ResultadoAcao>) {
+  function executar(
+    acao: (ids: string[]) => Promise<ResultadoAcao>,
+    ids: string[] = [...selecionados],
+  ) {
     iniciar(async () => {
-      const resultado = await acao([...selecionados])
+      const resultado = await acao(ids)
       setAviso(resultado)
+      // Só fecha ao terminar: até lá o diálogo fica aberto com o spinner. Nas ações em massa já
+      // está fechado, então aqui não muda nada.
+      setExclusao(null)
       if (resultado.ok) setSelecionados(new Set())
     })
   }
@@ -74,6 +88,15 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
           onClick={() => executar(moverParaRascunho)}
         >
           Mover para rascunho
+        </Button>
+        <Button
+          variant="secondary"
+          iconLeft="trash"
+          disabled={!algum}
+          loading={pendente}
+          onClick={() => setExclusao([...selecionados])}
+        >
+          Excluir
         </Button>
       </div>
 
@@ -112,6 +135,7 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
             <TableHeaderCell>Preço</TableHeaderCell>
             <TableHeaderCell>Status</TableHeaderCell>
             <TableHeaderCell>Criado em</TableHeaderCell>
+            <TableHeaderCell className="text-right">Ações</TableHeaderCell>
           </tr>
         </TableHead>
         <TableBody>
@@ -137,10 +161,36 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
               <TableCell className="whitespace-nowrap text-fg-muted">
                 {linha.criadoEmRotulo}
               </TableCell>
+              <TableCell>
+                <div className="flex justify-end gap-1">
+                  <Button
+                    variant="ghost"
+                    iconLeft="trash"
+                    disabled={pendente}
+                    onClick={() => setExclusao([linha.id])}
+                  >
+                    Excluir
+                    {/* O leitor de tela ouve "Excluir Sobrado com Piscina", não 20 "Excluir". */}
+                    <span className="sr-only"> {linha.titulo}</span>
+                  </Button>
+                </div>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      <DialogoDeConfirmacao
+        aberto={exclusao !== null}
+        titulo={`Excluir ${contarProjetos(titulosDaExclusao.length)}?`}
+        descricao="As imagens, os arquivos de entrega e os projetos complementares também serão apagados. Não é possível desfazer."
+        itens={titulosDaExclusao}
+        rotuloConfirmar="Excluir definitivamente"
+        carregando={pendente}
+        aoConfirmar={() => exclusao && executar(excluirProjetos, exclusao)}
+        // Esc e clique no fundo não podem fechar no meio da exclusão.
+        aoCancelar={() => !pendente && setExclusao(null)}
+      />
     </div>
   )
 }

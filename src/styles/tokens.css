@@ -85,6 +85,8 @@
   --color-danger-subtle: var(--red-50);
   --color-danger-border: var(--red-200);
   --color-danger-fg: var(--red-800);
+  /* Hover do botão destrutivo. Reaproveita o vermelho escuro: a paleta não tem um tom intermediário. */
+  --color-danger-hover: var(--red-800);
 
   --color-info-solid: var(--blue-600);
   --color-info-subtle: var(--blue-50);

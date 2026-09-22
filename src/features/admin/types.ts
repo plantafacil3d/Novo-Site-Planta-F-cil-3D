@@ -1,3 +1,5 @@
+import type { PapelDoArquivo } from '@/features/cadastro-projeto'
+
 export type StatusProjeto = 'publicado' | 'rascunho'
 
 /** Resumo do projeto na tabela do painel. */
@@ -40,6 +42,16 @@ export type ConsultaProjetosAdmin = {
 export type ParametrosAdminProjetos = {
   q?: string
   pagina: number
+}
+
+/**
+ * Um arquivo gravado de um projeto, com o mínimo para apagá-lo do Storage. Precisa vir junto do
+ * `projetoId` porque a exclusão trata vários projetos de uma vez.
+ */
+export type ArquivoDeProjeto = {
+  projetoId: string
+  papel: PapelDoArquivo
+  caminho: string
 }
 
 export type ResultadoAcao = { ok: true; mensagem: string } | { ok: false; mensagem: string }
