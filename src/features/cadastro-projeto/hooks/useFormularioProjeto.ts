@@ -1,5 +1,9 @@
+import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 
+import { fileUploader } from '@/services/upload'
+
+import { confirmarEnvio, prepararEnvio, publicarProjeto, salvarProjeto } from '../actions'
 import { etapasDoCadastro, type ChaveDeCaracteristica } from '../catalogo'
 import {
   ARQUIVOS_DE_ENTREGA,
@@ -12,21 +16,24 @@ import {
   filtrarInteiro,
   filtrarPreco,
   idDoCampo,
+  listarArquivosDoFormulario,
   listarEmTexto,
+  montarPayload,
   semSimbolos,
   situacaoDaEtapa,
   somarTamanhos,
   formatarTamanho,
+  type ArquivoDoFormulario,
 } from '../rules'
 import { validarEtapas, validarRascunho } from '../schemas'
 import type {
   AnexoProjeto,
+  ArquivoEscolhido,
   ComplementarProjeto,
   DadosProjeto,
   EtapaId,
   ImagemProjeto,
   ModoSalvar,
-  ResultadoSalvar,
   SituacaoDaEtapa,
 } from '../types'
 
@@ -36,12 +43,10 @@ type Aviso = { tipo: 'sucesso' | 'erro'; mensagem: string; dados: DadosProjeto }
 type Opcoes = {
   /** Projeto para editar. Sem ele, o formulário nasce vazio. */
   projetoInicial?: DadosProjeto
-  /**
-   * Chamada depois que a conferência passa. Ainda não existe: o salvamento de verdade entra na etapa do
-   * banco. Sem ela, o formulário só confere e avisa que nada foi gravado.
-   */
-  aoSalvar?: (dados: DadosProjeto, modo: ModoSalvar) => Promise<ResultadoSalvar>
 }
+
+/** Onde o cadastro vai depois de publicar. */
+const LISTA_DE_PROJETOS = '/admin/projetos'
 
 /** Campos do formulário cujo valor é um texto simples. */
 type ChaveDeTexto = {
@@ -49,8 +54,6 @@ type ChaveDeTexto = {
 }[keyof DadosProjeto]
 
 type CampoDeImagem = 'imagemPrincipal' | 'imagens' | 'plantas'
-
-const SEM_BANCO = 'Nada foi gravado ainda: a conexão com o banco vem na próxima etapa.'
 
 const novoId = () => crypto.randomUUID()
 
@@ -64,8 +67,14 @@ const metadados = (arquivo: File) => ({
  * Estado e ações do cadastro de projeto: dados, aba atual, erros, envio de arquivos e salvamento.
  * As telas só leem daqui e chamam as ações; a conferência mora em `schemas.ts`.
  */
-export function useFormularioProjeto({ projetoInicial, aoSalvar }: Opcoes) {
+export function useFormularioProjeto({ projetoInicial }: Opcoes) {
+  const router = useRouter()
   const [dados, setDados] = useState<DadosProjeto>(() => projetoInicial ?? dadosVazios())
+  // Depois do primeiro "Salvar" o projeto já existe: salvar de novo atualiza em vez de duplicar.
+  const [projetoId, setProjetoId] = useState<string | null>(null)
+  // Arquivos que já chegaram ao Storage nesta tela; um novo "Salvar" não os envia de novo.
+  const [salvos, setSalvos] = useState<ReadonlySet<string>>(new Set())
+  const [progresso, setProgresso] = useState<string | null>(null)
   const [etapaAtual, setEtapaAtual] = useState<EtapaId>('informacoes')
   const [tocados, setTocados] = useState<Record<string, true>>({})
   const [tentouSalvar, setTentouSalvar] = useState(false)
@@ -366,23 +375,86 @@ export function useFormularioProjeto({ projetoInicial, aoSalvar }: Opcoes) {
       : null
   const avisoAtual = aviso && aviso.dados === dados ? aviso : null
 
-  async function concluir(modo: ModoSalvar) {
-    if (!aoSalvar) {
-      const conferido =
-        modo === 'rascunho'
-          ? 'Rascunho conferido: o título está certo.'
-          : 'Tudo certo: as informações obrigatórias estão preenchidas.'
-      setAviso({ tipo: 'sucesso', mensagem: `${conferido} ${SEM_BANCO}`, dados })
-      return
+  /** Autoriza, envia direto ao Storage e confirma. Se o envio falhar mas o arquivo já estiver lá, vale. */
+  async function enviarArquivo(
+    id: string,
+    { papel, arquivo, ordem, complementarId, rotulo }: ArquivoDoFormulario<ArquivoEscolhido>,
+    arquivoLocal: File,
+  ) {
+    const dadosDoArquivo = {
+      id: arquivo.id,
+      papel,
+      nomeArquivo: arquivo.nomeArquivo,
+      tamanho: arquivo.tamanho,
+      tipo: arquivo.tipo,
+      complementarId,
+      rotulo,
+      ordem,
     }
-    setSalvando(modo)
+    const preparo = await prepararEnvio(id, dadosDoArquivo)
+    if (!preparo.ok) return preparo
+
+    let falhouNoEnvio = false
     try {
-      const resultado = await aoSalvar(dados, modo)
+      await fileUploader.enviar(preparo.envio, arquivoLocal)
+    } catch {
+      falhouNoEnvio = true
+    }
+    const conferido = await confirmarEnvio(id, dadosDoArquivo)
+    if (conferido.ok || !falhouNoEnvio) return conferido
+    return {
+      ok: false as const,
+      mensagem: `Não foi possível enviar "${arquivo.nomeArquivo}". Confira a conexão e salve de novo.`,
+    }
+  }
+
+  /**
+   * Os passos do salvamento: 1) dados do projeto, 2) cada arquivo novo, um a um, 3) no "Salvar", a
+   * publicação. Se algo falhar no meio, o que já foi gravado fica e o próximo "Salvar" continua dali.
+   */
+  async function gravar(modo: ModoSalvar): Promise<{ ok: boolean; mensagem: string }> {
+    setProgresso('Salvando as informações…')
+    const salvo = await salvarProjeto(montarPayload(dados, salvos), modo, projetoId)
+    if (!salvo.ok) return salvo
+    const id = salvo.projetoId
+    setProjetoId(id)
+
+    const pendentes = listarArquivosDoFormulario(dados).flatMap((item) =>
+      item.arquivo.arquivo && !salvos.has(item.arquivo.id)
+        ? [{ item, arquivoLocal: item.arquivo.arquivo }]
+        : [],
+    )
+    const gravados = new Set(salvos)
+    for (const [indice, { item, arquivoLocal }] of pendentes.entries()) {
+      setProgresso(`Enviando arquivo ${indice + 1} de ${pendentes.length}…`)
+      const enviado = await enviarArquivo(id, item, arquivoLocal)
+      if (!enviado.ok) return enviado
+      gravados.add(item.arquivo.id)
+      setSalvos(new Set(gravados))
+    }
+
+    if (modo === 'rascunho') {
+      return {
+        ok: true,
+        mensagem: 'Rascunho salvo. Você pode continuar preenchendo e salvar de novo.',
+      }
+    }
+    setProgresso('Publicando o projeto…')
+    return publicarProjeto(id)
+  }
+
+  async function concluir(modo: ModoSalvar) {
+    setSalvando(modo)
+    setAviso(null)
+    try {
+      const resultado = await gravar(modo)
       setAviso({ tipo: resultado.ok ? 'sucesso' : 'erro', mensagem: resultado.mensagem, dados })
+      if (resultado.ok && modo === 'completo') router.push(LISTA_DE_PROJETOS)
     } catch {
       setAviso({ tipo: 'erro', mensagem: 'Não foi possível salvar agora. Tente de novo.', dados })
     } finally {
       setSalvando(null)
+      setProgresso(null)
     }
   }
 
@@ -449,6 +521,7 @@ export function useFormularioProjeto({ projetoInicial, aoSalvar }: Opcoes) {
     aviso: avisoAtual,
     resumoDePendencias,
     salvando,
+    progresso,
     salvar,
   }
 }

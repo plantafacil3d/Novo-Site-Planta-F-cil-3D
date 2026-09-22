@@ -20,10 +20,10 @@ import {
   somarTamanhos,
   temSimbolosProibidos,
 } from './rules'
-import type { DadosProjeto, ErrosDaEtapa, EtapaId } from './types'
+import type { DadosValidaveis, ErrosDaEtapa, EtapaId, PayloadProjeto } from './types'
 
 // A conferência do formulário mora aqui, uma vez só. Roda no navegador para dar retorno rápido e
-// poderá rodar de novo no servidor na etapa do banco: o navegador nunca é fronteira de segurança
+// de novo no servidor antes de gravar (`actions.ts`): o navegador nunca é fronteira de segurança
 // (skill `seguranca` §1). Cada schema devolve uma mensagem por campo, em português.
 
 const SEM_SIMBOLOS = 'Não use os símbolos < e >.'
@@ -163,13 +163,14 @@ const schemaImagens = z.object({
 
 // ── 3. Características ───────────────────────────────────────────────────────────────────────────
 
-const campoNumerico = (campo: (typeof camposDeCaracteristicas)[number]) =>
+/** Número digitado na faixa do campo. `obrigatorio: false` aceita vazio (rascunho). */
+const campoNumerico = (campo: (typeof camposDeCaracteristicas)[number], obrigatorio = true) =>
   z
     .string()
     .trim()
     .superRefine((texto, ctx) => {
       if (texto === '') {
-        ctx.addIssue({ code: 'custom', message: 'Preencha este campo.' })
+        if (obrigatorio) ctx.addIssue({ code: 'custom', message: 'Preencha este campo.' })
         return
       }
       const numero = lerNumero(texto)
@@ -201,6 +202,7 @@ const schemaItens = z.object({
   itens: z
     .array(textoObrigatorio(LIMITES.itemMax, 'Item vazio.'))
     .min(1, 'Adicione pelo menos um item.')
+    .max(LIMITES.itensMax, `Use no máximo ${LIMITES.itensMax} itens.`)
     .refine(
       (itens) => new Set(itens.map((item) => item.toLowerCase())).size === itens.length,
       'Há itens repetidos na lista.',
@@ -298,7 +300,7 @@ const schemasPorEtapa: Record<EtapaId, z.ZodType> = {
 }
 
 /** Erros de cada aba. Aba sem erros = objeto vazio. Nunca lança. */
-export function validarEtapas(dados: DadosProjeto): Record<EtapaId, ErrosDaEtapa> {
+export function validarEtapas(dados: DadosValidaveis): Record<EtapaId, ErrosDaEtapa> {
   const resultado = {} as Record<EtapaId, ErrosDaEtapa>
   for (const { id } of etapasDoCadastro) {
     resultado[id] = coletarErros(schemasPorEtapa[id].safeParse(dados))
@@ -307,6 +309,94 @@ export function validarEtapas(dados: DadosProjeto): Record<EtapaId, ErrosDaEtapa
 }
 
 /** "Salvar rascunho" exige só o título. */
-export function validarRascunho(dados: DadosProjeto): ErrosDaEtapa {
+export function validarRascunho(dados: Pick<DadosValidaveis, 'titulo'>): ErrosDaEtapa {
   return coletarErros(schemaTitulo.safeParse(dados))
+}
+
+// ── O que chega ao servidor ──────────────────────────────────────────────────────────────────────
+
+// Uma ação do servidor é um endpoint público: o corpo chega como `unknown` e é conferido inteiro
+// antes de qualquer gravação. Aqui só vale formato e limite; o que é obrigatório para publicar
+// continua nos schemas das abas (`validarEtapas`), que rodam por cima quando o modo é "completo".
+
+const arquivoDoPayload = z.object({
+  id: z.uuid(),
+  nomeArquivo: z.string().min(1).max(255),
+  tamanho: z.number().int().min(0),
+  tipo: z.string().max(100),
+  salvo: z.boolean(),
+})
+
+const textoLivre = (limite: number) =>
+  z.string().trim().max(limite, maximo(limite)).refine(semSimbolos, SEM_SIMBOLOS)
+
+const linkHttpsOpcional = linkOpcional.refine(
+  (link) => link === '' || ehLinkHttps(link),
+  MENSAGEM_HTTPS,
+)
+
+const schemaPayload = z
+  .object({
+    titulo: textoObrigatorio(LIMITES.tituloMax, 'Informe o título do projeto.'),
+    precoNormal: precoOpcional,
+    precoPromocional: precoOpcional,
+    categoria: escolhaOpcional(categoriasDoCadastro),
+    estilo: escolhaOpcional(estilosDoCadastro),
+    resumo: textoLivre(LIMITES.resumoMax),
+    descricao: textoLivre(LIMITES.descricaoMax),
+    tags: z
+      .array(textoObrigatorio(LIMITES.tagTamanhoMax, 'Tag vazia.'))
+      .max(LIMITES.tagsMax, `Use no máximo ${LIMITES.tagsMax} tags.`),
+    videoUrl: linkOpcional.refine(
+      (link) => link === '' || ehLinkDeVideo(link),
+      'Use um link do YouTube ou do Vimeo, começando com https://',
+    ),
+    imagemPrincipal: arquivoDoPayload.nullable(),
+    imagens: z.array(arquivoDoPayload),
+    plantas: z.array(arquivoDoPayload.extend({ nome: textoLivre(LIMITES.plantaNomeMax) })),
+    ...Object.fromEntries(
+      camposDeCaracteristicas.map((campo) => [campo.chave, campoNumerico(campo, false)]),
+    ),
+    piscina: z.enum(['', 'sim', 'nao'], 'Escolha Sim ou Não.'),
+    areaGourmet: z.enum(['', 'sim', 'nao'], 'Escolha Sim ou Não.'),
+    itens: z
+      .array(textoObrigatorio(LIMITES.itemMax, 'Item vazio.'))
+      .max(LIMITES.itensMax, `Use no máximo ${LIMITES.itensMax} itens.`),
+    arquivosExemplo: z.array(z.string().max(100)).max(100),
+    complementares: z.array(
+      z.object({
+        id: z.uuid(),
+        titulo: textoLivre(LIMITES.complementarTituloMax),
+        valor: precoOpcional,
+        descricao: textoLivre(LIMITES.complementarDescricaoMax),
+        entrega: z.enum(['', 'link', 'pdf'], 'Escolha como o cliente recebe.'),
+        link: linkHttpsOpcional,
+        pdf: arquivoDoPayload.nullable(),
+      }),
+    ),
+    entregaArquivos: z.array(arquivoDoPayload),
+    entregaLink: linkHttpsOpcional,
+  })
+  .superRefine((dados, ctx) => {
+    const normal = lerPrecoEmCentavos(dados.precoNormal)
+    const promocional = lerPrecoEmCentavos(dados.precoPromocional)
+    if (normal !== null && promocional !== null && promocional >= normal) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['precoPromocional'],
+        message: 'O preço promocional precisa ser menor que o preço normal.',
+      })
+    }
+  })
+
+/** Confere o que chegou ao servidor. Devolve os dados tipados ou a primeira mensagem de erro. */
+export function lerPayload(
+  entrada: unknown,
+): { ok: true; dados: PayloadProjeto } | { ok: false; mensagem: string } {
+  const resultado = schemaPayload.safeParse(entrada)
+  if (resultado.success) return { ok: true, dados: resultado.data as PayloadProjeto }
+  return {
+    ok: false,
+    mensagem: resultado.error.issues[0]?.message ?? 'Os dados enviados são inválidos.',
+  }
 }

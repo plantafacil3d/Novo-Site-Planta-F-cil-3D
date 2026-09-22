@@ -108,7 +108,7 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
             </TableHeaderCell>
             <TableHeaderCell>Código</TableHeaderCell>
             <TableHeaderCell>Projeto</TableHeaderCell>
-            <TableHeaderCell>Tipo</TableHeaderCell>
+            <TableHeaderCell>Categoria</TableHeaderCell>
             <TableHeaderCell>Preço</TableHeaderCell>
             <TableHeaderCell>Status</TableHeaderCell>
             <TableHeaderCell>Criado em</TableHeaderCell>
@@ -127,7 +127,7 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
               </TableCell>
               <TableCell className="whitespace-nowrap text-fg-muted">{linha.codigo}</TableCell>
               <TableCell className="min-w-56 font-medium">{linha.titulo}</TableCell>
-              <TableCell className="whitespace-nowrap">{linha.tipoRotulo}</TableCell>
+              <TableCell className="whitespace-nowrap">{linha.categoriaRotulo}</TableCell>
               <TableCell className="whitespace-nowrap">{linha.precoFormatado}</TableCell>
               <TableCell>
                 <Badge variant={linha.status === 'publicado' ? 'success' : 'draft'}>

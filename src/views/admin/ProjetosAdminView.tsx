@@ -13,9 +13,15 @@ import {
   montarHrefAdminProjetos,
   type ParametrosAdminProjetos,
 } from '@/features/admin'
-import { formatarPreco, tiposDeProjeto, totalDePaginas } from '@/features/projetos'
+import { categoriasDoCadastro } from '@/features/cadastro-projeto'
+import { formatarPreco, totalDePaginas } from '@/features/projetos'
 
-const rotulosDeTipo = Object.fromEntries(tiposDeProjeto.map((tipo) => [tipo.valor, tipo.rotulo]))
+const rotulosDeCategoria: Record<string, string> = Object.fromEntries(
+  categoriasDoCadastro.map((categoria) => [categoria.valor, categoria.rotulo]),
+)
+
+/** Rascunho pode estar sem categoria ou preço: a tabela mostra um traço. */
+const SEM_VALOR = '—'
 
 /** Aba Projetos do painel: título, "Cadastrar Projeto", busca, tabela e paginação. */
 export async function ProjetosAdminView({ params }: { params: ParametrosAdminProjetos }) {
@@ -29,8 +35,11 @@ export async function ProjetosAdminView({ params }: { params: ParametrosAdminPro
 
   const linhas = resultado.itens.map((projeto) => ({
     ...projeto,
-    precoFormatado: formatarPreco(projeto.precoCentavos),
-    tipoRotulo: rotulosDeTipo[projeto.tipo] ?? projeto.tipo,
+    precoFormatado:
+      projeto.precoCentavos === null ? SEM_VALOR : formatarPreco(projeto.precoCentavos),
+    categoriaRotulo: projeto.categoria
+      ? (rotulosDeCategoria[projeto.categoria] ?? projeto.categoria)
+      : SEM_VALOR,
     criadoEmRotulo: formatarData(projeto.criadoEm),
   }))
   // Muda a cada busca ou página: a busca reflete a URL e a seleção da tabela recomeça vazia.

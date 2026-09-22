@@ -1,5 +1,3 @@
-import type { TipoProjeto } from '@/features/projetos'
-
 export type StatusProjeto = 'publicado' | 'rascunho'
 
 /** Resumo do projeto na tabela do painel. */
@@ -9,25 +7,26 @@ export type ProjetoAdmin = {
   codigo: string
   slug: string
   titulo: string
-  tipo: TipoProjeto
-  /** Inteiro em centavos. */
-  precoCentavos: number
+  /** Valor escolhido no cadastro (ex.: "sobrados"). Rascunho pode não ter. */
+  categoria: string | null
+  /** Inteiro em centavos. Rascunho pode não ter. */
+  precoCentavos: number | null
   status: StatusProjeto
   /** Data ISO. */
   criadoEm: string
 }
 
-/** Linha da tabela: o projeto mais os textos já formatados (preço, tipo, data) pela tela que a monta. */
+/** Linha da tabela: o projeto mais os textos já formatados (preço, categoria, data) pela tela que a monta. */
 export type LinhaProjetoAdmin = ProjetoAdmin & {
   precoFormatado: string
-  tipoRotulo: string
+  categoriaRotulo: string
   criadoEmRotulo: string
 }
 
 /** Dados para criar um projeto novo; o código é gerado pelo banco. */
 export type NovoProjetoAdmin = Pick<
   ProjetoAdmin,
-  'slug' | 'titulo' | 'tipo' | 'precoCentavos' | 'status'
+  'slug' | 'titulo' | 'categoria' | 'precoCentavos' | 'status'
 >
 
 export type ConsultaProjetosAdmin = {

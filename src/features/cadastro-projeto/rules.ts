@@ -1,5 +1,22 @@
+import type { AcessoDoArquivo } from '@/types/envio'
+
 import { etapasDoCadastro } from './catalogo'
-import type { DadosProjeto, EtapaId, ErrosDaEtapa, SituacaoDaEtapa } from './types'
+import type {
+  ArquivoDoPayload,
+  ArquivoEscolhido,
+  CadastroGravavel,
+  ComplementarGravavel,
+  DadosProjeto,
+  DadosValidaveis,
+  EstadoParaPublicar,
+  EtapaId,
+  ErrosDaEtapa,
+  MetaArquivo,
+  PapelDoArquivo,
+  PayloadProjeto,
+  SimNao,
+  SituacaoDaEtapa,
+} from './types'
 
 const MB = 1024 * 1024
 
@@ -14,6 +31,7 @@ export const LIMITES = {
   linkMax: 500,
   plantaNomeMax: 60,
   itemMax: 100,
+  itensMax: 100,
   complementarTituloMax: 80,
   complementarDescricaoMin: 10,
   complementarDescricaoMax: 300,
@@ -45,7 +63,7 @@ export const ARQUIVOS_DE_ENTREGA = {
   accept: '.pdf,.zip,.rar,application/pdf,application/zip,application/vnd.rar',
 } as const
 
-type MetadadosDeArquivo = { nomeArquivo: string; tamanho: number; tipo: string }
+type MetadadosDeArquivo = MetaArquivo
 
 // ── Texto ────────────────────────────────────────────────────────────────────────────────────────
 
@@ -132,7 +150,7 @@ export function formatarTamanho(bytes: number): string {
   return `${numeroPtBr.format(bytes / MB)} MB`
 }
 
-const extensaoDe = (nome: string) => nome.split('.').pop()?.toLowerCase() ?? ''
+export const extensaoDe = (nome: string) => nome.split('.').pop()?.toLowerCase() ?? ''
 
 function tipoCombinaComExtensao(extensao: string, tipo: string): boolean {
   const aceitos = TIPOS_POR_EXTENSAO[extensao]
@@ -263,3 +281,223 @@ export function listarEmTexto(nomes: readonly string[]): string {
 
 /** Id do elemento HTML de um campo, a partir da chave do erro (`plantas.0.nome` → `campo-plantas-0-nome`). */
 export const idDoCampo = (chave: string) => `campo-${chave.replaceAll('.', '-')}`
+
+// ── Arquivos por papel ───────────────────────────────────────────────────────────────────────────
+
+const ehImagem = (papel: PapelDoArquivo) =>
+  papel === 'principal' || papel === 'galeria' || papel === 'planta'
+
+/** Imagens e plantas aparecem no site (público). Entrega e PDFs dos complementares são conteúdo pago (privado). */
+export const acessoDoPapel = (papel: PapelDoArquivo): AcessoDoArquivo =>
+  ehImagem(papel) ? 'publico' : 'privado'
+
+const TIPO_DE_CONTEUDO: Record<string, string> = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  pdf: 'application/pdf',
+  zip: 'application/zip',
+  rar: 'application/vnd.rar',
+}
+
+/** Tipo que o Storage recebe, escolhido pela extensão (o do navegador nem sempre vem certo). */
+export const tipoDeConteudoDaExtensao = (extensao: string): string | undefined =>
+  TIPO_DE_CONTEUDO[extensao]
+
+/** Motivo de o arquivo não servir para o papel dele, ou `null` se estiver certo. */
+export function erroDoArquivoDoPapel(papel: PapelDoArquivo, arquivo: MetaArquivo): string | null {
+  if (ehImagem(papel)) return erroDeImagem(arquivo)
+  const aceitas = papel === 'entrega' ? ARQUIVOS_DE_ENTREGA.extensoes : ARQUIVOS_DE_PDF.extensoes
+  return erroDeAnexo(arquivo, aceitas)
+}
+
+/** Caminho controlado pelo app: nunca vem do nome que o navegador enviou. */
+export const caminhoDoArquivo = (
+  projetoId: string,
+  papel: PapelDoArquivo,
+  id: string,
+  extensao: string,
+) => `${projetoId}/${papel}/${id}.${extensao}`
+
+const ascii = (texto: string) => [...texto].map((letra) => letra.charCodeAt(0))
+const comecaCom = (bytes: Uint8Array, assinatura: readonly number[], deslocamento = 0) =>
+  assinatura.every((byte, indice) => bytes[deslocamento + indice] === byte)
+
+const ASSINATURAS: Record<string, (bytes: Uint8Array) => boolean> = {
+  jpg: (bytes) => comecaCom(bytes, [0xff, 0xd8, 0xff]),
+  jpeg: (bytes) => comecaCom(bytes, [0xff, 0xd8, 0xff]),
+  png: (bytes) => comecaCom(bytes, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+  webp: (bytes) => comecaCom(bytes, ascii('RIFF')) && comecaCom(bytes, ascii('WEBP'), 8),
+  pdf: (bytes) => comecaCom(bytes, ascii('%PDF')),
+  zip: (bytes) =>
+    comecaCom(bytes, [0x50, 0x4b]) &&
+    [
+      [0x03, 0x04],
+      [0x05, 0x06],
+      [0x07, 0x08],
+    ].some(([a, b]) => bytes[2] === a && bytes[3] === b),
+  rar: (bytes) => comecaCom(bytes, ascii('Rar!')),
+}
+
+/** O começo do arquivo é mesmo do formato que a extensão diz? Um PNG renomeado para .zip não passa. */
+export const formatoConfere = (extensao: string, inicio: Uint8Array) =>
+  ASSINATURAS[extensao]?.(inicio) ?? false
+
+// ── Arquivos do formulário ───────────────────────────────────────────────────────────────────────
+
+/** De onde sai a lista de arquivos: vale para os dados do formulário e para o que vai ao servidor. */
+type FontesDeArquivo<A extends MetaArquivo & { id: string }> = {
+  imagemPrincipal: A | null
+  imagens: A[]
+  plantas: (A & { nome: string })[]
+  entregaArquivos: A[]
+  complementares: { id: string; pdf: A | null }[]
+}
+
+export type ArquivoDoFormulario<A> = {
+  papel: PapelDoArquivo
+  arquivo: A
+  /** Posição dentro da própria lista (imagens, plantas...). */
+  ordem: number
+  complementarId: string | null
+  /** Nome que o cliente vê (só as plantas). */
+  rotulo: string | null
+}
+
+/** Todos os arquivos do projeto, cada um com o papel, a posição e o vínculo. */
+export function listarArquivosDoFormulario<A extends MetaArquivo & { id: string }>(
+  dados: FontesDeArquivo<A>,
+): ArquivoDoFormulario<A>[] {
+  const lista: ArquivoDoFormulario<A>[] = []
+  const incluir = (
+    papel: PapelDoArquivo,
+    arquivo: A,
+    ordem: number,
+    extra?: { complementarId?: string; rotulo?: string },
+  ) =>
+    lista.push({
+      papel,
+      arquivo,
+      ordem,
+      complementarId: extra?.complementarId ?? null,
+      rotulo: extra?.rotulo ?? null,
+    })
+
+  if (dados.imagemPrincipal) incluir('principal', dados.imagemPrincipal, 0)
+  dados.imagens.forEach((imagem, indice) => incluir('galeria', imagem, indice))
+  dados.plantas.forEach((planta, indice) =>
+    incluir('planta', planta, indice, { rotulo: planta.nome }),
+  )
+  dados.entregaArquivos.forEach((anexo, indice) => incluir('entrega', anexo, indice))
+  dados.complementares.forEach((complementar) => {
+    if (complementar.pdf) {
+      incluir('complementar_pdf', complementar.pdf, 0, { complementarId: complementar.id })
+    }
+  })
+  return lista
+}
+
+const paraArquivoDoPayload = (
+  arquivo: ArquivoEscolhido,
+  salvos: ReadonlySet<string>,
+): ArquivoDoPayload => ({
+  id: arquivo.id,
+  nomeArquivo: arquivo.nomeArquivo,
+  tamanho: arquivo.tamanho,
+  tipo: arquivo.tipo,
+  // Sem o `File` é porque veio do banco; com ele, só conta se já foi enviado nesta sessão.
+  salvo: !arquivo.arquivo || salvos.has(arquivo.id),
+})
+
+/** O que o formulário manda ao servidor: os mesmos dados, sem o `File` e sem a prévia. */
+export function montarPayload(dados: DadosProjeto, salvos: ReadonlySet<string>): PayloadProjeto {
+  const doPayload = (arquivo: ArquivoEscolhido) => paraArquivoDoPayload(arquivo, salvos)
+  return {
+    ...dados,
+    imagemPrincipal: dados.imagemPrincipal ? doPayload(dados.imagemPrincipal) : null,
+    imagens: dados.imagens.map(doPayload),
+    plantas: dados.plantas.map((planta) => ({ ...doPayload(planta), nome: planta.nome })),
+    entregaArquivos: dados.entregaArquivos.map(doPayload),
+    complementares: dados.complementares.map((complementar) => ({
+      ...complementar,
+      pdf: complementar.pdf ? doPayload(complementar.pdf) : null,
+    })),
+  }
+}
+
+/** O que falta enviar ao Storage para o projeto poder ser publicado. */
+export function arquivosQueFaltam(estado: EstadoParaPublicar): string[] {
+  const tem = (papel: PapelDoArquivo) => estado.arquivos.some((arquivo) => arquivo.papel === papel)
+  const faltas: string[] = []
+  if (!tem('principal')) faltas.push('a imagem principal')
+  if (!tem('galeria')) faltas.push('as imagens do projeto')
+  if (!tem('planta')) faltas.push('as plantas')
+  if (!tem('entrega') && !estado.entregaLink) faltas.push('os arquivos da entrega')
+  const semPdf = estado.complementares.some(
+    (complementar) =>
+      complementar.entrega === 'pdf' &&
+      !estado.arquivos.some(
+        (arquivo) =>
+          arquivo.papel === 'complementar_pdf' && arquivo.complementarId === complementar.id,
+      ),
+  )
+  if (semPdf) faltas.push('o PDF de um complementar')
+  return faltas
+}
+
+// ── Gravação ─────────────────────────────────────────────────────────────────────────────────────
+
+/** "sobrado-com-piscina", "sobrado-com-piscina-2"... O primeiro que estiver livre no banco fica. */
+export function slugsCandidatos(titulo: string): string[] {
+  const base = gerarSlug(titulo) || 'projeto'
+  return [base, ...Array.from({ length: 5 }, (_, indice) => `${base.slice(0, 96)}-${indice + 2}`)]
+}
+
+const textoOuNulo = (texto: string) => {
+  const limpo = texto.trim()
+  return limpo === '' ? null : limpo
+}
+
+const simNaoParaBoolean = (valor: SimNao) => (valor === '' ? null : valor === 'sim')
+
+/** Dados já conferidos, no formato do banco: preço em centavos, número de verdade, vazio como `null`. */
+export function montarCadastro(dados: DadosValidaveis): CadastroGravavel {
+  return {
+    titulo: dados.titulo.trim(),
+    categoria: textoOuNulo(dados.categoria),
+    estilo: textoOuNulo(dados.estilo),
+    precoCentavos: lerPrecoEmCentavos(dados.precoNormal),
+    precoPromocionalCentavos: lerPrecoEmCentavos(dados.precoPromocional),
+    resumo: textoOuNulo(dados.resumo),
+    descricao: textoOuNulo(dados.descricao),
+    tags: dados.tags.map((tag) => tag.trim()),
+    videoUrl: textoOuNulo(dados.videoUrl),
+    larguraM: lerNumero(dados.larguraTerreno),
+    profundidadeM: lerNumero(dados.profundidadeTerreno),
+    areaConstruidaM2: lerNumero(dados.areaConstruida),
+    quartos: lerNumero(dados.quartos),
+    suites: lerNumero(dados.suites),
+    suiteMaster: lerNumero(dados.suiteMaster),
+    banheiros: lerNumero(dados.banheiros),
+    lavabo: lerNumero(dados.lavabo),
+    vagas: lerNumero(dados.vagas),
+    pavimentos: lerNumero(dados.pavimentos),
+    piscina: simNaoParaBoolean(dados.piscina),
+    areaGourmet: simNaoParaBoolean(dados.areaGourmet),
+    itens: dados.itens.map((item) => item.trim()),
+    entregaLink: textoOuNulo(dados.entregaLink),
+  }
+}
+
+export function montarComplementares(dados: DadosValidaveis): ComplementarGravavel[] {
+  return dados.complementares.map((complementar, indice) => ({
+    id: complementar.id,
+    titulo: textoOuNulo(complementar.titulo),
+    valorCentavos: lerPrecoEmCentavos(complementar.valor),
+    descricao: textoOuNulo(complementar.descricao),
+    entrega: complementar.entrega === '' ? null : complementar.entrega,
+    link: complementar.entrega === 'link' ? textoOuNulo(complementar.link) : null,
+    ordem: indice,
+  }))
+}

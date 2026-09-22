@@ -35,7 +35,7 @@ export function EtapaImagens({ form }: { form: FormularioProjetoApi }) {
   return (
     <PainelDaEtapa
       titulo="Imagens"
-      descricao={`${DICA_DE_IMAGEM}. As imagens ficam só nesta tela até você salvar.`}
+      descricao={`${DICA_DE_IMAGEM}. As imagens são enviadas quando você clicar em Salvar.`}
     >
       <Grupo titulo="Imagem principal *" dica="Aparece no card e no topo da página do projeto.">
         {dados.imagemPrincipal ? (

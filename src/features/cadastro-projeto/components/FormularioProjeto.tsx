@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button'
 
 import { etapasDoCadastro } from '../catalogo'
 import { useFormularioProjeto } from '../hooks/useFormularioProjeto'
-import type { ArquivoDeExemplo, DadosProjeto, EtapaId, ModoSalvar, ResultadoSalvar } from '../types'
+import type { ArquivoDeExemplo, DadosProjeto, EtapaId } from '../types'
 import { EtapaArquivosExemplo } from './EtapaArquivosExemplo'
 import { EtapaCaracteristicas } from './EtapaCaracteristicas'
 import { EtapaComplementares } from './EtapaComplementares'
@@ -24,8 +24,6 @@ type FormularioProjetoProps = {
   biblioteca?: ArquivoDeExemplo[]
   /** Página onde o arquiteto envia arquivos para a biblioteca. */
   hrefEnviarArquivos?: string
-  /** Ponto de ligação com o salvamento de verdade (etapa do banco). Sem ele, só confere e avisa. */
-  aoSalvar?: (dados: DadosProjeto, modo: ModoSalvar) => Promise<ResultadoSalvar>
 }
 
 /**
@@ -36,9 +34,8 @@ export function FormularioProjeto({
   projetoInicial,
   biblioteca = [],
   hrefEnviarArquivos = '/admin/biblioteca',
-  aoSalvar,
 }: FormularioProjetoProps) {
-  const form = useFormularioProjeto({ projetoInicial, aoSalvar })
+  const form = useFormularioProjeto({ projetoInicial })
   const avisoRef = useRef<HTMLDivElement>(null)
 
   // Aviso de sucesso recebe o foco (leitor de tela). O de erro leva o foco ao campo com problema.
@@ -74,6 +71,7 @@ export function FormularioProjeto({
   const rodape = (
     <div className="mt-6 flex flex-col gap-4">
       {form.resumoDePendencias && <Alert variant="error">{form.resumoDePendencias}</Alert>}
+      {form.progresso && <Alert variant="info">{form.progresso}</Alert>}
       {form.aviso && (
         <Alert
           ref={avisoRef}

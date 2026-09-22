@@ -31,7 +31,7 @@ export function montarCopia(original: ProjetoAdmin, sufixo: string): NovoProjeto
   return {
     titulo: `Cópia de ${original.titulo}`.slice(0, TITULO_MAXIMO),
     slug: `${original.slug}-copia-${sufixo}`,
-    tipo: original.tipo,
+    categoria: original.categoria,
     precoCentavos: original.precoCentavos,
     status: 'rascunho',
   }

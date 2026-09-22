@@ -102,7 +102,108 @@ export type ArquivoDeExemplo = {
 
 export type ModoSalvar = 'rascunho' | 'completo'
 
-export type ResultadoSalvar = { ok: boolean; mensagem: string }
-
 /** Erros de uma etapa: mensagem por campo (`titulo`, `plantas.0.nome`, ...). */
 export type ErrosDaEtapa = Record<string, string>
+
+// ── Arquivos ─────────────────────────────────────────────────────────────────────────────────────
+
+/** Para que serve o arquivo no projeto. Decide o tipo aceito, a pasta e se o acesso é público. */
+export type PapelDoArquivo = 'principal' | 'galeria' | 'planta' | 'entrega' | 'complementar_pdf'
+
+/** O que a conferência precisa saber de um arquivo (um `File` do navegador já se encaixa). */
+export type MetaArquivo = { nomeArquivo: string; tamanho: number; tipo: string }
+
+/** Arquivo como viaja para o servidor: sem o `File` (que não vai na ação) e com o aviso se já foi gravado. */
+export type ArquivoDoPayload = MetaArquivo & { id: string; salvo: boolean }
+
+type DadosComArquivos<A extends MetaArquivo> = Omit<
+  DadosProjeto,
+  'imagemPrincipal' | 'imagens' | 'plantas' | 'entregaArquivos' | 'complementares'
+> & {
+  imagemPrincipal: A | null
+  imagens: A[]
+  plantas: (A & { nome: string })[]
+  entregaArquivos: A[]
+  complementares: (Omit<ComplementarProjeto, 'pdf'> & { pdf: A | null })[]
+}
+
+/** Dados vistos pela conferência (`schemas.ts`): só o que ela lê dos arquivos. */
+export type DadosValidaveis = DadosComArquivos<MetaArquivo>
+
+/** O que o formulário envia ao servidor para gravar. */
+export type PayloadProjeto = DadosComArquivos<ArquivoDoPayload>
+
+// ── Gravação ─────────────────────────────────────────────────────────────────────────────────────
+
+/** O projeto pronto para o banco: números de verdade, preços em centavos, vazio virou `null`. */
+export type CadastroGravavel = {
+  titulo: string
+  categoria: string | null
+  estilo: string | null
+  precoCentavos: number | null
+  precoPromocionalCentavos: number | null
+  resumo: string | null
+  descricao: string | null
+  tags: string[]
+  videoUrl: string | null
+  larguraM: number | null
+  profundidadeM: number | null
+  areaConstruidaM2: number | null
+  quartos: number | null
+  suites: number | null
+  suiteMaster: number | null
+  banheiros: number | null
+  lavabo: number | null
+  vagas: number | null
+  pavimentos: number | null
+  piscina: boolean | null
+  areaGourmet: boolean | null
+  itens: string[]
+  entregaLink: string | null
+}
+
+export type ComplementarGravavel = {
+  id: string
+  titulo: string | null
+  valorCentavos: number | null
+  descricao: string | null
+  entrega: 'link' | 'pdf' | null
+  link: string | null
+  ordem: number
+}
+
+export type ProjetoCriado = { id: string; codigo: string; slug: string }
+
+/** Um arquivo que já está gravado (linha em `projeto_arquivos`). */
+export type ArquivoGravado = {
+  id: string
+  papel: PapelDoArquivo
+  complementarId: string | null
+  caminho: string
+  tamanhoBytes: number
+}
+
+export type NovoArquivoProjeto = {
+  id: string
+  projetoId: string
+  papel: PapelDoArquivo
+  complementarId: string | null
+  caminho: string
+  nomeOriginal: string
+  /** Nome que o cliente vê (só as plantas). */
+  rotulo: string | null
+  tamanhoBytes: number
+  tipoMime: string
+  ordem: number
+}
+
+/** O que o servidor lê do projeto gravado para decidir se pode publicar. */
+export type EstadoParaPublicar = {
+  entregaLink: string | null
+  complementares: { id: string; entrega: 'link' | 'pdf' | null }[]
+  arquivos: { papel: PapelDoArquivo; complementarId: string | null }[]
+}
+
+/** Resposta das ações do servidor: ou deu certo (com o que a ação devolve) ou vem a mensagem do problema. */
+export type ResultadoCadastro<T extends object = object> =
+  ({ ok: true; mensagem: string } & T) | { ok: false; mensagem: string }

@@ -23,8 +23,9 @@ export function EtapaItensIncluidos({ form }: { form: FormularioProjetoApi }) {
 
   function adicionar() {
     const resultado = adicionarTexto(dados.itens, texto, {
+      limite: LIMITES.itensMax,
       repetido: 'Esse item já está na lista.',
-      cheio: '',
+      cheio: `A lista chegou ao limite de ${LIMITES.itensMax} itens.`,
     })
     setAviso(resultado.erro)
     if (resultado.erro) return
