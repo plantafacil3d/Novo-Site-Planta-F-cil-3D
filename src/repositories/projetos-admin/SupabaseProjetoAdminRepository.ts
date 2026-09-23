@@ -87,8 +87,11 @@ function paraColunas(cadastro: CadastroGravavel) {
     ambientes: cadastro.ambientes,
     indicado_para: cadastro.indicadoPara,
     aplicacoes: cadastro.aplicacoes,
+    perfil_terreno: cadastro.perfilTerreno,
+    familia_indicada: cadastro.familiaIndicada,
     tags: cadastro.tags,
     video_url: cadastro.videoUrl,
+    checkout_url: cadastro.checkoutUrl,
     largura_m: cadastro.larguraM,
     profundidade_m: cadastro.profundidadeM,
     area_construida_m2: cadastro.areaConstruidaM2,
@@ -100,6 +103,7 @@ function paraColunas(cadastro: CadastroGravavel) {
     vagas: cadastro.vagas,
     pavimentos: cadastro.pavimentos,
     piscina: cadastro.piscina,
+    closet: cadastro.closet,
     area_gourmet: cadastro.areaGourmet,
     itens: cadastro.itens,
     entrega_link: cadastro.entregaLink,
@@ -141,8 +145,9 @@ type LinhaParaPublicar = {
 /** Colunas de `CadastroGravavel` + `id`, para a tela de edição. */
 const COLUNAS_DO_CADASTRO_COMPLETO =
   'id, slug, titulo, codigo_youtube, categoria, estilo, preco_centavos, preco_promocional_centavos, resumo, ' +
-  'descricao, ambientes, indicado_para, aplicacoes, tags, video_url, largura_m, profundidade_m, area_construida_m2, quartos, suites, ' +
-  'suite_master, banheiros, lavabo, vagas, pavimentos, piscina, area_gourmet, itens, entrega_link, ' +
+  'descricao, ambientes, indicado_para, aplicacoes, perfil_terreno, familia_indicada, tags, video_url, checkout_url, ' +
+  'largura_m, profundidade_m, area_construida_m2, quartos, suites, ' +
+  'suite_master, banheiros, lavabo, vagas, pavimentos, piscina, closet, area_gourmet, itens, entrega_link, ' +
   'projeto_complementares (id, titulo, valor_centavos, descricao, entrega, link, ordem), ' +
   'projeto_arquivos (id, papel, complementar_id, caminho, nome_original, rotulo, tamanho_bytes, tipo_mime, ordem), ' +
   'projeto_arquivos_exemplo (arquivo_id)'
@@ -161,8 +166,11 @@ type LinhaCadastroCompleto = {
   ambientes: string | null
   indicado_para: string | null
   aplicacoes: string | null
+  perfil_terreno: string | null
+  familia_indicada: string | null
   tags: string[]
   video_url: string | null
+  checkout_url: string | null
   largura_m: number | null
   profundidade_m: number | null
   area_construida_m2: number | null
@@ -174,6 +182,7 @@ type LinhaCadastroCompleto = {
   vagas: number | null
   pavimentos: number | null
   piscina: boolean | null
+  closet: boolean | null
   area_gourmet: boolean | null
   itens: string[]
   entrega_link: string | null
@@ -215,8 +224,11 @@ function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoB
     ambientes: linha.ambientes,
     indicadoPara: linha.indicado_para,
     aplicacoes: linha.aplicacoes,
+    perfilTerreno: linha.perfil_terreno,
+    familiaIndicada: linha.familia_indicada,
     tags: linha.tags,
     videoUrl: linha.video_url,
+    checkoutUrl: linha.checkout_url,
     larguraM: linha.largura_m,
     profundidadeM: linha.profundidade_m,
     areaConstruidaM2: linha.area_construida_m2,
@@ -228,6 +240,7 @@ function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoB
     vagas: linha.vagas,
     pavimentos: linha.pavimentos,
     piscina: linha.piscina,
+    closet: linha.closet,
     areaGourmet: linha.area_gourmet,
     itens: linha.itens,
     entregaLink: linha.entrega_link,

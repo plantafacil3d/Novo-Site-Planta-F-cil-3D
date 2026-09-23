@@ -156,6 +156,32 @@ export function EtapaInformacoesGerais({ form }: { form: FormularioProjetoApi })
         <Textarea {...campoTexto('aplicacoes')} rows={3} maxLength={LIMITES.aplicacoesMax} />
       </Field>
 
+      <Field
+        label="Perfil do terreno"
+        htmlFor="campo-perfilTerreno"
+        icon="map-pin"
+        error={erroDe('perfilTerreno')}
+        hint="Opcional. Aparece na seção 'Para quem é este projeto?' da página."
+        counter={`${dados.perfilTerreno.length}/${LIMITES.perfilTerrenoMax}`}
+      >
+        <Textarea {...campoTexto('perfilTerreno')} rows={2} maxLength={LIMITES.perfilTerrenoMax} />
+      </Field>
+
+      <Field
+        label="Família indicada"
+        htmlFor="campo-familiaIndicada"
+        icon="users"
+        error={erroDe('familiaIndicada')}
+        hint="Opcional. Aparece na seção 'Para quem é este projeto?' da página."
+        counter={`${dados.familiaIndicada.length}/${LIMITES.familiaIndicadaMax}`}
+      >
+        <Textarea
+          {...campoTexto('familiaIndicada')}
+          rows={2}
+          maxLength={LIMITES.familiaIndicadaMax}
+        />
+      </Field>
+
       <CampoTags
         id="campo-tags"
         tags={dados.tags}
@@ -170,6 +196,15 @@ export function EtapaInformacoesGerais({ form }: { form: FormularioProjetoApi })
         hint="Opcional. Link do YouTube ou do Vimeo."
       >
         <Input {...campoTexto('videoUrl')} type="url" inputMode="url" placeholder="https://" />
+      </Field>
+
+      <Field
+        label="Link de checkout"
+        htmlFor="campo-checkoutUrl"
+        error={erroDe('checkoutUrl')}
+        hint="Opcional. Link de checkout externo (Hotmart ou outra plataforma) para onde o botão 'Comprar projeto' leva o cliente."
+      >
+        <Input {...campoTexto('checkoutUrl')} type="url" inputMode="url" placeholder="https://" />
       </Field>
     </PainelDaEtapa>
   )

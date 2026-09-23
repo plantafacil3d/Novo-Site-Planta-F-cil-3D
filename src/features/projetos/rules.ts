@@ -3,7 +3,6 @@ import type { Pagina } from '@/types/pagina'
 import { estilosArquitetonicos, faixasDeArea, tiposDeProjeto } from './catalogo'
 import type {
   Categoria,
-  CategoriaGaleria,
   Complementar,
   ConsultaProjetos,
   ParametrosListagem,
@@ -33,7 +32,8 @@ export type DescricaoProjeto = {
   quartos: string
   vagas: string
   pavimentos: string
-  diferencial: string
+  /** Ausente quando o projeto não tem piscina nem área gourmet. */
+  diferencial?: string
 }
 
 /** Textos das especificações do card, com singular/plural corretos. */
@@ -44,7 +44,7 @@ export function descreverProjeto(projeto: Projeto): DescricaoProjeto {
     quartos: contar(projeto.quartos, 'Quarto', 'Quartos'),
     vagas: contar(projeto.vagas, 'Vaga', 'Vagas'),
     pavimentos: contar(projeto.pavimentos, 'Pavimento', 'Pavimentos'),
-    diferencial: projeto.diferencial.rotulo,
+    diferencial: projeto.diferencial?.rotulo,
   }
 }
 
@@ -99,16 +99,6 @@ export function resumirParaBusca(projeto: ProjetoDetalhe): string {
   const preco = formatarPreco(projeto.precoCentavos)
   return `Projeto pronto ${projeto.titulo}: ${area} de área construída, ${suites} e ${vagas}. Plantas, fachadas e imagens 3D por ${preco}.`
 }
-
-/** Abas da galeria, na ordem em que aparecem. */
-export const categoriasGaleria: { id: CategoriaGaleria; rotulo: string }[] = [
-  { id: 'fachadas', rotulo: 'Fachadas' },
-  { id: 'ambientes', rotulo: 'Ambientes' },
-  { id: 'plantas', rotulo: 'Plantas' },
-  { id: 'implantacao', rotulo: 'Implantação' },
-  { id: 'detalhes', rotulo: 'Detalhes' },
-  { id: 'imagens-3d', rotulo: 'Imagens 3D' },
-]
 
 /**
  * Só deixa passar link de checkout `https:`; qualquer outra coisa (ex.: `javascript:`) vira `null`

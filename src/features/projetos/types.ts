@@ -24,8 +24,9 @@ export type Projeto = {
   titulo: string
   selo?: SeloProjeto
   imagem: ImagemRef
-  tipo: TipoProjeto
-  estilo: EstiloArquitetonico
+  /** Taxonomia fixa da listagem/filtro público; projetos vindos do Cadastro não têm (usam só `categoria`/`estilo` como texto livre). */
+  tipo?: TipoProjeto
+  estilo?: EstiloArquitetonico
   larguraM: number
   profundidadeM: number
   areaConstruidaM2: number
@@ -35,72 +36,69 @@ export type Projeto = {
   pavimentos: number
   piscina: boolean
   areaGourmet: boolean
-  diferencial: Diferencial
+  /** Calculado de `piscina`/`areaGourmet`; `undefined` quando nenhum dos dois é real. */
+  diferencial?: Diferencial
   /** Inteiro em centavos, para nunca somar/comparar valores com ponto flutuante. */
   precoCentavos: number
 }
 
-export type CategoriaGaleria =
-  'fachadas' | 'ambientes' | 'plantas' | 'implantacao' | 'detalhes' | 'imagens-3d'
-
 export type ItemGaleria = {
   id: string
-  categoria: CategoriaGaleria
   imagem: ImagemRef
 }
 
+/** Cadastro: campo "Link de vídeo ou tour virtual" (YouTube ou Vimeo). */
 export type VideoProjeto = {
   src: string
-  poster: ImagemRef
-  /** Ex.: "04:32". Sem valor, o selo de duração não aparece. */
-  duracao?: string
-}
-
-export type TipoAmbiente =
-  'sala-estar' | 'sala-jantar' | 'cozinha' | 'suite' | 'area-servico' | 'varanda-gourmet'
-
-export type Ambiente = {
-  tipo: TipoAmbiente
-  titulo: string
-  descricao: string
 }
 
 export type PerfilDoProjeto = {
+  /** Calculado a partir de `larguraM` x `profundidadeM` — não é um campo do Cadastro. */
   terrenoMinimo: string
+  /** Cadastro: campo "Perfil do terreno" (aba 1). */
   perfilDoTerreno: string
+  /** Cadastro: campo "Família indicada" (aba 1). */
   familia: string
-  estiloDeVida: string
-  aplicacoes: string
-  observacao: string
+  /**
+   * Cadastro: campo "Estilo arquitetônico" (aba 1), texto puro, como cadastrado — não confundir
+   * com `Projeto.estilo` (taxonomia fixa do site público, usada em filtro/listagem).
+   */
+  estilo: string
+  /**
+   * Cadastro: campo "Categoria" (aba 1), texto puro, como cadastrado — não confundir com
+   * `ProjetoDetalhe.categoria` (taxonomia fixa da listagem/breadcrumb).
+   */
+  categoria: string
 }
 
-/** Textos da seção "Sobre o projeto". */
+/** Textos da seção "Sobre o projeto". Cadastro: campos da aba 1 (aba "Informações Gerais"). */
 export type ConteudoSobre = {
-  introducao: string
-  textos: string[]
-  /** Diferenciais em tópicos (com check). */
-  destaques: string[]
+  /** Cadastro: campo "Descrição detalhada". */
+  descricao: string
   ambientes: string
   indicadoPara: string
   aplicacoes: string
-  imagem: ImagemRef
 }
 
 /** Página completa de um projeto: o `Projeto` do card mais tudo que só a página mostra. */
 export type ProjetoDetalhe = Projeto & {
-  categoria: Categoria
+  /**
+   * Categoria como cadastrada (texto puro) — não confundir com `Categoria`, a taxonomia fixa da
+   * listagem/filtro público. Usada só para exibir no breadcrumb.
+   */
+  categoriaRotulo: string
   /** Checkout externo (Hotmart ou outra plataforma). Só `https:` é aceito (ver `checkoutSeguro`). */
   checkoutUrl: string
   banheiros: number
   closet: boolean
   /** Frase curta do topo da página. */
   resumo: string
-  /** Parágrafo do topo da página. */
-  descricao: string
   sobre: ConteudoSobre
   galeria: ItemGaleria[]
-  video: VideoProjeto
-  ambientes: Ambiente[]
+  /** `undefined` quando o projeto não tem vídeo cadastrado. */
+  video?: VideoProjeto
+  /** Cadastro: coluna `itens` (aba 4, "Itens Incluídos"). Alimenta a seção "O que está incluso". */
+  itensInclusos: string[]
   perfil: PerfilDoProjeto
 }
 

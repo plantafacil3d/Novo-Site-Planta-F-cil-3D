@@ -35,6 +35,14 @@ export function EtapaCaracteristicas({ form }: { form: FormularioProjetoApi }) {
           </Select>
         </Field>
 
+        <Field label="Closet *" htmlFor="campo-closet" error={erroDe('closet')}>
+          <Select {...campoTexto('closet')}>
+            <option value="">Selecione</option>
+            <option value="sim">Sim</option>
+            <option value="nao">Não</option>
+          </Select>
+        </Field>
+
         <Field label="Área Gourmet *" htmlFor="campo-areaGourmet" error={erroDe('areaGourmet')}>
           <Select {...campoTexto('areaGourmet')}>
             <option value="">Selecione</option>

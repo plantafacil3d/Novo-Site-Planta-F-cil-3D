@@ -3,9 +3,9 @@
 import Image from 'next/image'
 import { useId, useState } from 'react'
 
-import { Badge } from '../ui/Badge'
 import { IconButton } from '../ui/IconButton'
 import { Modal } from '../ui/Modal'
+import { embedDeVideo } from './videoEmbed'
 
 type VideoBannerProps = {
   title: string
@@ -13,12 +13,10 @@ type VideoBannerProps = {
   /** Imagem de fundo do bloco. */
   image: { src: string; alt: string }
   videoSrc: string
-  /** Ex.: "04:32". Sem valor, o selo de duração não aparece. */
-  duration?: string
 }
 
 /** Bloco escuro com imagem ao fundo e um grande botão de play que abre o vídeo em uma janela. */
-export function VideoBanner({ title, description, image, videoSrc, duration }: VideoBannerProps) {
+export function VideoBanner({ title, description, image, videoSrc }: VideoBannerProps) {
   const headingId = useId()
   const [open, setOpen] = useState(false)
 
@@ -52,13 +50,17 @@ export function VideoBanner({ title, description, image, videoSrc, duration }: V
             onClick={() => setOpen(true)}
             className="absolute bottom-6 left-1/2 -translate-x-1/2 md:top-1/2 md:bottom-auto md:-translate-y-1/2 [&_svg]:fill-current"
           />
-
-          {duration && <Badge className="absolute right-3 bottom-3">{duration}</Badge>}
         </div>
       </div>
 
       <Modal open={open} onClose={() => setOpen(false)} label="Vídeo do projeto">
-        <video src={videoSrc} controls autoPlay playsInline className="aspect-video w-full" />
+        <iframe
+          src={embedDeVideo(videoSrc)}
+          title="Vídeo do projeto"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowFullScreen
+          className="aspect-video w-full"
+        />
       </Modal>
     </section>
   )

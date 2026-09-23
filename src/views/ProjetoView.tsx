@@ -4,7 +4,6 @@ import { VideoBanner } from '@/components/shared/VideoBanner'
 import { Breadcrumb } from '@/components/navigation/Breadcrumb'
 import {
   BarraCompraMobile,
-  CaracteristicasAmbientes,
   EspecificacoesTecnicas,
   GaleriaCompleta,
   IncluidoNoProjeto,
@@ -15,7 +14,6 @@ import {
   SobreProjeto,
   checkoutSeguro,
   formatarPreco,
-  hrefCategoria,
   hrefProjeto,
   listarProjetosRelacionados,
   type ProjetoDetalhe,
@@ -35,7 +33,7 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
           '@context': 'https://schema.org',
           '@type': 'Product',
           name: projeto.titulo,
-          description: `${projeto.resumo} ${projeto.descricao}`,
+          description: `${projeto.resumo} ${projeto.sobre.descricao}`,
           image: projeto.galeria.slice(0, 5).map((item) => item.imagem.src),
           sku: projeto.id,
           category: 'Projeto arquitetônico',
@@ -55,7 +53,7 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
           items={[
             { label: 'Início', href: '/' },
             { label: 'Projetos', href: '/projetos' },
-            { label: projeto.categoria.rotulo, href: hrefCategoria(projeto.categoria) },
+            { label: projeto.categoriaRotulo, href: '/projetos' },
             { label: projeto.titulo },
           ]}
         />
@@ -63,17 +61,17 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
 
       <ProjetoHero projeto={projeto} preco={preco} checkoutUrl={checkoutUrl} />
       <EspecificacoesTecnicas projeto={projeto} />
-      <SobreProjeto sobre={projeto.sobre} />
-      <IncluidoNoProjeto />
+      <SobreProjeto sobre={projeto.sobre} imagem={projeto.imagem} />
+      <IncluidoNoProjeto itens={projeto.itensInclusos} />
       <GaleriaCompleta itens={projeto.galeria} />
-      <VideoBanner
-        title="Conheça o projeto em detalhes"
-        description="Assista ao vídeo e veja todos os ambientes, medidas e diferenciais deste projeto."
-        image={projeto.video.poster}
-        videoSrc={projeto.video.src}
-        duration={projeto.video.duracao}
-      />
-      <CaracteristicasAmbientes ambientes={projeto.ambientes} />
+      {projeto.video && (
+        <VideoBanner
+          title="Conheça o projeto em detalhes"
+          description="Assista ao vídeo e veja todos os ambientes, medidas e diferenciais deste projeto."
+          image={projeto.imagem}
+          videoSrc={projeto.video.src}
+        />
+      )}
       <PerfilProjeto perfil={projeto.perfil} />
       <PerguntasFrequentes />
 

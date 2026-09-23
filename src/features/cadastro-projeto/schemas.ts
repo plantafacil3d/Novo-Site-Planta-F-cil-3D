@@ -75,6 +75,11 @@ const precoOpcional = z
 
 const linkOpcional = z.string().trim().max(LIMITES.linkMax, maximo(LIMITES.linkMax))
 
+const linkHttpsOpcional = linkOpcional.refine(
+  (link) => link === '' || ehLinkHttps(link),
+  MENSAGEM_HTTPS,
+)
+
 const CODIGO_YOUTUBE_REGEX = new RegExp(`^[A-Z0-9-]{1,${LIMITES.codigoYoutubeMax}}$`)
 
 /** Código manual do projeto (liga ao vídeo do YouTube): vazio ou até o limite, sempre maiúsculo. */
@@ -129,6 +134,16 @@ const schemaInformacoes = schemaTitulo
       .trim()
       .max(LIMITES.aplicacoesMax, maximo(LIMITES.aplicacoesMax))
       .refine(semSimbolos, SEM_SIMBOLOS),
+    perfilTerreno: z
+      .string()
+      .trim()
+      .max(LIMITES.perfilTerrenoMax, maximo(LIMITES.perfilTerrenoMax))
+      .refine(semSimbolos, SEM_SIMBOLOS),
+    familiaIndicada: z
+      .string()
+      .trim()
+      .max(LIMITES.familiaIndicadaMax, maximo(LIMITES.familiaIndicadaMax))
+      .refine(semSimbolos, SEM_SIMBOLOS),
     tags: z
       .array(textoObrigatorio(LIMITES.tagTamanhoMax, 'Tag vazia.'))
       .max(LIMITES.tagsMax, `Use no máximo ${LIMITES.tagsMax} tags.`),
@@ -136,6 +151,7 @@ const schemaInformacoes = schemaTitulo
       (link) => link === '' || ehLinkDeVideo(link),
       'Use um link do YouTube ou do Vimeo, começando com https://',
     ),
+    checkoutUrl: linkHttpsOpcional,
   })
   .superRefine((dados, ctx) => {
     const normal = lerPrecoEmCentavos(dados.precoNormal)
@@ -221,6 +237,7 @@ const schemaCaracteristicas = z.object({
     camposDeCaracteristicas.map((campo) => [campo.chave, campoNumerico(campo)]),
   ),
   piscina: simOuNao,
+  closet: simOuNao,
   areaGourmet: simOuNao,
 })
 
@@ -358,11 +375,6 @@ const arquivoDoPayload = z.object({
 const textoLivre = (limite: number) =>
   z.string().trim().max(limite, maximo(limite)).refine(semSimbolos, SEM_SIMBOLOS)
 
-const linkHttpsOpcional = linkOpcional.refine(
-  (link) => link === '' || ehLinkHttps(link),
-  MENSAGEM_HTTPS,
-)
-
 const schemaPayload = z
   .object({
     titulo: textoObrigatorio(LIMITES.tituloMax, 'Informe o título do projeto.'),
@@ -376,6 +388,8 @@ const schemaPayload = z
     ambientes: textoLivre(LIMITES.ambientesMax),
     indicadoPara: textoLivre(LIMITES.indicadoParaMax),
     aplicacoes: textoLivre(LIMITES.aplicacoesMax),
+    perfilTerreno: textoLivre(LIMITES.perfilTerrenoMax),
+    familiaIndicada: textoLivre(LIMITES.familiaIndicadaMax),
     tags: z
       .array(textoObrigatorio(LIMITES.tagTamanhoMax, 'Tag vazia.'))
       .max(LIMITES.tagsMax, `Use no máximo ${LIMITES.tagsMax} tags.`),
@@ -383,6 +397,7 @@ const schemaPayload = z
       (link) => link === '' || ehLinkDeVideo(link),
       'Use um link do YouTube ou do Vimeo, começando com https://',
     ),
+    checkoutUrl: linkHttpsOpcional,
     imagemPrincipal: arquivoDoPayload.nullable(),
     imagens: z.array(arquivoDoPayload),
     plantas: z.array(arquivoDoPayload.extend({ nome: textoLivre(LIMITES.plantaNomeMax) })),
@@ -390,6 +405,7 @@ const schemaPayload = z
       camposDeCaracteristicas.map((campo) => [campo.chave, campoNumerico(campo, false)]),
     ),
     piscina: z.enum(['', 'sim', 'nao'], 'Escolha Sim ou Não.'),
+    closet: z.enum(['', 'sim', 'nao'], 'Escolha Sim ou Não.'),
     areaGourmet: z.enum(['', 'sim', 'nao'], 'Escolha Sim ou Não.'),
     itens: z
       .array(textoObrigatorio(LIMITES.itemMax, 'Item vazio.'))

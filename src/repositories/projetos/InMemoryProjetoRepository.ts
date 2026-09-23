@@ -1,5 +1,4 @@
 import type {
-  CategoriaGaleria,
   Categoria,
   Complementar,
   ConsultaProjetos,
@@ -13,13 +12,10 @@ import { foto, projetosGerados } from './catalogoDeExemplo'
 import { consultarEmMemoria } from './consultaEmMemoria'
 import type { ProjetoRepository } from './ProjetoRepository'
 
-function itemGaleria(
-  categoria: CategoriaGaleria,
-  id: string,
-  alt: string,
-  largura = 1400,
-): ItemGaleria {
-  return { id: `${categoria}-${id}`, categoria, imagem: { src: foto(id, largura), alt } }
+// `prefixo` só evita colisão de id entre fotos repetidas (a mesma foto de exemplo usada em mais de
+// um lugar da galeria); não é mais uma categoria tipada, já que a galeria pública não filtra por ela.
+function itemGaleria(prefixo: string, fotoId: string, alt: string, largura = 1400): ItemGaleria {
+  return { id: `${prefixo}-${fotoId}`, imagem: { src: foto(fotoId, largura), alt } }
 }
 
 const destaques: Projeto[] = [
@@ -216,7 +212,7 @@ const sobradoModerno7x20: ProjetoDetalhe = {
   pavimentos: 2,
   diferencial: { tipo: 'varanda-gourmet', rotulo: 'Varanda Gourmet' },
   precoCentavos: 29990,
-  categoria: { slug: 'sobrados', rotulo: 'Sobrados' },
+  categoriaRotulo: 'Sobrados',
   // TEMPORÁRIO: link de exemplo. Trocar pelo checkout real de cada projeto (Hotmart ou outro).
   checkoutUrl: 'https://pay.hotmart.com/',
   areaConstruidaM2: 158,
@@ -225,27 +221,13 @@ const sobradoModerno7x20: ProjetoDetalhe = {
   closet: true,
   areaGourmet: true,
   resumo: 'Design moderno, funcional e perfeito para o seu terreno.',
-  descricao:
-    'Um projeto completo, com ambientes integrados, excelente aproveitamento de espaço e tudo o que você precisa para viver bem.',
   sobre: {
-    introducao: 'Arquitetura moderna que valoriza cada metro quadrado.',
-    textos: [
+    descricao:
       'O Sobrado Moderno 7x20 foi desenvolvido para quem busca conforto, funcionalidade e um design atual. Com ambientes integrados, excelente ventilação e iluminação natural, o projeto proporciona uma experiência única de bem-estar para toda a família.',
-    ],
-    destaques: [
-      'Conceito moderno e funcional',
-      'Ambientes integrados',
-      'Excelente aproveitamento do terreno',
-      'Ideal para terrenos estreitos e compridos',
-    ],
     ambientes:
       'Sala de estar e jantar, cozinha, lavanderia, 2 suítes, 1 quarto, 3 banheiros e área gourmet (opcional).',
     indicadoPara: 'Famílias que buscam conforto, praticidade e um projeto moderno.',
     aplicacoes: 'Terrenos residenciais, condomínios, loteamentos e casas geminadas.',
-    imagem: {
-      src: foto('1600585154340-be6161a56a0c', 1200),
-      alt: 'Casa moderna de dois pavimentos com vidros e madeira, iluminada ao entardecer',
-    },
   },
   galeria: [
     itemGaleria(
@@ -330,36 +312,30 @@ const sobradoModerno7x20: ProjetoDetalhe = {
       'Casa moderna de dois pavimentos ao entardecer, em estilo de imagem 3D',
     ),
   ],
-  video: {
-    // TEMPORÁRIO: vídeo de exemplo (domínio público). Trocar pelo vídeo real do projeto.
-    src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-    poster: {
-      src: foto('1512917774080-9991f1c4c750', 1600),
-      alt: 'Casa moderna com grandes vidros e piscina',
-    },
-  },
-  ambientes: [
-    { tipo: 'sala-estar', titulo: 'Sala de estar', descricao: 'com pé direito alto' },
-    { tipo: 'sala-jantar', titulo: 'Sala de jantar', descricao: 'integrada à cozinha' },
-    { tipo: 'cozinha', titulo: 'Cozinha', descricao: 'com ilha central' },
-    { tipo: 'suite', titulo: 'Suíte master', descricao: 'com closet' },
-    { tipo: 'area-servico', titulo: 'Área de serviço', descricao: 'separada' },
-    { tipo: 'varanda-gourmet', titulo: 'Varanda gourmet', descricao: 'opcional' },
+  // TEMPORÁRIO: vídeo de exemplo. Trocar pelo vídeo real do projeto (link do YouTube ou do Vimeo).
+  video: { src: 'https://www.youtube.com/watch?v=jNQXAC9IVRw' },
+  itensInclusos: [
+    'Plantas baixas humanizadas e técnicas',
+    'Fachadas em alta resolução',
+    'Cortes longitudinais e transversais',
+    'Implantação do terreno e áreas externas',
+    'Arquivos técnicos em PDF e DWG',
+    'Imagens 3D realistas',
+    'Outros formatos: JPG e PNG',
   ],
   perfil: {
     terrenoMinimo: '7x20 m',
     perfilDoTerreno: 'Plano',
     familia: 'Até 5 pessoas',
-    estiloDeVida: 'Moderno e prático',
-    aplicacoes: 'Residencial / Condomínio',
-    observacao: 'Pode ser adaptado',
+    estilo: 'Moderno',
+    categoria: 'Sobrados',
   },
 }
 
-const categoriaDoTipo: Record<TipoProjeto, Categoria> = {
-  sobrado: { slug: 'sobrados', rotulo: 'Sobrados' },
-  'casa-terrea': { slug: 'casas-terreas', rotulo: 'Casas Térreas' },
-  'casa-de-campo': { slug: 'casas-de-campo', rotulo: 'Casas de Campo' },
+const rotuloDaCategoria: Record<TipoProjeto, string> = {
+  sobrado: 'Sobrados',
+  'casa-terrea': 'Casas Térreas',
+  'casa-de-campo': 'Casas de Campo',
 }
 
 const plural = (quantidade: number, singular: string, plural: string) =>
@@ -376,19 +352,14 @@ function detalheDeExemplo(projeto: Projeto): ProjetoDetalhe {
   return {
     ...base,
     ...projeto,
-    categoria: categoriaDoTipo[projeto.tipo],
+    categoriaRotulo: projeto.tipo ? rotuloDaCategoria[projeto.tipo] : base.categoriaRotulo,
     banheiros: projeto.suites + 1,
     sobre: {
       ...base.sobre,
-      textos: [
-        `O projeto ${projeto.titulo} foi desenvolvido para quem busca conforto, funcionalidade e um design atual. Com ambientes integrados, excelente ventilação e iluminação natural, ele proporciona uma experiência única de bem-estar para toda a família.`,
-      ],
+      descricao: `O projeto ${projeto.titulo} foi desenvolvido para quem busca conforto, funcionalidade e um design atual. Com ambientes integrados, excelente ventilação e iluminação natural, ele proporciona uma experiência única de bem-estar para toda a família.`,
       ambientes: `Sala de estar e jantar, cozinha, lavanderia, ${plural(projeto.suites, 'suíte', 'suítes')} e ${plural(projeto.quartos, 'quarto', 'quartos')}.`,
     },
-    galeria: [
-      { id: 'fachadas-principal', categoria: 'fachadas', imagem: projeto.imagem },
-      ...base.galeria.slice(1),
-    ],
+    galeria: [{ id: 'fachadas-principal', imagem: projeto.imagem }, ...base.galeria.slice(1)],
     perfil: { ...base.perfil, terrenoMinimo: `${projeto.larguraM}x${projeto.profundidadeM} m` },
   }
 }

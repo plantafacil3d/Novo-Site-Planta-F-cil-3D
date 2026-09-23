@@ -1,5 +1,4 @@
 export { BarraCompraMobile } from './components/BarraCompraMobile'
-export { CaracteristicasAmbientes } from './components/CaracteristicasAmbientes'
 export { CategoriasGrid } from './components/CategoriasGrid'
 export { ComplementaresGrid } from './components/ComplementaresGrid'
 export { EspecificacoesTecnicas } from './components/EspecificacoesTecnicas'
@@ -47,10 +46,8 @@ export {
 } from './rules'
 export { lerParametrosListagem } from './schemas'
 export type {
-  Ambiente,
   Categoria,
   CategoriaFiltravel,
-  CategoriaGaleria,
   CategoriaSlug,
   Complementar,
   ConsultaProjetos,
@@ -64,6 +61,5 @@ export type {
   Projeto,
   ProjetoDetalhe,
   SeloProjeto,
-  TipoAmbiente,
   VideoProjeto,
 } from './types'

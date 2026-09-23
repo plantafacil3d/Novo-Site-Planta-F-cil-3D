@@ -1,23 +1,6 @@
 // Textos fixos da página do projeto: valem para todos os projetos, não vêm do banco.
 // TEMPORÁRIO: textos de exemplo. Revisar com o cliente antes de publicar.
 
-export const entregaveis = [
-  { icon: 'layout-grid', titulo: 'Plantas baixas', detalhe: 'plantas humanizadas e técnicas' },
-  { icon: 'house', titulo: 'Fachadas', detalhe: 'imagens em alta resolução' },
-  { icon: 'scissors', titulo: 'Cortes', detalhe: 'cortes longitudinais e transversais' },
-  { icon: 'map-pin', titulo: 'Implantação', detalhe: 'terreno e áreas externas' },
-  { icon: 'file-text', titulo: 'Arquivos técnicos', detalhe: 'PDF e DWG' },
-  { icon: 'box', titulo: 'Imagens 3D', detalhe: 'renderizações realistas' },
-  { icon: 'image', titulo: 'Outros formatos', detalhe: 'JPG e PNG' },
-] as const
-
-export const avisosImportantes = [
-  'O projeto não inclui projeto estrutural, elétrico e hidrossanitário.',
-  'Pode haver necessidade de ajustes conforme o seu terreno e a legislação local.',
-  'A compra é referente ao projeto arquitetônico.',
-  'Não realizamos acompanhamento de obra.',
-] as const
-
 export type PerguntaFrequente = { pergunta: string; resposta: string }
 
 export const perguntasFrequentes: PerguntaFrequente[] = [

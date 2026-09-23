@@ -8,6 +8,7 @@ import { cn } from '../ui/cn'
 import { IconButton } from '../ui/IconButton'
 import { Modal } from '../ui/Modal'
 import { Lightbox } from './Lightbox'
+import { embedDeVideo } from './videoEmbed'
 
 type Media = { src: string; alt: string }
 
@@ -152,7 +153,13 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
 
       {video && (
         <Modal open={videoOpen} onClose={() => setVideoOpen(false)} label="Vídeo do projeto">
-          <video src={video.src} controls autoPlay playsInline className="aspect-video w-full" />
+          <iframe
+            src={embedDeVideo(video.src)}
+            title="Vídeo do projeto"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen
+            className="aspect-video w-full"
+          />
         </Modal>
       )}
     </div>

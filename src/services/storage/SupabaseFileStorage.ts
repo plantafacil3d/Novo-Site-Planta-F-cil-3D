@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { criarClienteServidor } from '@/lib/supabase/server'
+import { criarClientePublico } from '@/lib/supabase/publico'
 import { AppError } from '@/types/erro'
 import type { AcessoDoArquivo, DestinoDeArquivo, EnvioAutorizado } from '@/types/envio'
 
@@ -90,8 +91,10 @@ export class SupabaseFileStorage implements FileStorage {
   }
 
   async urlPublica({ acesso, caminho }: DestinoDeArquivo): Promise<string> {
-    const bucket = await armazem(acesso)
-    return bucket.getPublicUrl(caminho).data.publicUrl
+    // `getPublicUrl` não precisa de sessão (só serve para o bucket "publico"); usa o client sem
+    // cookies porque este método também roda em build time (`generateStaticParams`).
+    const supabase = criarClientePublico()
+    return supabase.storage.from(bucketDoAcesso[acesso]).getPublicUrl(caminho).data.publicUrl
   }
 
   async remover(destinos: DestinoDeArquivo[]): Promise<void> {

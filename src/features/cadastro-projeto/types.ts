@@ -69,8 +69,11 @@ export type DadosProjeto = {
   ambientes: string
   indicadoPara: string
   aplicacoes: string
+  perfilTerreno: string
+  familiaIndicada: string
   tags: string[]
   videoUrl: string
+  checkoutUrl: string
   // 2. Imagens
   imagemPrincipal: ImagemProjeto | null
   imagens: ImagemProjeto[]
@@ -87,6 +90,7 @@ export type DadosProjeto = {
   vagas: string
   pavimentos: string
   piscina: SimNao
+  closet: SimNao
   areaGourmet: SimNao
   // 4. Itens incluídos
   itens: string[]
@@ -155,8 +159,11 @@ export type CadastroGravavel = {
   ambientes: string | null
   indicadoPara: string | null
   aplicacoes: string | null
+  perfilTerreno: string | null
+  familiaIndicada: string | null
   tags: string[]
   videoUrl: string | null
+  checkoutUrl: string | null
   larguraM: number | null
   profundidadeM: number | null
   areaConstruidaM2: number | null
@@ -168,6 +175,7 @@ export type CadastroGravavel = {
   vagas: number | null
   pavimentos: number | null
   piscina: boolean | null
+  closet: boolean | null
   areaGourmet: boolean | null
   itens: string[]
   entregaLink: string | null
