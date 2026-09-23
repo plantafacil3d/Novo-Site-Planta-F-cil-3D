@@ -136,14 +136,15 @@ type LinhaParaPublicar = {
 
 /** Colunas de `CadastroGravavel` + `id`, para a tela de edição. */
 const COLUNAS_DO_CADASTRO_COMPLETO =
-  'id, titulo, categoria, estilo, preco_centavos, preco_promocional_centavos, resumo, descricao, ' +
-  'tags, video_url, largura_m, profundidade_m, area_construida_m2, quartos, suites, suite_master, ' +
-  'banheiros, lavabo, vagas, pavimentos, piscina, area_gourmet, itens, entrega_link, ' +
+  'id, slug, titulo, categoria, estilo, preco_centavos, preco_promocional_centavos, resumo, ' +
+  'descricao, tags, video_url, largura_m, profundidade_m, area_construida_m2, quartos, suites, ' +
+  'suite_master, banheiros, lavabo, vagas, pavimentos, piscina, area_gourmet, itens, entrega_link, ' +
   'projeto_complementares (id, titulo, valor_centavos, descricao, entrega, link, ordem), ' +
   'projeto_arquivos (id, papel, complementar_id, caminho, nome_original, rotulo, tamanho_bytes, tipo_mime, ordem)'
 
 type LinhaCadastroCompleto = {
   id: string
+  slug: string
   titulo: string
   categoria: string | null
   estilo: string | null
@@ -192,6 +193,7 @@ type LinhaCadastroCompleto = {
 function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoBanco {
   return {
     id: linha.id,
+    slug: linha.slug,
     titulo: linha.titulo,
     categoria: linha.categoria,
     estilo: linha.estilo,

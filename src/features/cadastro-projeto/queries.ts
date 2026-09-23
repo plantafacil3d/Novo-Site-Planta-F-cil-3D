@@ -10,8 +10,14 @@ import type { ArquivoCompletoDoBanco, DadosProjeto } from './types'
 // Loader para a tela de edição. Confere o administrador aqui (skill `seguranca` §5): o `id` vem da
 // URL, entrada não confiável, e a rota sozinha não basta como autorização.
 
-/** Dados do projeto para a tela de edição, ou `null` se não existir (id errado ou sem permissão). */
-export async function buscarProjetoParaEditar(id: string): Promise<DadosProjeto | null> {
+/**
+ * Dados do projeto para a tela de edição, ou `null` se não existir (id errado ou sem permissão).
+ * `slug` vem à parte de `dados` (não faz parte de `DadosProjeto`) porque é só para exibição: o
+ * endereço real nunca é reenviado ao salvar, então não tem por que entrar no payload do formulário.
+ */
+export async function buscarProjetoParaEditar(
+  id: string,
+): Promise<{ dados: DadosProjeto; slug: string } | null> {
   const usuario = await authService.usuarioAtual()
   if (!usuario?.ehAdmin) return null
 
@@ -30,5 +36,9 @@ export async function buscarProjetoParaEditar(id: string): Promise<DadosProjeto 
       }),
   )
 
-  return paraDadosProjeto(cadastro, (arquivo: ArquivoCompletoDoBanco) => urls.get(arquivo.id) ?? '')
+  const dados = paraDadosProjeto(
+    cadastro,
+    (arquivo: ArquivoCompletoDoBanco) => urls.get(arquivo.id) ?? '',
+  )
+  return { dados, slug: cadastro.slug }
 }

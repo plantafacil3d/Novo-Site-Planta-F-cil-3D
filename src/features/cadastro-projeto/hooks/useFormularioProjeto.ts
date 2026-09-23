@@ -50,6 +50,8 @@ type Opcoes = {
   projetoInicial?: DadosProjeto
   /** Id do projeto em edição: sem ele, o primeiro "Salvar" cria um projeto novo em vez de atualizar. */
   projetoIdInicial?: string
+  /** Endereço público já gravado do projeto em edição (fixo desde a criação, nunca recalculado). */
+  slugAtual?: string
 }
 
 /** Onde o cadastro vai depois de publicar, com um sinal para a listagem mostrar a confirmação. */
@@ -74,7 +76,7 @@ const metadados = (arquivo: File) => ({
  * Estado e ações do cadastro de projeto: dados, aba atual, erros, envio de arquivos e salvamento.
  * As telas só leem daqui e chamam as ações; a conferência mora em `schemas.ts`.
  */
-export function useFormularioProjeto({ projetoInicial, projetoIdInicial }: Opcoes) {
+export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtual }: Opcoes) {
   const router = useRouter()
   const [dados, setDados] = useState<DadosProjeto>(() => projetoInicial ?? dadosVazios())
   // Depois do primeiro "Salvar" o projeto já existe: salvar de novo atualiza em vez de duplicar.
@@ -569,6 +571,8 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial }: Opcoe
 
   return {
     dados,
+    /** `null` num projeto novo (o slug só existe depois do primeiro "Salvar"). */
+    slugAtual: slugAtual ?? null,
     atualizar,
     campo,
     campoTexto,

@@ -191,6 +191,9 @@ export type ArquivoCompletoDoBanco = {
 /** O projeto como está gravado, para carregar a tela de edição: dados, complementares e arquivos. */
 export type CadastroCompletoDoBanco = CadastroGravavel & {
   id: string
+  /** Endereço público do projeto (parte final do link). Fixo desde a criação — editar o título não
+   *  muda o que já está gravado (skill `arquitetura`: URLs estáveis, ver `references/stack.md`). */
+  slug: string
   complementares: ComplementarGravavel[]
   arquivos: ArquivoCompletoDoBanco[]
 }

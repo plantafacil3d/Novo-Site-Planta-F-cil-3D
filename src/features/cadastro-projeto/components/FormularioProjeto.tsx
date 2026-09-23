@@ -22,6 +22,8 @@ type FormularioProjetoProps = {
   projetoInicial?: DadosProjeto
   /** Id do projeto em edição, junto de `projetoInicial`: sem ele, "Salvar" cria um projeto novo. */
   projetoId?: string
+  /** Endereço público já gravado do projeto em edição (fixo desde a criação). */
+  slugAtual?: string
   /** Arquivos da biblioteca de exemplos do arquiteto (aba 5). Vazia por enquanto. */
   biblioteca?: ArquivoDeExemplo[]
   /** Página onde o arquiteto envia arquivos para a biblioteca. */
@@ -35,10 +37,11 @@ type FormularioProjetoProps = {
 export function FormularioProjeto({
   projetoInicial,
   projetoId,
+  slugAtual,
   biblioteca = [],
   hrefEnviarArquivos = '/admin/biblioteca',
 }: FormularioProjetoProps) {
-  const form = useFormularioProjeto({ projetoInicial, projetoIdInicial: projetoId })
+  const form = useFormularioProjeto({ projetoInicial, projetoIdInicial: projetoId, slugAtual })
   const avisoRef = useRef<HTMLDivElement>(null)
 
   // Aviso de sucesso recebe o foco (leitor de tela). O de erro leva o foco ao campo com problema.

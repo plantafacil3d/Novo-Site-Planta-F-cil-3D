@@ -11,8 +11,11 @@ import { PainelDaEtapa } from './PainelDaEtapa'
 
 /** Aba 1: título, preços, categoria, estilo, descrições, tags e vídeo. */
 export function EtapaInformacoesGerais({ form }: { form: FormularioProjetoApi }) {
-  const { dados, erroDe, campoTexto, campoPreco } = form
-  const slug = gerarSlug(dados.titulo)
+  const { dados, slugAtual, erroDe, campoTexto, campoPreco } = form
+  // Num projeto novo, o slug ainda não existe: mostra a prévia de como vai nascer. Num projeto já
+  // existente, o endereço é fixo desde a criação (editar o título não muda o link) — mostra o real
+  // gravado, não um recálculo, para a tela nunca sugerir uma mudança que não vai acontecer.
+  const slug = slugAtual ?? gerarSlug(dados.titulo)
   const resumoAbaixoDoMinimo = dados.resumo.length < LIMITES.resumoMin
 
   return (
@@ -32,7 +35,11 @@ export function EtapaInformacoesGerais({ form }: { form: FormularioProjetoApi })
       <Field
         label="Endereço do projeto (slug)"
         htmlFor="campo-slug"
-        hint="Gerado automaticamente a partir do título. É a parte final do link do projeto."
+        hint={
+          slugAtual
+            ? 'Definido quando o projeto foi criado. Não muda se você editar o título — assim, links já compartilhados continuam funcionando.'
+            : 'Gerado automaticamente a partir do título. É a parte final do link do projeto.'
+        }
       >
         <Input id="campo-slug" value={slug} readOnly className="bg-subtle text-fg-muted" />
       </Field>

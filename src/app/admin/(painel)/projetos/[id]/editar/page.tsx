@@ -22,5 +22,11 @@ export default async function EditarProjetoPage({ params }: EditarProjetoPagePro
   const projeto = await buscarProjetoParaEditar(idValido.data)
   if (!projeto) notFound()
 
-  return <ProjetoFormAdminView projetoId={idValido.data} projetoInicial={projeto} />
+  return (
+    <ProjetoFormAdminView
+      projetoId={idValido.data}
+      projetoInicial={projeto.dados}
+      slugAtual={projeto.slug}
+    />
+  )
 }

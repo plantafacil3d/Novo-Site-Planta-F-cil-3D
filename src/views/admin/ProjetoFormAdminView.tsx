@@ -4,10 +4,16 @@ type ProjetoFormAdminViewProps = {
   /** Id do projeto em edição. Sem ele, a tela é de cadastro (novo projeto). */
   projetoId?: string
   projetoInicial?: DadosProjeto
+  /** Endereço público já gravado do projeto em edição (fixo desde a criação). */
+  slugAtual?: string
 }
 
 /** Tela de cadastro ou edição de projeto do painel (o mesmo formulário serve para os dois). */
-export function ProjetoFormAdminView({ projetoId, projetoInicial }: ProjetoFormAdminViewProps) {
+export function ProjetoFormAdminView({
+  projetoId,
+  projetoInicial,
+  slugAtual,
+}: ProjetoFormAdminViewProps) {
   const editando = projetoId !== undefined
 
   return (
@@ -21,7 +27,11 @@ export function ProjetoFormAdminView({ projetoId, projetoInicial }: ProjetoFormA
         </p>
       </div>
 
-      <FormularioProjeto projetoId={projetoId} projetoInicial={projetoInicial} />
+      <FormularioProjeto
+        projetoId={projetoId}
+        projetoInicial={projetoInicial}
+        slugAtual={slugAtual}
+      />
     </div>
   )
 }
