@@ -15,7 +15,8 @@ type LinhaArquivo = { caminho: string; papel: string; ordem: number }
 
 const COLUNAS_RESUMO =
   'id, codigo, slug, titulo, codigo_youtube, categoria, preco_centavos, preco_promocional_centavos, ' +
-  'largura_m, profundidade_m, area_construida_m2, quartos, suites, vagas, pavimentos, piscina, area_gourmet, ' +
+  'largura_m, profundidade_m, area_construida_m2, quartos, suites, suite_master, banheiros, lavabo, ' +
+  'vagas, pavimentos, piscina, area_gourmet, ' +
   'projeto_arquivos (caminho, papel, ordem)'
 
 type LinhaResumo = {
@@ -32,6 +33,9 @@ type LinhaResumo = {
   area_construida_m2: number | null
   quartos: number | null
   suites: number | null
+  suite_master: number | null
+  banheiros: number | null
+  lavabo: number | null
   vagas: number | null
   pavimentos: number | null
   piscina: boolean | null
@@ -41,8 +45,9 @@ type LinhaResumo = {
 
 const COLUNAS_DETALHE =
   'id, codigo, slug, titulo, codigo_youtube, categoria, preco_centavos, preco_promocional_centavos, ' +
-  'largura_m, profundidade_m, area_construida_m2, quartos, suites, vagas, pavimentos, piscina, area_gourmet, ' +
-  'checkout_url, resumo, descricao, banheiros, closet, ambientes, indicado_para, aplicacoes, ' +
+  'largura_m, profundidade_m, area_construida_m2, quartos, suites, suite_master, banheiros, lavabo, ' +
+  'vagas, pavimentos, piscina, area_gourmet, ' +
+  'checkout_url, resumo, descricao, closet, ambientes, indicado_para, aplicacoes, ' +
   'perfil_terreno, familia_indicada, estilo, itens, video_url, ' +
   'projeto_arquivos (caminho, papel, ordem)'
 
@@ -50,7 +55,6 @@ type LinhaDetalhe = LinhaResumo & {
   checkout_url: string | null
   resumo: string | null
   descricao: string | null
-  banheiros: number | null
   closet: boolean | null
   ambientes: string | null
   indicado_para: string | null
@@ -94,7 +98,10 @@ async function montarResumo(linha: LinhaResumo): Promise<Projeto | null> {
     profundidadeM: linha.profundidade_m ?? 0,
     areaConstruidaM2: linha.area_construida_m2 ?? 0,
     suites: linha.suites ?? 0,
+    suiteMaster: linha.suite_master ?? 0,
     quartos: linha.quartos ?? 0,
+    banheiros: linha.banheiros ?? 0,
+    lavabo: linha.lavabo ?? 0,
     vagas: linha.vagas ?? 0,
     pavimentos: linha.pavimentos ?? 0,
     piscina,
@@ -126,7 +133,6 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
     ...base,
     categoriaRotulo: linha.categoria ?? '',
     checkoutUrl: linha.checkout_url ?? '',
-    banheiros: linha.banheiros ?? 0,
     closet: linha.closet ?? false,
     resumo: linha.resumo ?? '',
     sobre: {

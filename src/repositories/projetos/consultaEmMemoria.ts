@@ -22,10 +22,11 @@ const pertenceACategoria: Record<CategoriaFiltravel, (projeto: Projeto) => boole
   'casas-terreas': (projeto) => projeto.tipo === 'casa-terrea',
   'casas-pequenas': (projeto) => projeto.areaConstruidaM2 <= 100,
   'casas-de-campo': (projeto) => projeto.tipo === 'casa-de-campo',
-  modernas: (projeto) => projeto.estilo === 'moderno',
-  'com-1-suite': (projeto) => projeto.suites === 1,
-  'com-2-suites': (projeto) => projeto.suites === 2,
-  'com-piscina': (projeto) => projeto.piscina,
+  // TEMPORÁRIO: ainda não há projeto de exemplo destas categorias no catálogo mock.
+  kitnets: () => false,
+  'casas-de-praia': () => false,
+  'casas-geminadas': () => false,
+  'projetos-de-fachada': () => false,
 }
 
 function atende(projeto: Projeto, filtros: FiltrosProjetos): boolean {

@@ -31,7 +31,11 @@ export type Projeto = {
   profundidadeM: number
   areaConstruidaM2: number
   suites: number
+  /** Suíte principal do projeto, contada à parte das demais suítes. */
+  suiteMaster: number
   quartos: number
+  banheiros: number
+  lavabo: number
   vagas: number
   pavimentos: number
   piscina: boolean
@@ -89,7 +93,6 @@ export type ProjetoDetalhe = Projeto & {
   categoriaRotulo: string
   /** Checkout externo (Hotmart ou outra plataforma). Só `https:` é aceito (ver `checkoutSeguro`). */
   checkoutUrl: string
-  banheiros: number
   closet: boolean
   /** Frase curta do topo da página. */
   resumo: string
@@ -116,10 +119,10 @@ export type CategoriaSlug =
   | 'casas-terreas'
   | 'casas-pequenas'
   | 'casas-de-campo'
-  | 'modernas'
-  | 'com-1-suite'
-  | 'com-2-suites'
-  | 'com-piscina'
+  | 'kitnets'
+  | 'casas-de-praia'
+  | 'casas-geminadas'
+  | 'projetos-de-fachada'
   | 'mais'
 
 export type Categoria = {

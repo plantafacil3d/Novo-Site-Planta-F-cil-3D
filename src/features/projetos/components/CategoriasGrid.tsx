@@ -9,10 +9,10 @@ const iconePorCategoria: Record<CategoriaSlug, IconName> = {
   'casas-terreas': 'house',
   'casas-pequenas': 'warehouse',
   'casas-de-campo': 'trees',
-  modernas: 'building',
-  'com-1-suite': 'bed-single',
-  'com-2-suites': 'bed-double',
-  'com-piscina': 'waves',
+  kitnets: 'box',
+  'casas-de-praia': 'waves',
+  'casas-geminadas': 'building',
+  'projetos-de-fachada': 'image',
   mais: 'layout-grid',
 }
 

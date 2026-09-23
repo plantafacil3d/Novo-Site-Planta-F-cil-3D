@@ -128,6 +128,10 @@ function gerarProjeto(linha: Linha, indice: number): Projeto {
   ] = linha
   const pavimentos = pavimentosDoTipo[tipo]
   const areaConstruidaM2 = Math.round(larguraM * profundidadeM * pavimentos * 0.55)
+  // Estimativas simples a partir das suítes: casas maiores ganham suíte master e lavabo.
+  const suiteMaster = suites >= 3 ? 1 : 0
+  const banheiros = suites + 1
+  const lavabo = areaGourmet ? 1 : 0
   const adjetivos = adjetivoDoEstilo[estilo]
   const adjetivo = tipo === 'sobrado' ? adjetivos.masculino : adjetivos.feminino
   const complemento = piscina ? ' com Piscina' : areaGourmet ? ' com Área Gourmet' : ''
@@ -149,7 +153,10 @@ function gerarProjeto(linha: Linha, indice: number): Projeto {
     profundidadeM,
     areaConstruidaM2,
     suites,
+    suiteMaster,
     quartos,
+    banheiros,
+    lavabo,
     vagas,
     pavimentos,
     piscina,

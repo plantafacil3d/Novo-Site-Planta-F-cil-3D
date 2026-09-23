@@ -35,7 +35,10 @@ const destaques: Projeto[] = [
     profundidadeM: 20,
     areaConstruidaM2: 154,
     suites: 2,
+    suiteMaster: 1,
     quartos: 1,
+    banheiros: 3,
+    lavabo: 1,
     vagas: 2,
     pavimentos: 2,
     piscina: true,
@@ -59,7 +62,10 @@ const destaques: Projeto[] = [
     profundidadeM: 25,
     areaConstruidaM2: 138,
     suites: 1,
+    suiteMaster: 0,
     quartos: 3,
+    banheiros: 2,
+    lavabo: 0,
     vagas: 2,
     pavimentos: 1,
     piscina: false,
@@ -83,7 +89,10 @@ const destaques: Projeto[] = [
     profundidadeM: 18,
     areaConstruidaM2: 158,
     suites: 3,
+    suiteMaster: 1,
     quartos: 1,
+    banheiros: 4,
+    lavabo: 1,
     vagas: 2,
     pavimentos: 2,
     piscina: true,
@@ -107,7 +116,10 @@ const destaques: Projeto[] = [
     profundidadeM: 20,
     areaConstruidaM2: 132,
     suites: 2,
+    suiteMaster: 1,
     quartos: 1,
+    banheiros: 3,
+    lavabo: 0,
     vagas: 2,
     pavimentos: 1,
     piscina: false,
@@ -185,10 +197,10 @@ const categorias: Categoria[] = [
   { slug: 'casas-terreas', rotulo: 'Casas Térreas' },
   { slug: 'casas-pequenas', rotulo: 'Casas Pequenas' },
   { slug: 'casas-de-campo', rotulo: 'Casas de Campo' },
-  { slug: 'modernas', rotulo: 'Modernas' },
-  { slug: 'com-1-suite', rotulo: 'Com 1 Suíte' },
-  { slug: 'com-2-suites', rotulo: 'Com 2 Suítes' },
-  { slug: 'com-piscina', rotulo: 'Com Piscina' },
+  { slug: 'kitnets', rotulo: 'Kitnets' },
+  { slug: 'casas-de-praia', rotulo: 'Casas de Praia' },
+  { slug: 'casas-geminadas', rotulo: 'Casas Geminadas' },
+  { slug: 'projetos-de-fachada', rotulo: 'Projetos de Fachada' },
   { slug: 'mais', rotulo: 'E muito mais' },
 ]
 
@@ -207,7 +219,10 @@ const sobradoModerno7x20: ProjetoDetalhe = {
   larguraM: 7,
   profundidadeM: 20,
   suites: 2,
+  suiteMaster: 1,
   quartos: 1,
+  banheiros: 3,
+  lavabo: 1,
   vagas: 2,
   pavimentos: 2,
   diferencial: { tipo: 'varanda-gourmet', rotulo: 'Varanda Gourmet' },
@@ -216,7 +231,6 @@ const sobradoModerno7x20: ProjetoDetalhe = {
   // TEMPORÁRIO: link de exemplo. Trocar pelo checkout real de cada projeto (Hotmart ou outro).
   checkoutUrl: 'https://pay.hotmart.com/',
   areaConstruidaM2: 158,
-  banheiros: 3,
   piscina: false,
   closet: true,
   areaGourmet: true,
@@ -344,7 +358,7 @@ const plural = (quantidade: number, singular: string, plural: string) =>
 /**
  * TEMPORÁRIO: enquanto não há banco, cada projeto em destaque ganha uma página montada com os
  * dados do próprio card (título, medidas, preço, foto) e o restante (galeria, vídeo, textos)
- * emprestado do Sobrado Moderno 7x20. Área e banheiros são estimativas de exemplo.
+ * emprestado do Sobrado Moderno 7x20.
  */
 function detalheDeExemplo(projeto: Projeto): ProjetoDetalhe {
   const base = sobradoModerno7x20
@@ -353,7 +367,6 @@ function detalheDeExemplo(projeto: Projeto): ProjetoDetalhe {
     ...base,
     ...projeto,
     categoriaRotulo: projeto.tipo ? rotuloDaCategoria[projeto.tipo] : base.categoriaRotulo,
-    banheiros: projeto.suites + 1,
     sobre: {
       ...base.sobre,
       descricao: `O projeto ${projeto.titulo} foi desenvolvido para quem busca conforto, funcionalidade e um design atual. Com ambientes integrados, excelente ventilação e iluminação natural, ele proporciona uma experiência única de bem-estar para toda a família.`,
@@ -385,7 +398,10 @@ function selecionarResumo(projeto: Projeto): Projeto {
     profundidadeM: projeto.profundidadeM,
     areaConstruidaM2: projeto.areaConstruidaM2,
     suites: projeto.suites,
+    suiteMaster: projeto.suiteMaster,
     quartos: projeto.quartos,
+    banheiros: projeto.banheiros,
+    lavabo: projeto.lavabo,
     vagas: projeto.vagas,
     pavimentos: projeto.pavimentos,
     piscina: projeto.piscina,

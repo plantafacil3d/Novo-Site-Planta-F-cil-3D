@@ -4,6 +4,11 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-23 (loading da página de um projeto)
+
+- Corrigido: ao clicar num projeto a partir da home, aparecia por um instante a grade de cards da listagem (`ProjetosSkeleton`) em vez de um "em branco" da própria página. Causa: `/projetos/[slug]` não tinha `loading.tsx` próprio, então herdava o da rota pai `/projetos` (regra do App Router: sem `loading.tsx` no segmento, usa o do ancestral mais próximo).
+- Componente novo: `ProjetoDetalheSkeleton` (feature `projetos`), usado em `views/projetos/ProjetoCarregando.tsx` e no novo `app/(site)/projetos/[slug]/loading.tsx`. Sem token novo.
+
 ## 2026-09-23 (biblioteca central de arquivos de exemplo)
 
 - Resolvida a rota `/admin/biblioteca`, pendente desde 2026-09-21: a aba "Arquivos de Exemplo" do cadastro de projeto agora recebe uma biblioteca de verdade (antes sempre vazia). Feature nova `features/biblioteca-exemplos/`, tela em `views/admin/BibliotecaAdminView.tsx`. Detalhes em `components.md`.

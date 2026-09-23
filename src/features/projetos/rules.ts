@@ -27,24 +27,25 @@ function contar(quantidade: number, singular: string, plural: string): string {
 }
 
 export type DescricaoProjeto = {
-  medidas: string
-  suites: string
+  terreno: string
+  areaConstruida: string
+  /** Soma de quartos, suítes e suíte master. */
   quartos: string
+  /** Soma de banheiros sociais e lavabos. */
+  banheiros: string
   vagas: string
-  pavimentos: string
-  /** Ausente quando o projeto não tem piscina nem área gourmet. */
-  diferencial?: string
+  piscina: string
 }
 
 /** Textos das especificações do card, com singular/plural corretos. */
 export function descreverProjeto(projeto: Projeto): DescricaoProjeto {
   return {
-    medidas: formatarMedidas(projeto.larguraM, projeto.profundidadeM),
-    suites: contar(projeto.suites, 'Suíte', 'Suítes'),
-    quartos: contar(projeto.quartos, 'Quarto', 'Quartos'),
+    terreno: formatarMedidas(projeto.larguraM, projeto.profundidadeM),
+    areaConstruida: formatarArea(projeto.areaConstruidaM2),
+    quartos: contar(projeto.quartos + projeto.suites + projeto.suiteMaster, 'Quarto', 'Quartos'),
+    banheiros: contar(projeto.banheiros + projeto.lavabo, 'Banheiro', 'Banheiros'),
     vagas: contar(projeto.vagas, 'Vaga', 'Vagas'),
-    pavimentos: contar(projeto.pavimentos, 'Pavimento', 'Pavimentos'),
-    diferencial: projeto.diferencial?.rotulo,
+    piscina: simNao(projeto.piscina),
   }
 }
 

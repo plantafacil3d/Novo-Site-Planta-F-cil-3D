@@ -21,10 +21,10 @@ const categoriasFiltraveis = [
   'casas-terreas',
   'casas-pequenas',
   'casas-de-campo',
-  'modernas',
-  'com-1-suite',
-  'com-2-suites',
-  'com-piscina',
+  'kitnets',
+  'casas-de-praia',
+  'casas-geminadas',
+  'projetos-de-fachada',
 ] as const satisfies readonly CategoriaFiltravel[]
 
 const valoresDe = <T extends string>(lista: readonly { valor: T }[]) =>

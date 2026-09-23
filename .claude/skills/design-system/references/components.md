@@ -279,6 +279,7 @@ Ficam na feature porque conhecem o `ProjetoDetalhe`; a tela é montada em `views
 - `FormularioDeFiltros`: filtros da listagem em formulário GET (`next/form`): busca por nome ou código, ordenar, tipo, estilo arquitetônico, quartos, suítes, vagas ("N ou mais"), área, medidas do terreno (só entram projetos que cabem nele) e piscina / área gourmet. Os campos guardam o que veio da URL; quem usa dá uma `key` que muda a cada consulta. Sem JavaScript também funciona.
 - `FiltrosAplicados`: os filtros ativos como `Chip` removível, mais "Limpar tudo"; some quando não há filtro.
 - `ProjetosSkeleton`: uma página de cards em branco (12), para a tela não pular enquanto carrega.
+- `ProjetoDetalheSkeleton`: "em branco" do topo da página de um projeto (galeria + dados), usado no `loading.tsx` de `/projetos/[slug]` — sem ele, essa rota herdava o `ProjetosSkeleton` da listagem (rota pai) e mostrava a grade errada ao abrir um projeto.
 - `EspecificacoesTecnicas`, `SobreProjeto`, `IncluidoNoProjeto`, `GaleriaCompleta`, `CaracteristicasAmbientes`, `PerfilProjeto`, `PerguntasFrequentes`, `ProjetosRelacionados` (reaproveita o `ProjectCard` da home, com selo "Similar").
 
 ## Painel do administrador (`features/admin/components/`)
