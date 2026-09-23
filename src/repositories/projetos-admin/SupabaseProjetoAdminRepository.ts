@@ -88,7 +88,7 @@ function paraColunas(cadastro: CadastroGravavel) {
     indicado_para: cadastro.indicadoPara,
     aplicacoes: cadastro.aplicacoes,
     perfil_terreno: cadastro.perfilTerreno,
-    familia_indicada: cadastro.familiaIndicada,
+    familia_capacidade: cadastro.familiaCapacidade,
     tags: cadastro.tags,
     video_url: cadastro.videoUrl,
     checkout_url: cadastro.checkoutUrl,
@@ -144,7 +144,7 @@ type LinhaParaPublicar = {
 /** Colunas de `CadastroGravavel` + `id`, para a tela de edição. */
 const COLUNAS_DO_CADASTRO_COMPLETO =
   'id, slug, titulo, codigo_youtube, categoria, estilo, preco_centavos, preco_promocional_centavos, resumo, ' +
-  'descricao, ambientes, indicado_para, aplicacoes, perfil_terreno, familia_indicada, tags, video_url, checkout_url, ' +
+  'descricao, ambientes, indicado_para, aplicacoes, perfil_terreno, familia_capacidade, tags, video_url, checkout_url, ' +
   'largura_m, profundidade_m, area_construida_m2, quartos, suites, ' +
   'suite_master, banheiros, lavabo, vagas, pavimentos, piscina, area_gourmet, itens, entrega_link, ' +
   'projeto_complementares (id, titulo, valor_centavos, descricao, entrega, link, ordem), ' +
@@ -166,7 +166,7 @@ type LinhaCadastroCompleto = {
   indicado_para: string | null
   aplicacoes: string | null
   perfil_terreno: string | null
-  familia_indicada: string | null
+  familia_capacidade: number | null
   tags: string[]
   video_url: string | null
   checkout_url: string | null
@@ -223,7 +223,7 @@ function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoB
     indicadoPara: linha.indicado_para,
     aplicacoes: linha.aplicacoes,
     perfilTerreno: linha.perfil_terreno,
-    familiaIndicada: linha.familia_indicada,
+    familiaCapacidade: linha.familia_capacidade,
     tags: linha.tags,
     videoUrl: linha.video_url,
     checkoutUrl: linha.checkout_url,

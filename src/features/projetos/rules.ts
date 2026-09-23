@@ -68,6 +68,11 @@ export function simNao(valor: boolean): string {
   return valor ? 'Sim' : 'Não'
 }
 
+/** Cadastro: "Família indicada" (capacidade de pessoas). 5 → "Até 5 pessoas" */
+export function formatarFamiliaIndicada(capacidade: number): string {
+  return `Até ${contar(capacidade, 'pessoa', 'pessoas')}`
+}
+
 /** `quartos` do projeto são os que sobram além das suítes; o total é a soma dos dois. */
 export function totalDeQuartos(projeto: Pick<Projeto, 'suites' | 'quartos'>): number {
   return projeto.suites + projeto.quartos

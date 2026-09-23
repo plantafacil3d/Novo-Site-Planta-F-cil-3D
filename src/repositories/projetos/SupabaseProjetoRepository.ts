@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { formatarFamiliaIndicada } from '@/features/projetos'
 import type { Diferencial, ItemGaleria, Projeto, ProjetoDetalhe } from '@/features/projetos'
 import { criarClientePublico } from '@/lib/supabase/publico'
 import { fileStorage } from '@/services/storage'
@@ -48,7 +49,7 @@ const COLUNAS_DETALHE =
   'largura_m, profundidade_m, area_construida_m2, quartos, suites, suite_master, banheiros, lavabo, ' +
   'vagas, pavimentos, piscina, area_gourmet, ' +
   'checkout_url, resumo, descricao, ambientes, indicado_para, aplicacoes, ' +
-  'perfil_terreno, familia_indicada, estilo, itens, video_url, ' +
+  'perfil_terreno, familia_capacidade, estilo, itens, video_url, ' +
   'projeto_arquivos (caminho, papel, ordem)'
 
 type LinhaDetalhe = LinhaResumo & {
@@ -59,7 +60,7 @@ type LinhaDetalhe = LinhaResumo & {
   indicado_para: string | null
   aplicacoes: string | null
   perfil_terreno: string | null
-  familia_indicada: string | null
+  familia_capacidade: number | null
   estilo: string | null
   itens: string[]
   video_url: string | null
@@ -145,7 +146,7 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
     perfil: {
       terrenoMinimo: `${linha.largura_m ?? 0}x${linha.profundidade_m ?? 0}m`,
       perfilDoTerreno: linha.perfil_terreno ?? '',
-      familia: linha.familia_indicada ?? '',
+      familia: linha.familia_capacidade ? formatarFamiliaIndicada(linha.familia_capacidade) : '',
       estilo: linha.estilo ?? '',
       categoria: linha.categoria ?? '',
     },

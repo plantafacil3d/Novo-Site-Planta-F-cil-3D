@@ -1,10 +1,12 @@
 import { z } from 'zod'
 
 import {
+  FAMILIA_CAPACIDADE,
   camposDeCaracteristicas,
   categoriasDoCadastro,
   estilosDoCadastro,
   etapasDoCadastro,
+  perfisDeTerrenoDoCadastro,
 } from './catalogo'
 import {
   ARQUIVOS_DE_ENTREGA,
@@ -42,6 +44,32 @@ const escolhaOpcional = (lista: readonly { valor: string }[]) => {
     .string()
     .refine((valor) => valor === '' || validos.has(valor), 'Escolha uma opção da lista.')
 }
+
+/** Número digitado na faixa do campo. `obrigatorio: false` aceita vazio (rascunho). */
+const campoNumerico = (campo: { decimal: boolean; min: number; max: number }, obrigatorio = true) =>
+  z
+    .string()
+    .trim()
+    .superRefine((texto, ctx) => {
+      if (texto === '') {
+        if (obrigatorio) ctx.addIssue({ code: 'custom', message: 'Preencha este campo.' })
+        return
+      }
+      const numero = lerNumero(texto)
+      if (numero === null) {
+        ctx.addIssue({ code: 'custom', message: 'Informe um número válido.' })
+      } else if (!campo.decimal && !Number.isInteger(numero)) {
+        ctx.addIssue({ code: 'custom', message: 'Use um número inteiro.' })
+      } else if (numero < campo.min || numero > campo.max) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `Use um valor entre ${campo.min} e ${campo.max}.`,
+        })
+      }
+    })
+
+/** "Família indicada" (aba 1): capacidade de pessoas, opcional. */
+const campoFamiliaCapacidade = { decimal: false, ...FAMILIA_CAPACIDADE }
 
 /** Preço em reais digitado; maior que zero. */
 const precoObrigatorio = z
@@ -134,16 +162,8 @@ const schemaInformacoes = schemaTitulo
       .trim()
       .max(LIMITES.aplicacoesMax, maximo(LIMITES.aplicacoesMax))
       .refine(semSimbolos, SEM_SIMBOLOS),
-    perfilTerreno: z
-      .string()
-      .trim()
-      .max(LIMITES.perfilTerrenoMax, maximo(LIMITES.perfilTerrenoMax))
-      .refine(semSimbolos, SEM_SIMBOLOS),
-    familiaIndicada: z
-      .string()
-      .trim()
-      .max(LIMITES.familiaIndicadaMax, maximo(LIMITES.familiaIndicadaMax))
-      .refine(semSimbolos, SEM_SIMBOLOS),
+    perfilTerreno: escolhaOpcional(perfisDeTerrenoDoCadastro),
+    familiaCapacidade: campoNumerico(campoFamiliaCapacidade, false),
     tags: z
       .array(textoObrigatorio(LIMITES.tagTamanhoMax, 'Tag vazia.'))
       .max(LIMITES.tagsMax, `Use no máximo ${LIMITES.tagsMax} tags.`),
@@ -206,29 +226,6 @@ const schemaImagens = z.object({
 })
 
 // ── 3. Características ───────────────────────────────────────────────────────────────────────────
-
-/** Número digitado na faixa do campo. `obrigatorio: false` aceita vazio (rascunho). */
-const campoNumerico = (campo: (typeof camposDeCaracteristicas)[number], obrigatorio = true) =>
-  z
-    .string()
-    .trim()
-    .superRefine((texto, ctx) => {
-      if (texto === '') {
-        if (obrigatorio) ctx.addIssue({ code: 'custom', message: 'Preencha este campo.' })
-        return
-      }
-      const numero = lerNumero(texto)
-      if (numero === null) {
-        ctx.addIssue({ code: 'custom', message: 'Informe um número válido.' })
-      } else if (!campo.decimal && !Number.isInteger(numero)) {
-        ctx.addIssue({ code: 'custom', message: 'Use um número inteiro.' })
-      } else if (numero < campo.min || numero > campo.max) {
-        ctx.addIssue({
-          code: 'custom',
-          message: `Use um valor entre ${campo.min} e ${campo.max}.`,
-        })
-      }
-    })
 
 const simOuNao = z.enum(['sim', 'nao'], 'Escolha Sim ou Não.')
 
@@ -387,8 +384,8 @@ const schemaPayload = z
     ambientes: textoLivre(LIMITES.ambientesMax),
     indicadoPara: textoLivre(LIMITES.indicadoParaMax),
     aplicacoes: textoLivre(LIMITES.aplicacoesMax),
-    perfilTerreno: textoLivre(LIMITES.perfilTerrenoMax),
-    familiaIndicada: textoLivre(LIMITES.familiaIndicadaMax),
+    perfilTerreno: escolhaOpcional(perfisDeTerrenoDoCadastro),
+    familiaCapacidade: campoNumerico(campoFamiliaCapacidade, false),
     tags: z
       .array(textoObrigatorio(LIMITES.tagTamanhoMax, 'Tag vazia.'))
       .max(LIMITES.tagsMax, `Use no máximo ${LIMITES.tagsMax} tags.`),

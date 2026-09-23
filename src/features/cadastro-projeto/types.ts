@@ -70,7 +70,8 @@ export type DadosProjeto = {
   indicadoPara: string
   aplicacoes: string
   perfilTerreno: string
-  familiaIndicada: string
+  /** Digitado como número (capacidade de pessoas); vira "Até N pessoas" na página pública. */
+  familiaCapacidade: string
   tags: string[]
   videoUrl: string
   checkoutUrl: string
@@ -159,7 +160,7 @@ export type CadastroGravavel = {
   indicadoPara: string | null
   aplicacoes: string | null
   perfilTerreno: string | null
-  familiaIndicada: string | null
+  familiaCapacidade: number | null
   tags: string[]
   videoUrl: string | null
   checkoutUrl: string | null

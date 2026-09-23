@@ -36,6 +36,7 @@ export {
   checkoutSeguro,
   contarFiltros,
   descreverResultados,
+  formatarFamiliaIndicada,
   formatarPreco,
   hrefCategoria,
   hrefProjeto,

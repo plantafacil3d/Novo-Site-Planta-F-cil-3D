@@ -3,7 +3,12 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
 
-import { categoriasDoCadastro, estilosDoCadastro } from '../catalogo'
+import {
+  FAMILIA_CAPACIDADE,
+  categoriasDoCadastro,
+  estilosDoCadastro,
+  perfisDeTerrenoDoCadastro,
+} from '../catalogo'
 import type { FormularioProjetoApi } from '../hooks/useFormularioProjeto'
 import { LIMITES, gerarSlug } from '../rules'
 import { CampoTags } from './CampoTags'
@@ -11,7 +16,7 @@ import { PainelDaEtapa } from './PainelDaEtapa'
 
 /** Aba 1: título, preços, categoria, estilo, descrições, tags e vídeo. */
 export function EtapaInformacoesGerais({ form }: { form: FormularioProjetoApi }) {
-  const { dados, slugAtual, erroDe, campoTexto, campoPreco, campoCodigoYoutube } = form
+  const { dados, slugAtual, erroDe, campoTexto, campoNumero, campoPreco, campoCodigoYoutube } = form
   // Num projeto novo, o slug ainda não existe: mostra a prévia de como vai nascer. Num projeto já
   // existente, o endereço é fixo desde a criação (editar o título não muda o link) — mostra o real
   // gravado, não um recálculo, para a tela nunca sugerir uma mudança que não vai acontecer.
@@ -162,24 +167,25 @@ export function EtapaInformacoesGerais({ form }: { form: FormularioProjetoApi })
         icon="map-pin"
         error={erroDe('perfilTerreno')}
         hint="Opcional. Aparece na seção 'Para quem é este projeto?' da página."
-        counter={`${dados.perfilTerreno.length}/${LIMITES.perfilTerrenoMax}`}
       >
-        <Textarea {...campoTexto('perfilTerreno')} rows={2} maxLength={LIMITES.perfilTerrenoMax} />
+        <Select {...campoTexto('perfilTerreno')}>
+          <option value="">Selecione</option>
+          {perfisDeTerrenoDoCadastro.map((perfil) => (
+            <option key={perfil.valor} value={perfil.valor} title={perfil.descricao}>
+              {perfil.rotulo}
+            </option>
+          ))}
+        </Select>
       </Field>
 
       <Field
         label="Família indicada"
-        htmlFor="campo-familiaIndicada"
+        htmlFor="campo-familiaCapacidade"
         icon="users"
-        error={erroDe('familiaIndicada')}
-        hint="Opcional. Aparece na seção 'Para quem é este projeto?' da página."
-        counter={`${dados.familiaIndicada.length}/${LIMITES.familiaIndicadaMax}`}
+        error={erroDe('familiaCapacidade')}
+        hint={`Opcional. Quantidade de pessoas (${FAMILIA_CAPACIDADE.min} a ${FAMILIA_CAPACIDADE.max}). Aparece como "Até N pessoas" na página.`}
       >
-        <Textarea
-          {...campoTexto('familiaIndicada')}
-          rows={2}
-          maxLength={LIMITES.familiaIndicadaMax}
-        />
+        <Input {...campoNumero('familiaCapacidade', false)} placeholder="Ex.: 5" />
       </Field>
 
       <CampoTags

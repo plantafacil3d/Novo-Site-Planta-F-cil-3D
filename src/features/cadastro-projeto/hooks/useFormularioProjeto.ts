@@ -174,7 +174,7 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     }
   }
 
-  function campoNumero(chave: ChaveDeCaracteristica, decimal: boolean) {
+  function campoNumero(chave: ChaveDeCaracteristica | 'familiaCapacidade', decimal: boolean) {
     return {
       ...campo(chave),
       value: dados[chave],

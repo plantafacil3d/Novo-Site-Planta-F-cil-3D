@@ -55,6 +55,32 @@ export const estilosDoCadastro = [
   { valor: 'outros', rotulo: 'Outros' },
 ] as const
 
+/** Opções de "Perfil do terreno" (aba 1). `descricao` vira dica (tooltip) na opção. */
+export const perfisDeTerrenoDoCadastro = [
+  { valor: 'Plano', rotulo: 'Plano', descricao: 'Terreno sem inclinação perceptível.' },
+  { valor: 'Aclive', rotulo: 'Aclive', descricao: 'Terreno sobe a partir da rua.' },
+  { valor: 'Declive', rotulo: 'Declive', descricao: 'Terreno desce a partir da rua.' },
+  {
+    valor: 'Aclive acentuado',
+    rotulo: 'Aclive acentuado',
+    descricao: 'Subida forte: pode exigir fundação e acesso diferenciados.',
+  },
+  {
+    valor: 'Declive acentuado',
+    rotulo: 'Declive acentuado',
+    descricao: 'Descida forte: pode exigir fundação e acesso diferenciados.',
+  },
+  {
+    valor: 'Irregular',
+    rotulo: 'Irregular',
+    descricao: 'Relevo variado, sem um padrão único de subida ou descida.',
+  },
+  { valor: 'Outros', rotulo: 'Outros', descricao: 'Não se encaixa nas opções acima.' },
+] as const
+
+/** Faixa aceita para "Família indicada" (aba 1): capacidade de pessoas, vira "Até N pessoas". */
+export const FAMILIA_CAPACIDADE = { min: 1, max: 20 } as const
+
 /** As 7 abas, na ordem do menu. `opcional`: não bloqueia o "Salvar". */
 export const etapasDoCadastro: readonly { id: EtapaId; rotulo: string; opcional: boolean }[] = [
   { id: 'informacoes', rotulo: 'Informações Gerais', opcional: false },
