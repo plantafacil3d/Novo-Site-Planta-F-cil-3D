@@ -19,11 +19,11 @@ import {
   erroDoArquivoDoPapel,
   extensaoDe,
   formatoConfere,
+  gerarSlug,
   listarArquivosDoFormulario,
   listarEmTexto,
   montarCadastro,
   montarComplementares,
-  slugsCandidatos,
   tipoDeConteudoDaExtensao,
 } from './rules'
 import { lerPayload, validarEtapas } from './schemas'
@@ -172,16 +172,22 @@ function conferirSomaDoLote(
 
 // ── Salvar ───────────────────────────────────────────────────────────────────────────────────────
 
-/** Tenta o slug do título e, se já existir, `-2`, `-3`... até achar um livre. */
+/**
+ * Tenta o slug do título puro e, se já existir, `-2`, `-3`... sem limite de tentativas: título
+ * repetido é normal (várias casas "Sobrado 10x20"), então isso nunca deve travar o cadastro nem
+ * pedir pra mudar o título. Cada tentativa confere o banco de verdade, então um slug liberado por
+ * uma exclusão é reaproveitado pelo próximo cadastro daquele título.
+ */
 async function criarComSlugLivre(cadastro: CadastroGravavel): Promise<ProjetoCriado> {
-  for (const slug of slugsCandidatos(cadastro.titulo)) {
+  const base = gerarSlug(cadastro.titulo) || 'projeto'
+  for (let tentativa = 1; ; tentativa++) {
+    const slug = tentativa === 1 ? base : `${base.slice(0, 96)}-${tentativa}`
     try {
       return await projetoAdminRepository.criarCadastro(cadastro, slug)
     } catch (erro) {
       if (!(erro instanceof AppError && erro.code === 'conflito')) throw erro
     }
   }
-  throw new AppError('conflito', 'Já existem projetos com esse título. Mude um pouco o título.')
 }
 
 /**

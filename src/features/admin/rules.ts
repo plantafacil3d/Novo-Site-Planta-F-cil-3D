@@ -25,12 +25,13 @@ export function montarHrefAdminProjetos({ q, pagina }: ParametrosAdminProjetos):
 
 /**
  * A cópia nasce como rascunho, com título "Cópia de …" e um slug próprio (o slug é único no banco).
+ * O slug não leva "cópia" — ele vira URL pública, e a palavra não deveria aparecer ali.
  * `sufixo` é um trecho aleatório curto, para duas cópias do mesmo projeto não colidirem.
  */
 export function montarCopia(original: ProjetoAdmin, sufixo: string): NovoProjetoAdmin {
   return {
     titulo: `Cópia de ${original.titulo}`.slice(0, TITULO_MAXIMO),
-    slug: `${original.slug}-copia-${sufixo}`,
+    slug: `${original.slug}-${sufixo}`,
     categoria: original.categoria,
     precoCentavos: original.precoCentavos,
     status: 'rascunho',

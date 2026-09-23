@@ -454,12 +454,6 @@ export function arquivosQueFaltam(estado: EstadoParaPublicar): string[] {
 
 // ── Gravação ─────────────────────────────────────────────────────────────────────────────────────
 
-/** "sobrado-com-piscina", "sobrado-com-piscina-2"... O primeiro que estiver livre no banco fica. */
-export function slugsCandidatos(titulo: string): string[] {
-  const base = gerarSlug(titulo) || 'projeto'
-  return [base, ...Array.from({ length: 5 }, (_, indice) => `${base.slice(0, 96)}-${indice + 2}`)]
-}
-
 const textoOuNulo = (texto: string) => {
   const limpo = texto.trim()
   return limpo === '' ? null : limpo
