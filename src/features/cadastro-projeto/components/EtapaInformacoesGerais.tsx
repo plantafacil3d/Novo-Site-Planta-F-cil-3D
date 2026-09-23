@@ -123,6 +123,39 @@ export function EtapaInformacoesGerais({ form }: { form: FormularioProjetoApi })
         <Textarea {...campoTexto('descricao')} rows={8} maxLength={LIMITES.descricaoMax} />
       </Field>
 
+      <Field
+        label="Ambientes"
+        htmlFor="campo-ambientes"
+        icon="layout-grid"
+        error={erroDe('ambientes')}
+        hint="Opcional. Aparece na página do projeto."
+        counter={`${dados.ambientes.length}/${LIMITES.ambientesMax}`}
+      >
+        <Textarea {...campoTexto('ambientes')} rows={3} maxLength={LIMITES.ambientesMax} />
+      </Field>
+
+      <Field
+        label="Indicado para"
+        htmlFor="campo-indicadoPara"
+        icon="users"
+        error={erroDe('indicadoPara')}
+        hint="Opcional. Aparece na página do projeto."
+        counter={`${dados.indicadoPara.length}/${LIMITES.indicadoParaMax}`}
+      >
+        <Textarea {...campoTexto('indicadoPara')} rows={3} maxLength={LIMITES.indicadoParaMax} />
+      </Field>
+
+      <Field
+        label="Aplicações"
+        htmlFor="campo-aplicacoes"
+        icon="building2"
+        error={erroDe('aplicacoes')}
+        hint="Opcional. Aparece na página do projeto."
+        counter={`${dados.aplicacoes.length}/${LIMITES.aplicacoesMax}`}
+      >
+        <Textarea {...campoTexto('aplicacoes')} rows={3} maxLength={LIMITES.aplicacoesMax} />
+      </Field>
+
       <CampoTags
         id="campo-tags"
         tags={dados.tags}

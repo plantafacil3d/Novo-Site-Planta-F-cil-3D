@@ -66,6 +66,9 @@ export type DadosProjeto = {
   estilo: string
   resumo: string
   descricao: string
+  ambientes: string
+  indicadoPara: string
+  aplicacoes: string
   tags: string[]
   videoUrl: string
   // 2. Imagens
@@ -149,6 +152,9 @@ export type CadastroGravavel = {
   precoPromocionalCentavos: number | null
   resumo: string | null
   descricao: string | null
+  ambientes: string | null
+  indicadoPara: string | null
+  aplicacoes: string | null
   tags: string[]
   videoUrl: string | null
   larguraM: number | null

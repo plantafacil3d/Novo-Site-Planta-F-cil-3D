@@ -114,6 +114,21 @@ const schemaInformacoes = schemaTitulo
       .trim()
       .max(LIMITES.descricaoMax, maximo(LIMITES.descricaoMax))
       .refine(semSimbolos, SEM_SIMBOLOS),
+    ambientes: z
+      .string()
+      .trim()
+      .max(LIMITES.ambientesMax, maximo(LIMITES.ambientesMax))
+      .refine(semSimbolos, SEM_SIMBOLOS),
+    indicadoPara: z
+      .string()
+      .trim()
+      .max(LIMITES.indicadoParaMax, maximo(LIMITES.indicadoParaMax))
+      .refine(semSimbolos, SEM_SIMBOLOS),
+    aplicacoes: z
+      .string()
+      .trim()
+      .max(LIMITES.aplicacoesMax, maximo(LIMITES.aplicacoesMax))
+      .refine(semSimbolos, SEM_SIMBOLOS),
     tags: z
       .array(textoObrigatorio(LIMITES.tagTamanhoMax, 'Tag vazia.'))
       .max(LIMITES.tagsMax, `Use no máximo ${LIMITES.tagsMax} tags.`),
@@ -358,6 +373,9 @@ const schemaPayload = z
     estilo: escolhaOpcional(estilosDoCadastro),
     resumo: textoLivre(LIMITES.resumoMax),
     descricao: textoLivre(LIMITES.descricaoMax),
+    ambientes: textoLivre(LIMITES.ambientesMax),
+    indicadoPara: textoLivre(LIMITES.indicadoParaMax),
+    aplicacoes: textoLivre(LIMITES.aplicacoesMax),
     tags: z
       .array(textoObrigatorio(LIMITES.tagTamanhoMax, 'Tag vazia.'))
       .max(LIMITES.tagsMax, `Use no máximo ${LIMITES.tagsMax} tags.`),

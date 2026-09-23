@@ -84,6 +84,9 @@ function paraColunas(cadastro: CadastroGravavel) {
     preco_promocional_centavos: cadastro.precoPromocionalCentavos,
     resumo: cadastro.resumo,
     descricao: cadastro.descricao,
+    ambientes: cadastro.ambientes,
+    indicado_para: cadastro.indicadoPara,
+    aplicacoes: cadastro.aplicacoes,
     tags: cadastro.tags,
     video_url: cadastro.videoUrl,
     largura_m: cadastro.larguraM,
@@ -138,7 +141,7 @@ type LinhaParaPublicar = {
 /** Colunas de `CadastroGravavel` + `id`, para a tela de edição. */
 const COLUNAS_DO_CADASTRO_COMPLETO =
   'id, slug, titulo, codigo_youtube, categoria, estilo, preco_centavos, preco_promocional_centavos, resumo, ' +
-  'descricao, tags, video_url, largura_m, profundidade_m, area_construida_m2, quartos, suites, ' +
+  'descricao, ambientes, indicado_para, aplicacoes, tags, video_url, largura_m, profundidade_m, area_construida_m2, quartos, suites, ' +
   'suite_master, banheiros, lavabo, vagas, pavimentos, piscina, area_gourmet, itens, entrega_link, ' +
   'projeto_complementares (id, titulo, valor_centavos, descricao, entrega, link, ordem), ' +
   'projeto_arquivos (id, papel, complementar_id, caminho, nome_original, rotulo, tamanho_bytes, tipo_mime, ordem), ' +
@@ -155,6 +158,9 @@ type LinhaCadastroCompleto = {
   preco_promocional_centavos: number | null
   resumo: string | null
   descricao: string | null
+  ambientes: string | null
+  indicado_para: string | null
+  aplicacoes: string | null
   tags: string[]
   video_url: string | null
   largura_m: number | null
@@ -206,6 +212,9 @@ function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoB
     precoPromocionalCentavos: linha.preco_promocional_centavos,
     resumo: linha.resumo,
     descricao: linha.descricao,
+    ambientes: linha.ambientes,
+    indicadoPara: linha.indicado_para,
+    aplicacoes: linha.aplicacoes,
     tags: linha.tags,
     videoUrl: linha.video_url,
     larguraM: linha.largura_m,

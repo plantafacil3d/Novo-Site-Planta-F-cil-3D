@@ -84,7 +84,7 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ### Field
 
 - **Propósito:** rótulo + campo + dica ou erro, para formulários. Envolve `Input`, `Select` ou `Textarea`; o `htmlFor` liga o rótulo ao campo. Com `error`, a mensagem substitui a dica e ganha o id `<htmlFor>-erro` (o campo aponta para ela com `aria-describedby`).
-- **Props:** `label`, `htmlFor`, `hint?`, `error?`, `counter?` (contador de caracteres à direita, ex.: "35/120"), `className?`.
+- **Props:** `label`, `htmlFor`, `hint?`, `error?`, `counter?` (contador de caracteres à direita, ex.: "35/120"), `icon?` (`IconName`, ao lado do rótulo, para identificar o campo de relance), `className?`.
 - **Tokens:** `--color-fg-muted` (dica e contador), `--color-danger-fg` (erro, AA sobre o fundo claro).
 
 ### FileInput
@@ -313,6 +313,7 @@ Grava e envia de verdade (Supabase + Storage). A tela de criar é montada em `vi
 - Auxiliar: `PainelDaEtapa` (cartão com título de cada aba).
 - Regras visuais: `<` e `>` são removidos ao digitar em todo campo de texto; imagens JPG/PNG/WEBP até 2 MB; PDF, ZIP e RAR até 20 MB (no total, na entrega do projeto). Campos começam vazios; placeholders são só dicas.
 - Ícones novos no registro: `upload`, `trash`, `circle-check`, `circle-alert`.
+- Em "Informações Gerais", depois de "Descrição detalhada": três campos opcionais que espelham a seção "Sobre o projeto" da página pública (`SobreProjeto.tsx`, ainda mockada) — Ambientes (ícone `layout-grid`), Indicado para (`users`) e Aplicações (`building2`), usando a prop `icon` do `Field`.
 
 ## Registro
 
