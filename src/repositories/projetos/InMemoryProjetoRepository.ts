@@ -232,7 +232,6 @@ const sobradoModerno7x20: ProjetoDetalhe = {
   checkoutUrl: 'https://pay.hotmart.com/',
   areaConstruidaM2: 158,
   piscina: false,
-  closet: true,
   areaGourmet: true,
   resumo: 'Design moderno, funcional e perfeito para o seu terreno.',
   sobre: {

@@ -90,7 +90,6 @@ export type DadosProjeto = {
   vagas: string
   pavimentos: string
   piscina: SimNao
-  closet: SimNao
   areaGourmet: SimNao
   // 4. Itens incluídos
   itens: string[]
@@ -175,7 +174,6 @@ export type CadastroGravavel = {
   vagas: number | null
   pavimentos: number | null
   piscina: boolean | null
-  closet: boolean | null
   areaGourmet: boolean | null
   itens: string[]
   entregaLink: string | null

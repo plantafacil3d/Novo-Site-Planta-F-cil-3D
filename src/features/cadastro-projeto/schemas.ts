@@ -237,7 +237,6 @@ const schemaCaracteristicas = z.object({
     camposDeCaracteristicas.map((campo) => [campo.chave, campoNumerico(campo)]),
   ),
   piscina: simOuNao,
-  closet: simOuNao,
   areaGourmet: simOuNao,
 })
 
@@ -405,7 +404,6 @@ const schemaPayload = z
       camposDeCaracteristicas.map((campo) => [campo.chave, campoNumerico(campo, false)]),
     ),
     piscina: z.enum(['', 'sim', 'nao'], 'Escolha Sim ou Não.'),
-    closet: z.enum(['', 'sim', 'nao'], 'Escolha Sim ou Não.'),
     areaGourmet: z.enum(['', 'sim', 'nao'], 'Escolha Sim ou Não.'),
     itens: z
       .array(textoObrigatorio(LIMITES.itemMax, 'Item vazio.'))

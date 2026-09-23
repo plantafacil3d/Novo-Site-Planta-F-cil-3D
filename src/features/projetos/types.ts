@@ -93,7 +93,6 @@ export type ProjetoDetalhe = Projeto & {
   categoriaRotulo: string
   /** Checkout externo (Hotmart ou outra plataforma). Só `https:` é aceito (ver `checkoutSeguro`). */
   checkoutUrl: string
-  closet: boolean
   /** Frase curta do topo da página. */
   resumo: string
   sobre: ConteudoSobre

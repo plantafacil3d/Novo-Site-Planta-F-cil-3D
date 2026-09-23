@@ -47,7 +47,7 @@ const COLUNAS_DETALHE =
   'id, codigo, slug, titulo, codigo_youtube, categoria, preco_centavos, preco_promocional_centavos, ' +
   'largura_m, profundidade_m, area_construida_m2, quartos, suites, suite_master, banheiros, lavabo, ' +
   'vagas, pavimentos, piscina, area_gourmet, ' +
-  'checkout_url, resumo, descricao, closet, ambientes, indicado_para, aplicacoes, ' +
+  'checkout_url, resumo, descricao, ambientes, indicado_para, aplicacoes, ' +
   'perfil_terreno, familia_indicada, estilo, itens, video_url, ' +
   'projeto_arquivos (caminho, papel, ordem)'
 
@@ -55,7 +55,6 @@ type LinhaDetalhe = LinhaResumo & {
   checkout_url: string | null
   resumo: string | null
   descricao: string | null
-  closet: boolean | null
   ambientes: string | null
   indicado_para: string | null
   aplicacoes: string | null
@@ -133,7 +132,6 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
     ...base,
     categoriaRotulo: linha.categoria ?? '',
     checkoutUrl: linha.checkout_url ?? '',
-    closet: linha.closet ?? false,
     resumo: linha.resumo ?? '',
     sobre: {
       descricao: linha.descricao ?? '',

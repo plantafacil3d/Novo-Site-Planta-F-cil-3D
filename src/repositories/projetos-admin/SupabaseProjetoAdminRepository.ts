@@ -103,7 +103,6 @@ function paraColunas(cadastro: CadastroGravavel) {
     vagas: cadastro.vagas,
     pavimentos: cadastro.pavimentos,
     piscina: cadastro.piscina,
-    closet: cadastro.closet,
     area_gourmet: cadastro.areaGourmet,
     itens: cadastro.itens,
     entrega_link: cadastro.entregaLink,
@@ -147,7 +146,7 @@ const COLUNAS_DO_CADASTRO_COMPLETO =
   'id, slug, titulo, codigo_youtube, categoria, estilo, preco_centavos, preco_promocional_centavos, resumo, ' +
   'descricao, ambientes, indicado_para, aplicacoes, perfil_terreno, familia_indicada, tags, video_url, checkout_url, ' +
   'largura_m, profundidade_m, area_construida_m2, quartos, suites, ' +
-  'suite_master, banheiros, lavabo, vagas, pavimentos, piscina, closet, area_gourmet, itens, entrega_link, ' +
+  'suite_master, banheiros, lavabo, vagas, pavimentos, piscina, area_gourmet, itens, entrega_link, ' +
   'projeto_complementares (id, titulo, valor_centavos, descricao, entrega, link, ordem), ' +
   'projeto_arquivos (id, papel, complementar_id, caminho, nome_original, rotulo, tamanho_bytes, tipo_mime, ordem), ' +
   'projeto_arquivos_exemplo (arquivo_id)'
@@ -182,7 +181,6 @@ type LinhaCadastroCompleto = {
   vagas: number | null
   pavimentos: number | null
   piscina: boolean | null
-  closet: boolean | null
   area_gourmet: boolean | null
   itens: string[]
   entrega_link: string | null
@@ -240,7 +238,6 @@ function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoB
     vagas: linha.vagas,
     pavimentos: linha.pavimentos,
     piscina: linha.piscina,
-    closet: linha.closet,
     areaGourmet: linha.area_gourmet,
     itens: linha.itens,
     entregaLink: linha.entrega_link,
