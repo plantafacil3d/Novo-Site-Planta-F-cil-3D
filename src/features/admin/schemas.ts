@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { OPCOES_POR_PAGINA_ADMIN, PROJETOS_ADMIN_POR_PAGINA } from './rules'
+
 // Tudo que vem da URL ou de formulário é entrada não confiável (skill `seguranca` §8.1).
 
 const PAGINA_MAXIMA = 1000
@@ -14,6 +16,16 @@ const schemaParametros = z.object({
     .optional()
     .catch(undefined),
   pagina: z.coerce.number().int().min(1).max(PAGINA_MAXIMA).catch(1),
+  // Valor fora das opções do seletor (link editado à mão) cai no padrão, não é erro.
+  porPagina: z.coerce
+    .number()
+    .int()
+    .catch(PROJETOS_ADMIN_POR_PAGINA)
+    .transform((valor) =>
+      (OPCOES_POR_PAGINA_ADMIN as readonly number[]).includes(valor)
+        ? valor
+        : PROJETOS_ADMIN_POR_PAGINA,
+    ),
 })
 
 /** Lê os `searchParams` do Next e devolve o estado da listagem, sempre válido (nunca lança). */

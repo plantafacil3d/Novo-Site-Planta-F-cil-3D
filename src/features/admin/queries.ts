@@ -6,7 +6,6 @@ import { notFound, redirect } from 'next/navigation'
 import { projetoAdminRepository } from '@/repositories/projetos-admin'
 import { authService } from '@/services/auth'
 
-import { PROJETOS_ADMIN_POR_PAGINA } from './rules'
 import type { ParametrosAdminProjetos } from './types'
 
 // Loaders para Server Components do painel. Toda leitura confere o administrador no servidor
@@ -28,6 +27,6 @@ export async function listarProjetosAdmin(params: ParametrosAdminProjetos) {
   return projetoAdminRepository.listar({
     busca: params.q,
     pagina: params.pagina,
-    porPagina: PROJETOS_ADMIN_POR_PAGINA,
+    porPagina: params.porPagina,
   })
 }

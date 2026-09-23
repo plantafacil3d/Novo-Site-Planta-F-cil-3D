@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation'
 
 import { Pagination } from '@/components/navigation/Pagination'
+import { SeletorPorPagina } from '@/components/navigation/SeletorPorPagina'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { SearchBar } from '@/components/shared/SearchBar'
 import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import {
-  PROJETOS_ADMIN_POR_PAGINA,
+  OPCOES_POR_PAGINA_ADMIN,
   TabelaProjetosAdmin,
   descreverListagem,
   formatarData,
@@ -33,7 +34,7 @@ type ProjetosAdminViewProps = {
 /** Aba Projetos do painel: título, "Cadastrar Projeto", busca, tabela e paginação. */
 export async function ProjetosAdminView({ params, salvo }: ProjetosAdminViewProps) {
   const resultado = await listarProjetosAdmin(params)
-  const paginas = totalDePaginas(resultado.total, PROJETOS_ADMIN_POR_PAGINA)
+  const paginas = totalDePaginas(resultado.total, params.porPagina)
 
   // Link antigo ou digitado à mão para uma página que não existe (mais); leva à última.
   if (resultado.total > 0 && params.pagina > paginas) {
@@ -87,9 +88,18 @@ export async function ProjetosAdminView({ params, salvo }: ProjetosAdminViewProp
         />
       ) : (
         <>
-          <p className="text-sm text-fg-muted">
-            {descreverListagem(resultado.total, params.pagina, PROJETOS_ADMIN_POR_PAGINA)}
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <p className="text-sm text-fg-muted">
+              {descreverListagem(resultado.total, params.pagina, params.porPagina)}
+            </p>
+            <SeletorPorPagina
+              porPagina={params.porPagina}
+              opcoes={OPCOES_POR_PAGINA_ADMIN.map((porPagina) => ({
+                valor: porPagina,
+                href: montarHrefAdminProjetos({ ...params, pagina: 1, porPagina }),
+              }))}
+            />
+          </div>
           <TabelaProjetosAdmin key={chave} linhas={linhas} />
           <Pagination
             pagina={params.pagina}

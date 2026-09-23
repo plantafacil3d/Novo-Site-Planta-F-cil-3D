@@ -160,6 +160,10 @@ Trilha "Início › Projetos › Sobrados › Projeto" (`<nav aria-label>` + `<o
 
 Paginação da listagem (regras em `ux-rules.md`, "Listas e paginação"). Props: `pagina` (atual, começa em 1), `totalPaginas`, `hrefPagina(n)` (quem usa monta o endereço; a página vive na URL). Mostra "Anterior 1 … 4 5 6 … 40 Próxima": primeira, última e vizinhas da atual, com "…" nos saltos. Cada número é um `Button` link (`primary` na página atual, com `aria-current="page"`; `secondary` nas demais); Anterior/Próxima ficam desabilitados nas pontas. Com uma página só, não renderiza nada. `<nav aria-label="Paginação">`, alvos de 44px.
 
+### SeletorPorPagina (`navigation/`)
+
+`'use client'`. "Itens por página" ao lado da paginação, para tabelas grandes do admin (§3.1 da skill `arquitetura`). Props: `porPagina` (valor atual) e `opcoes: { valor, href }[]` — quem usa (Server Component) já monta o endereço de cada opção e volta `pagina` para 1, porque função não cruza para um Client Component. Um `Select` nativo; ao trocar, navega direto com `router.push`, sem botão "aplicar".
+
 ### Footer (`layout/`)
 
 Logo, links de navegação, redes sociais, direitos autorais e localização. Fundo `--color-page` com borda superior `--color-border`.
@@ -279,7 +283,7 @@ Ficam na feature porque conhecem o `ProjetoDetalhe`; a tela é montada em `views
 
 ## Painel do administrador (`features/admin/components/`)
 
-Painel em `/admin` (layout próprio, fora do `SiteShell`; a tela é montada em `views/admin/`). Reaproveita `Table`, `Badge`, `Checkbox`, `SearchBar`, `Pagination`, `EmptyState`, `ErrorState` e `Skeleton`.
+Painel em `/admin` (layout próprio, fora do `SiteShell`; a tela é montada em `views/admin/`). Reaproveita `Table`, `Badge`, `Checkbox`, `SearchBar`, `Pagination`, `SeletorPorPagina`, `EmptyState`, `ErrorState` e `Skeleton`.
 
 - `TabelaProjetosAdmin`: `'use client'`. Tabela com seleção por linha e "selecionar todos" da página, barra de ações em massa (Duplicar, Mover para rascunho, Excluir) e aviso de sucesso/erro em `Alert`. Quem usa dá uma `key` que muda a cada busca/página.
   - **Coluna "Ações":** um `DropdownMenu` (botão ⋮) por linha, com **Editar projeto** (link para `/admin/projetos/[id]/editar`), **Salvar como rascunho** ou **Publicar projeto** (alterna conforme `linha.status`: publicado chama `moverParaRascunho([id])`, rascunho chama `publicarProjetos([id])` — wrapper em `admin/actions.ts` que reexporta o `publicarProjeto` de `cadastro-projeto` por dentro do servidor, para o componente cliente não importar o loader da edição pelo `index.ts` da outra feature) e **Excluir**.

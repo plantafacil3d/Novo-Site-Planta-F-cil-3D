@@ -3,6 +3,7 @@ export { TabelaProjetosAdmin } from './components/TabelaProjetosAdmin'
 export { sairDoPainel } from './actions'
 export { exigirAdmin, listarProjetosAdmin } from './queries'
 export {
+  OPCOES_POR_PAGINA_ADMIN,
   PROJETOS_ADMIN_POR_PAGINA,
   descreverListagem,
   formatarData,

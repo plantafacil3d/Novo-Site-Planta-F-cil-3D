@@ -42,6 +42,7 @@ export type ConsultaProjetosAdmin = {
 export type ParametrosAdminProjetos = {
   q?: string
   pagina: number
+  porPagina: number
 }
 
 /**

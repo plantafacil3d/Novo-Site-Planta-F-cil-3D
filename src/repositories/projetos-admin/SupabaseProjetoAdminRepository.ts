@@ -26,7 +26,7 @@ import type { Pagina } from '@/types/pagina'
 import type { ProjetoAdminRepository } from './ProjetoAdminRepository'
 
 /** Teto por página imposto aqui, além da validação da URL (skill `seguranca` §8.1). */
-const POR_PAGINA_MAXIMO = 50
+const POR_PAGINA_MAXIMO = 100
 
 /** Só as colunas que a tabela usa; nada de `select('*')`. */
 const COLUNAS = 'id, codigo, slug, titulo, categoria, preco_centavos, status, criado_em'

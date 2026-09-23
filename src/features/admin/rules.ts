@@ -5,7 +5,11 @@ import type {
   StatusProjeto,
 } from './types'
 
-export const PROJETOS_ADMIN_POR_PAGINA = 20
+/** Padrão inicial da listagem (sem nada escolhido no seletor "Itens por página"). */
+export const PROJETOS_ADMIN_POR_PAGINA = 10
+
+/** Opções do seletor "Itens por página" no admin. */
+export const OPCOES_POR_PAGINA_ADMIN = [10, 20, 50, 100] as const
 
 const TITULO_MAXIMO = 200
 
@@ -14,11 +18,12 @@ export const rotuloDeStatus: Record<StatusProjeto, string> = {
   rascunho: 'Rascunho',
 }
 
-/** Endereço da listagem com busca e página na URL (página 1 e busca vazia não aparecem). */
-export function montarHrefAdminProjetos({ q, pagina }: ParametrosAdminProjetos): string {
+/** Endereço da listagem com busca, página e tamanho de página na URL (valores padrão não aparecem). */
+export function montarHrefAdminProjetos({ q, pagina, porPagina }: ParametrosAdminProjetos): string {
   const params = new URLSearchParams()
   if (q) params.set('q', q)
   if (pagina > 1) params.set('pagina', String(pagina))
+  if (porPagina !== PROJETOS_ADMIN_POR_PAGINA) params.set('porPagina', String(porPagina))
   const texto = params.toString()
   return texto ? `/admin/projetos?${texto}` : '/admin/projetos'
 }
