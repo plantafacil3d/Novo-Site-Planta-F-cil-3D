@@ -11,7 +11,7 @@ import { PainelDaEtapa } from './PainelDaEtapa'
 
 /** Aba 1: título, preços, categoria, estilo, descrições, tags e vídeo. */
 export function EtapaInformacoesGerais({ form }: { form: FormularioProjetoApi }) {
-  const { dados, slugAtual, erroDe, campoTexto, campoPreco } = form
+  const { dados, slugAtual, erroDe, campoTexto, campoPreco, campoCodigoYoutube } = form
   // Num projeto novo, o slug ainda não existe: mostra a prévia de como vai nascer. Num projeto já
   // existente, o endereço é fixo desde a criação (editar o título não muda o link) — mostra o real
   // gravado, não um recálculo, para a tela nunca sugerir uma mudança que não vai acontecer.
@@ -30,6 +30,20 @@ export function EtapaInformacoesGerais({ form }: { form: FormularioProjetoApi })
         counter={`${dados.titulo.length}/${LIMITES.tituloMax}`}
       >
         <Input {...campoTexto('titulo')} maxLength={LIMITES.tituloMax} autoComplete="off" />
+      </Field>
+
+      <Field
+        label="Código do projeto"
+        htmlFor="campo-codigoYoutube"
+        error={erroDe('codigoYoutube')}
+        hint="Opcional. Código que você usa para identificar este projeto nos vídeos do YouTube. Sempre em maiúsculas."
+        counter={`${dados.codigoYoutube.length}/${LIMITES.codigoYoutubeMax}`}
+      >
+        <Input
+          {...campoCodigoYoutube()}
+          maxLength={LIMITES.codigoYoutubeMax}
+          placeholder="EX.: CASA-010"
+        />
       </Field>
 
       <Field

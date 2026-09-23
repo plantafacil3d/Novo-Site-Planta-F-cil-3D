@@ -20,6 +20,7 @@ export function ProjetosDestaque({ projetos, className }: ProjetosDestaqueProps)
           <ProjectCard
             href={hrefProjeto(projeto)}
             title={projeto.titulo}
+            code={projeto.codigoYoutube}
             image={projeto.imagem}
             badge={projeto.selo}
             specs={especificacoesDoCard(projeto)}

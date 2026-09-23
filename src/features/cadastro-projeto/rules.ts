@@ -27,6 +27,7 @@ const MB = 1024 * 1024
 /** Limites do formulário. Cada um existe só aqui; telas e schemas leem daqui. */
 export const LIMITES = {
   tituloMax: 120,
+  codigoYoutubeMax: 30,
   resumoMin: 80,
   resumoMax: 500,
   descricaoMax: 4000,
@@ -123,6 +124,13 @@ export function filtrarDecimal(texto: string): string {
 
 /** Dígitos, ponto e vírgula (preço em reais, como "1.299,90"). */
 export const filtrarPreco = (texto: string) => texto.replace(/[^\d.,]/g, '').slice(0, 12)
+
+/** Letras, números e hífen, sempre maiúsculo (código manual do projeto, ligado ao vídeo do YouTube). */
+export const filtrarCodigoManual = (texto: string) =>
+  texto
+    .toUpperCase()
+    .replace(/[^A-Z0-9-]/g, '')
+    .slice(0, LIMITES.codigoYoutubeMax)
 
 // ── Números ──────────────────────────────────────────────────────────────────────────────────────
 
@@ -230,6 +238,7 @@ export function ehLinkDeVideo(texto: string): boolean {
 export function dadosVazios(): DadosProjeto {
   return {
     titulo: '',
+    codigoYoutube: '',
     precoNormal: '',
     precoPromocional: '',
     categoria: '',
@@ -465,6 +474,7 @@ const simNaoParaBoolean = (valor: SimNao) => (valor === '' ? null : valor === 's
 export function montarCadastro(dados: DadosValidaveis): CadastroGravavel {
   return {
     titulo: dados.titulo.trim(),
+    codigoYoutube: textoOuNulo(dados.codigoYoutube.toUpperCase()),
     categoria: textoOuNulo(dados.categoria),
     estilo: textoOuNulo(dados.estilo),
     precoCentavos: lerPrecoEmCentavos(dados.precoNormal),
@@ -569,6 +579,7 @@ export function paraDadosProjeto(
 
   return {
     titulo: cadastro.titulo,
+    codigoYoutube: cadastro.codigoYoutube ?? '',
     precoNormal: centavosParaTexto(cadastro.precoCentavos),
     precoPromocional: centavosParaTexto(cadastro.precoPromocionalCentavos),
     categoria: cadastro.categoria ?? '',

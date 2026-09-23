@@ -49,6 +49,9 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
               {projeto.selo}
             </Badge>
           )}
+          {projeto.codigoYoutube && (
+            <p className="text-sm font-medium text-fg-muted">{projeto.codigoYoutube}</p>
+          )}
           <h1 id={headingId} className="text-3xl">
             {projeto.titulo}
           </h1>

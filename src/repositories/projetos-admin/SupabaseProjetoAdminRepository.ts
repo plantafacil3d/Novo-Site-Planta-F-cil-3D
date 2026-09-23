@@ -77,6 +77,7 @@ function comoTrecho(palavra: string): string {
 function paraColunas(cadastro: CadastroGravavel) {
   return {
     titulo: cadastro.titulo,
+    codigo_youtube: cadastro.codigoYoutube,
     categoria: cadastro.categoria,
     estilo: cadastro.estilo,
     preco_centavos: cadastro.precoCentavos,
@@ -136,7 +137,7 @@ type LinhaParaPublicar = {
 
 /** Colunas de `CadastroGravavel` + `id`, para a tela de edição. */
 const COLUNAS_DO_CADASTRO_COMPLETO =
-  'id, slug, titulo, categoria, estilo, preco_centavos, preco_promocional_centavos, resumo, ' +
+  'id, slug, titulo, codigo_youtube, categoria, estilo, preco_centavos, preco_promocional_centavos, resumo, ' +
   'descricao, tags, video_url, largura_m, profundidade_m, area_construida_m2, quartos, suites, ' +
   'suite_master, banheiros, lavabo, vagas, pavimentos, piscina, area_gourmet, itens, entrega_link, ' +
   'projeto_complementares (id, titulo, valor_centavos, descricao, entrega, link, ordem), ' +
@@ -146,6 +147,7 @@ type LinhaCadastroCompleto = {
   id: string
   slug: string
   titulo: string
+  codigo_youtube: string | null
   categoria: string | null
   estilo: string | null
   preco_centavos: number | null
@@ -195,6 +197,7 @@ function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoB
     id: linha.id,
     slug: linha.slug,
     titulo: linha.titulo,
+    codigoYoutube: linha.codigo_youtube,
     categoria: linha.categoria,
     estilo: linha.estilo,
     precoCentavos: linha.preco_centavos,

@@ -75,6 +75,18 @@ const precoOpcional = z
 
 const linkOpcional = z.string().trim().max(LIMITES.linkMax, maximo(LIMITES.linkMax))
 
+const CODIGO_YOUTUBE_REGEX = new RegExp(`^[A-Z0-9-]{1,${LIMITES.codigoYoutubeMax}}$`)
+
+/** Código manual do projeto (liga ao vídeo do YouTube): vazio ou até o limite, sempre maiúsculo. */
+const codigoYoutubeOpcional = z
+  .string()
+  .trim()
+  .transform((texto) => texto.toUpperCase())
+  .refine(
+    (texto) => texto === '' || CODIGO_YOUTUBE_REGEX.test(texto),
+    `Use letras, números e hífen, até ${LIMITES.codigoYoutubeMax} caracteres.`,
+  )
+
 /** Metadados de um arquivo. Um `File` do navegador já se encaixa aqui. */
 const dadosDoArquivo = { nomeArquivo: z.string(), tamanho: z.number(), tipo: z.string() }
 
@@ -86,6 +98,7 @@ const schemaTitulo = z.object({
 
 const schemaInformacoes = schemaTitulo
   .extend({
+    codigoYoutube: codigoYoutubeOpcional,
     precoNormal: precoObrigatorio,
     precoPromocional: precoOpcional,
     categoria: escolhaOpcional(categoriasDoCadastro),
@@ -338,6 +351,7 @@ const linkHttpsOpcional = linkOpcional.refine(
 const schemaPayload = z
   .object({
     titulo: textoObrigatorio(LIMITES.tituloMax, 'Informe o título do projeto.'),
+    codigoYoutube: codigoYoutubeOpcional,
     precoNormal: precoOpcional,
     precoPromocional: precoOpcional,
     categoria: escolhaOpcional(categoriasDoCadastro),

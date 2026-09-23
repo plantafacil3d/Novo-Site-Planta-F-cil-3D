@@ -17,6 +17,7 @@ import {
   dadosVazios,
   erroDeAnexo,
   erroDeImagem,
+  filtrarCodigoManual,
   filtrarDecimal,
   filtrarInteiro,
   filtrarPreco,
@@ -191,6 +192,16 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
       inputMode: 'decimal' as const,
       autoComplete: 'off',
       onChange: (evento: AoMudar) => atualizar({ [chave]: filtrarPreco(evento.target.value) }),
+    }
+  }
+
+  function campoCodigoYoutube() {
+    return {
+      ...campo('codigoYoutube'),
+      value: dados.codigoYoutube,
+      autoComplete: 'off',
+      onChange: (evento: AoMudar) =>
+        atualizar({ codigoYoutube: filtrarCodigoManual(evento.target.value) }),
     }
   }
 
@@ -578,6 +589,7 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     campoTexto,
     campoNumero,
     campoPreco,
+    campoCodigoYoutube,
     erroDe,
     tocar,
     tentouSalvar,

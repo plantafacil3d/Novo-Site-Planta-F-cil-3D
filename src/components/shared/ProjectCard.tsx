@@ -10,6 +10,8 @@ export type ProjectSpec = { icon: IconName; label: string }
 type ProjectCardProps = {
   href: string
   title: string
+  /** Código manual do projeto, se houver (ex.: "CASA-010"). */
+  code?: string
   image: { src: string; alt: string }
   badge?: string
   specs: ProjectSpec[]
@@ -25,6 +27,7 @@ type ProjectCardProps = {
 export function ProjectCard({
   href,
   title,
+  code,
   image,
   badge,
   specs,
@@ -48,7 +51,10 @@ export function ProjectCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-4 p-4">
-        <h3 className="font-heading text-base font-semibold">{title}</h3>
+        <div>
+          {code && <p className="text-xs font-medium text-fg-muted">{code}</p>}
+          <h3 className="font-heading text-base font-semibold">{title}</h3>
+        </div>
 
         <ul className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm text-fg-muted">
           {specs.map((spec) => (

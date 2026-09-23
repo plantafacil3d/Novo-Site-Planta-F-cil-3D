@@ -21,6 +21,7 @@ export function ProjetosRelacionados({ projetos }: { projetos: Projeto[] }) {
             key={projeto.id}
             href={hrefProjeto(projeto)}
             title={projeto.titulo}
+            code={projeto.codigoYoutube}
             image={projeto.imagem}
             badge="Similar"
             specs={especificacoesDoCard(projeto)}

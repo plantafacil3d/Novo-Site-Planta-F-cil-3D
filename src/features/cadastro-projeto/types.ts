@@ -58,6 +58,8 @@ export type ComplementarProjeto = {
 export type DadosProjeto = {
   // 1. Informações Gerais
   titulo: string
+  /** Código manual digitado pelo admin, sempre em maiúsculas: liga o projeto a um vídeo do YouTube. */
+  codigoYoutube: string
   precoNormal: string
   precoPromocional: string
   categoria: string
@@ -138,6 +140,7 @@ export type PayloadProjeto = DadosComArquivos<ArquivoDoPayload>
 /** O projeto pronto para o banco: números de verdade, preços em centavos, vazio virou `null`. */
 export type CadastroGravavel = {
   titulo: string
+  codigoYoutube: string | null
   categoria: string | null
   estilo: string | null
   precoCentavos: number | null

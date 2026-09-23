@@ -18,6 +18,8 @@ export type Projeto = {
   id: string
   /** Código que o cliente vê e pode buscar (ex.: "PF-012"). */
   codigo: string
+  /** Código manual do admin, opcional: liga o projeto a um vídeo do YouTube (ex.: "CASA-010"). */
+  codigoYoutube?: string
   slug: string
   titulo: string
   selo?: SeloProjeto
