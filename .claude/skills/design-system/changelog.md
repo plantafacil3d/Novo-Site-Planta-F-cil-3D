@@ -4,6 +4,17 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-23 (biblioteca central de arquivos de exemplo)
+
+- Resolvida a rota `/admin/biblioteca`, pendente desde 2026-09-21: a aba "Arquivos de Exemplo" do cadastro de projeto agora recebe uma biblioteca de verdade (antes sempre vazia). Feature nova `features/biblioteca-exemplos/`, tela em `views/admin/BibliotecaAdminView.tsx`. Detalhes em `components.md`.
+- Componentes novos: `FormularioEnvioBiblioteca` e `TabelaBibliotecaAdmin` (feature biblioteca-exemplos), `BibliotecaAdminSkeleton`.
+- Componente **movido**: `MensagensDeArquivo` saiu de `features/cadastro-projeto/components/` para `components/shared/`. Por quê: passou a ser usado por duas features (cadastro de projeto e biblioteca) sem nenhuma regra de domínio — exatamente o critério de promoção da skill `arquitetura` §2 ("só promova para camada compartilhada quando houver reuso real"). Comportamento e aparência idênticos, só mudou de pasta; os 3 usos em `cadastro-projeto` foram atualizados para importar do novo caminho.
+- Menu do painel (`AdminShell`) ganhou o item "Biblioteca" (ícone `layers`, já existia no registro — sem ícone novo).
+- Decisão: a coluna "Ações" da `TabelaBibliotecaAdmin` usa `IconButton` (não `DropdownMenu`, como a `TabelaProjetosAdmin`). Por quê: um arquivo da biblioteca só tem uma ação possível (excluir) — não há "editar" nem "publicar/rascunho" para desambiguar; um menu de um item só é atrito a mais, sem ganho de acessibilidade.
+- Decisão: o aviso de exclusão (`DialogoDeConfirmacao`) muda de texto quando algum arquivo selecionado está em uso — avisa em quantos projetos e que o vínculo some de todos ao confirmar, já que a exclusão da biblioteca é definitiva (regra de negócio do usuário: "avisar antes, se o arquivo estiver em uso"). Sem componente novo: é conteúdo dinâmico nas mesmas props (`descricao`, `itens`) que a `TabelaProjetosAdmin` já usa.
+- Sem token novo: a tabela e o formulário de envio reaproveitam os tokens de `Table`, `Badge`, `FileInput` e `Alert` já documentados.
+- Pendente (fora do escopo desta rodada, registrado no plano): o arquivo de exemplo é público por regra de negócio (bucket próprio, sem parede de autenticação), mas a página pública do projeto ainda não existe de verdade — o site público lê de uma lista em memória, sem ligação com os projetos reais do Supabase (mesma pendência já registrada em 2026-09-21/22 para "Ver no site"). Nenhuma seção de download foi criada lá ainda.
+
 ## 2026-09-22 (menu de ações e edição de projetos no painel)
 
 - Componente novo: `DropdownMenu` (ui) — menu de contexto (botão ⋮) para as ações de uma linha da `TabelaProjetosAdmin`: Editar projeto, Salvar como rascunho ↔ Publicar projeto, Excluir. Detalhes em `components.md`.

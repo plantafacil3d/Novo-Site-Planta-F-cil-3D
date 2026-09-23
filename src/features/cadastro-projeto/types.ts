@@ -96,10 +96,12 @@ export type DadosProjeto = {
   entregaLink: string
 }
 
-/** Arquivo da biblioteca de exemplos do arquiteto (aba 5). */
+/** Arquivo da biblioteca de exemplos do arquiteto (aba 5), para marcar nos checkboxes. */
 export type ArquivoDeExemplo = {
   id: string
   nome: string
+  tipoMime: string
+  tamanhoBytes: number
 }
 
 export type ModoSalvar = 'rascunho' | 'completo'
@@ -199,6 +201,8 @@ export type CadastroCompletoDoBanco = CadastroGravavel & {
   slug: string
   complementares: ComplementarGravavel[]
   arquivos: ArquivoCompletoDoBanco[]
+  /** Ids dos arquivos da biblioteca vinculados a este projeto (aba 5). */
+  arquivosExemplo: string[]
 }
 
 /** Um arquivo que já está gravado (linha em `projeto_arquivos`). */

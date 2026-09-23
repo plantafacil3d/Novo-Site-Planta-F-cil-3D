@@ -1,3 +1,4 @@
+import { extensaoDe, formatarTamanho } from '@/services/upload/arquivos'
 import type { AcessoDoArquivo } from '@/types/envio'
 
 import { etapasDoCadastro } from './catalogo'
@@ -156,15 +157,9 @@ export function lerNumero(texto: string): number | null {
 
 // ── Arquivos ─────────────────────────────────────────────────────────────────────────────────────
 
-const numeroPtBr = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 })
-
-/** 1536 → "1,5 KB"; 2411724 → "2,3 MB". */
-export function formatarTamanho(bytes: number): string {
-  if (bytes < MB) return `${numeroPtBr.format(bytes / 1024)} KB`
-  return `${numeroPtBr.format(bytes / MB)} MB`
-}
-
-export const extensaoDe = (nome: string) => nome.split('.').pop()?.toLowerCase() ?? ''
+// `formatarTamanho`/`extensaoDe` moram em `services/upload/arquivos`: também servem a biblioteca de
+// arquivos de exemplo (reexportadas abaixo para quem já importava daqui).
+export { extensaoDe, formatarTamanho }
 
 function tipoCombinaComExtensao(extensao: string, tipo: string): boolean {
   const aceitos = TIPOS_POR_EXTENSAO[extensao]
@@ -335,29 +330,10 @@ export const caminhoDoArquivo = (
   extensao: string,
 ) => `${projetoId}/${papel}/${id}.${extensao}`
 
-const ascii = (texto: string) => [...texto].map((letra) => letra.charCodeAt(0))
-const comecaCom = (bytes: Uint8Array, assinatura: readonly number[], deslocamento = 0) =>
-  assinatura.every((byte, indice) => bytes[deslocamento + indice] === byte)
-
-const ASSINATURAS: Record<string, (bytes: Uint8Array) => boolean> = {
-  jpg: (bytes) => comecaCom(bytes, [0xff, 0xd8, 0xff]),
-  jpeg: (bytes) => comecaCom(bytes, [0xff, 0xd8, 0xff]),
-  png: (bytes) => comecaCom(bytes, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-  webp: (bytes) => comecaCom(bytes, ascii('RIFF')) && comecaCom(bytes, ascii('WEBP'), 8),
-  pdf: (bytes) => comecaCom(bytes, ascii('%PDF')),
-  zip: (bytes) =>
-    comecaCom(bytes, [0x50, 0x4b]) &&
-    [
-      [0x03, 0x04],
-      [0x05, 0x06],
-      [0x07, 0x08],
-    ].some(([a, b]) => bytes[2] === a && bytes[3] === b),
-  rar: (bytes) => comecaCom(bytes, ascii('Rar!')),
-}
-
-/** O começo do arquivo é mesmo do formato que a extensão diz? Um PNG renomeado para .zip não passa. */
-export const formatoConfere = (extensao: string, inicio: Uint8Array) =>
-  ASSINATURAS[extensao]?.(inicio) ?? false
+// `formatoConfere` (conferência binária real do conteúdo) mora em `services/upload/assinaturas`:
+// também serve a biblioteca de arquivos de exemplo, então foi promovida para lá (reexportada abaixo
+// para quem já importava daqui).
+export { formatoConfere } from '@/services/upload/assinaturas'
 
 // ── Arquivos do formulário ───────────────────────────────────────────────────────────────────────
 
@@ -607,7 +583,7 @@ export function paraDadosProjeto(
     piscina: booleanParaSimNao(cadastro.piscina),
     areaGourmet: booleanParaSimNao(cadastro.areaGourmet),
     itens: [...cadastro.itens],
-    arquivosExemplo: [],
+    arquivosExemplo: [...cadastro.arquivosExemplo],
     complementares,
     entregaArquivos: doPapel('entrega').map(paraArquivoEscolhido),
     entregaLink: cadastro.entregaLink ?? '',

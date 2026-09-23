@@ -206,6 +206,12 @@ Card compacto: imagem, título e preço. O card inteiro é um único link, pelo 
 
 Lista sem resultado: ícone, título, texto e uma ação opcional (`action: { label, href }`, botão `secondary`). Fundo `--color-subtle`, borda `--color-border`, `--radius-lg`. Sempre oferece um caminho ("Limpar filtros"), nunca uma tela vazia.
 
+### MensagensDeArquivo
+
+- **Propósito:** erro do campo de arquivos + lista do que foi recusado na última escolha ("nome: motivo"), ligada por `aria-describedby`. Sem domínio: nasceu no cadastro de projeto e passou para cá quando a biblioteca de arquivos de exemplo também passou a precisar dela (2026-09-23).
+- **Props:** `id` (o erro ganha `<id>-erro`), `erro?`, `recusas?: string[]`.
+- **Tokens:** `--color-danger-fg`.
+
 ### DialogoDeConfirmacao
 
 - **Propósito:** última parada antes de uma ação sem volta (excluir projetos). `'use client'`. Compõe o `Modal` (`tone="surface"`) com dois `Button`: pergunta, o que vai acontecer, a lista do que será afetado e os botões de sair ou seguir.
@@ -281,15 +287,26 @@ Painel em `/admin` (layout próprio, fora do `SiteShell`; a tela é montada em `
   - **Pendente:** "Ver no site" (o site público lê da lista em memória, então o link daria 404). O título do projeto segue como texto, não link, pelo mesmo motivo.
 - Depois de editar um projeto (redirect de `/admin/projetos/[id]/editar`), a listagem mostra `?salvo=1` na URL e a `ProjetosAdminView` exibe um `Alert` de sucesso acima da tabela — fora do schema de paginação/busca, para não "grudar" nos links.
 - `ProjetosAdminSkeleton`: tabela em branco enquanto carrega.
-- Menu do painel: Dashboard, Projetos, Vendas e Analytics; só Projetos é link. O botão "Cadastrar Projeto" é o `Button` primário e leva a `/admin/projetos/novo`.
+- Menu do painel (`AdminShell`, em `views/admin/`): Dashboard, Projetos, Biblioteca, Vendas e Analytics; Projetos e Biblioteca são link. O botão "Cadastrar Projeto" é o `Button` primário e leva a `/admin/projetos/novo`.
+
+## Biblioteca de arquivos de exemplo (`features/biblioteca-exemplos/components/`)
+
+Acervo próprio do administrador: sobe cada arquivo uma vez (`/admin/biblioteca`), depois cada projeto só marca quais já enviados ficam disponíveis (aba "Arquivos de Exemplo" do cadastro, que consome `ArquivoDeExemplo[]` traduzido a partir daqui em `views/admin/ProjetoFormAdminView.tsx`). Tela montada em `views/admin/BibliotecaAdminView.tsx`. Reaproveita `Table`, `Badge`, `Checkbox`, `DropdownMenu`, `Modal`, `Field`, `Input`, `SearchBar`, `Pagination`, `EmptyState`, `ErrorState`, `Skeleton`, `FileInput`, `Alert` e `MensagensDeArquivo`. Sem token novo.
+
+- `FormularioEnvioBiblioteca`: `'use client'`. Um `FileInput` com `multiple` (imagem JPG/PNG/WEBP, PDF ou DWG, até 20 MB cada); cada arquivo escolhido sobe direto, sem "Salvar" à parte. Estado e envio em 2 fases (autorizar → enviar → confirmar) moram em `hooks/useEnvioBiblioteca.ts`, mesmo padrão do `useFormularioProjeto`.
+- `TabelaBibliotecaAdmin`: `'use client'`. Mesma base da `TabelaProjetosAdmin` (seleção por linha, "selecionar todos", `Alert` de sucesso/erro), mas sem ações de status. Seleção em massa só tem "Excluir"; cada linha tem 3 ações (`DropdownMenu`, como em `TabelaProjetosAdmin`): Baixar (`cloud-download`, abre a URL pública do arquivo em nova aba — o bucket é público), Renomear (`pencil`, abre o `DialogoDeRenomear`) e Excluir (`trash`, `tone="danger"`). Colunas: arquivo (ícone `image`/`file-text` + nome), tipo, tamanho, **Em uso** (`Badge` "N projetos" ou "Não usado") e data de envio.
+  - **Excluir** passa pelo `DialogoDeConfirmacao`: se algum arquivo selecionado está em uso, a descrição avisa que ele vai sumir de todos os projetos vinculados (a exclusão desfaz o vínculo por cascade no banco, não código do app) antes de apagar de vez o arquivo.
+- `DialogoDeRenomear`: `'use client'`. Compõe `Modal` (`tone="surface"`) com um `Field`/`Input` (nome de exibição, até 255 caracteres, contador) e os botões Cancelar/Salvar. Só troca o nome na tabela `arquivos_exemplo`; o caminho no Storage é baseado no id, então nada se move no bucket, e como o nome é sempre lido ao vivo (nunca duplicado em outra tabela), o novo nome já aparece em qualquer lugar que use o arquivo.
+- `BibliotecaAdminSkeleton`: bloco de upload + tabela em branco enquanto carrega.
+- Ícone do menu: `layers` (já existia no registro).
 
 ## Cadastro de projeto (`features/cadastro-projeto/components/`)
 
-Grava e envia de verdade (Supabase + Storage). A tela de criar é montada em `views/admin/ProjetoFormAdminView.tsx` (`/admin/projetos/novo`); a mesma view serve à edição (`/admin/projetos/[id]/editar`), passando `projetoId` + `projetoInicial` já carregados do banco (`buscarProjetoParaEditar`, que resolve a URL de cada imagem gravada; PDFs e outros anexos, privados, só mostram nome e tamanho, sem precisar de URL). Reaproveita `Tabs`, `Field`, `Input`, `Select`, `Textarea`, `Checkbox`, `Button`, `IconButton`, `Icon`, `EmptyState`, `FileInput` e `Alert`. Sem token novo.
+Grava e envia de verdade (Supabase + Storage). A tela de criar é montada em `views/admin/ProjetoFormAdminView.tsx` (`/admin/projetos/novo`); a mesma view serve à edição (`/admin/projetos/[id]/editar`), passando `projetoId` + `projetoInicial` já carregados do banco (`buscarProjetoParaEditar`, que resolve a URL de cada imagem gravada; PDFs e outros anexos, privados, só mostram nome e tamanho, sem precisar de URL) e `biblioteca` (arquivos de exemplo já enviados, de `features/biblioteca-exemplos`). Reaproveita `Tabs`, `Field`, `Input`, `Select`, `Textarea`, `Checkbox`, `Button`, `IconButton`, `Icon`, `EmptyState`, `FileInput`, `Alert` e `MensagensDeArquivo` (`components/shared/`). Sem token novo.
 
 - `FormularioProjeto`: `'use client'`. 7 abas num `Tabs` vertical (menu ao lado, só o painel da aba escolhida aparece, marcador de completa/pendente/opcional em cada uma). Rodapé com **Anterior**, **Próxima etapa**, **Salvar rascunho** (`secondary`) e **Salvar** (`primary`, a ação principal). O mesmo formulário serve para criar e editar: com `projetoInicial` + `projetoId`, "Salvar" atualiza o projeto existente (mesmo código/slug) em vez de criar um novo. Salvar rascunho exige só o título; Salvar confere tudo, abre a primeira aba com pendência e foca o primeiro campo com erro. Erro de campo aparece ao sair do campo (não a cada tecla) e, depois de "Salvar", em todos. O estado e as ações moram em `hooks/useFormularioProjeto.ts`; a conferência, em `schemas.ts`; a conversão banco → formulário (edição), em `rules.ts` (`paraDadosProjeto`).
-- Abas: `EtapaInformacoesGerais` (com `CampoTags`: tags com Enter, máx. 10), `EtapaImagens` (com `GradeDeImagens`: miniaturas com remover e, nas plantas, nome editável), `EtapaCaracteristicas`, `EtapaItensIncluidos`, `EtapaArquivosExemplo` (biblioteca vazia mostra `Alert` com link "Enviar arquivos"), `EtapaComplementares` (com `CartaoComplementar`: `<details>` que abre e fecha, com o botão de remover) e `EtapaEntrega` (com `ListaDeAnexos`: nome, tamanho e remover).
-- Auxiliares: `PainelDaEtapa` (cartão com título de cada aba) e `MensagensDeArquivo` (erro do campo e lista do que foi recusado).
+- Abas: `EtapaInformacoesGerais` (com `CampoTags`: tags com Enter, máx. 10), `EtapaImagens` (com `GradeDeImagens`: miniaturas com remover e, nas plantas, nome editável), `EtapaCaracteristicas`, `EtapaItensIncluidos`, `EtapaArquivosExemplo` (marca por `Checkbox` quais arquivos da biblioteca — `id` + `nome` + `tipoMime` + `tamanhoBytes` — ficam disponíveis no projeto; biblioteca vazia mostra `Alert` com link "Enviar arquivos", biblioteca com itens ganha um link "Gerenciar biblioteca" abaixo da lista; os dois levam a `/admin/biblioteca`), `EtapaComplementares` (com `CartaoComplementar`: `<details>` que abre e fecha, com o botão de remover) e `EtapaEntrega` (com `ListaDeAnexos`: nome, tamanho e remover).
+- Auxiliar: `PainelDaEtapa` (cartão com título de cada aba).
 - Regras visuais: `<` e `>` são removidos ao digitar em todo campo de texto; imagens JPG/PNG/WEBP até 2 MB; PDF, ZIP e RAR até 20 MB (no total, na entrega do projeto). Campos começam vazios; placeholders são só dicas.
 - Ícones novos no registro: `upload`, `trash`, `circle-check`, `circle-alert`.
 

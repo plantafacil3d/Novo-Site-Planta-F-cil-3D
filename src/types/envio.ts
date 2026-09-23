@@ -1,5 +1,5 @@
 /** Quem pode ler o arquivo: o público (imagens do site) ou só quem recebe um link temporário. */
-export type AcessoDoArquivo = 'publico' | 'privado'
+export type AcessoDoArquivo = 'publico' | 'privado' | 'biblioteca'
 
 /** Onde um arquivo fica no Storage: o acesso decide o bucket e o caminho é só o path dentro dele. */
 export type DestinoDeArquivo = {

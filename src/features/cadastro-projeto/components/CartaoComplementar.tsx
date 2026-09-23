@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 
+import { MensagensDeArquivo } from '@/components/shared/MensagensDeArquivo'
 import { Button } from '@/components/ui/Button'
 import { Field } from '@/components/ui/Field'
 import { FileInput } from '@/components/ui/FileInput'
@@ -14,7 +15,6 @@ import type { FormularioProjetoApi } from '../hooks/useFormularioProjeto'
 import { ARQUIVOS_DE_PDF, LIMITES, filtrarPreco } from '../rules'
 import type { ComplementarProjeto, EntregaComplementar } from '../types'
 import { ListaDeAnexos } from './ListaDeAnexos'
-import { MensagensDeArquivo } from './MensagensDeArquivo'
 
 const CAMPOS = ['titulo', 'valor', 'descricao', 'entrega', 'link', 'pdf'] as const
 

@@ -44,6 +44,12 @@ export interface ProjetoAdminRepository {
     projetoId: string,
     complementares: ComplementarGravavel[],
   ): Promise<void>
+  /**
+   * Deixa os arquivos de exemplo vinculados ao projeto exatamente como a lista de ids (aba
+   * "Arquivos de Exemplo"): vincula o que é novo, desvincula o que saiu. Nunca apaga o arquivo da
+   * biblioteca em si, só a linha de vínculo.
+   */
+  sincronizarArquivosExemplo(projetoId: string, arquivoIds: string[]): Promise<void>
   listarArquivos(projetoId: string): Promise<ArquivoGravado[]>
   /**
    * Os arquivos gravados de vários projetos, só com o que o Storage precisa. Serve à exclusão, que

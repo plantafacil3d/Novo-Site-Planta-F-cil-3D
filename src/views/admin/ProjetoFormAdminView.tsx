@@ -1,3 +1,4 @@
+import { listarBibliotecaParaSelecao } from '@/features/biblioteca-exemplos'
 import { FormularioProjeto, type DadosProjeto } from '@/features/cadastro-projeto'
 
 type ProjetoFormAdminViewProps = {
@@ -9,12 +10,22 @@ type ProjetoFormAdminViewProps = {
 }
 
 /** Tela de cadastro ou edição de projeto do painel (o mesmo formulário serve para os dois). */
-export function ProjetoFormAdminView({
+export async function ProjetoFormAdminView({
   projetoId,
   projetoInicial,
   slugAtual,
 }: ProjetoFormAdminViewProps) {
   const editando = projetoId !== undefined
+
+  // A aba "Arquivos de Exemplo" só marca arquivos que já existem na biblioteca (não sobe nada
+  // aqui): o domínio do cadastro de projeto (`ArquivoDeExemplo`) é traduzido a partir do domínio da
+  // biblioteca (`ArquivoParaSelecao`) aqui na view, para as duas features não se conhecerem por tipo.
+  const biblioteca = (await listarBibliotecaParaSelecao()).map((arquivo) => ({
+    id: arquivo.id,
+    nome: arquivo.nomeOriginal,
+    tipoMime: arquivo.tipoMime,
+    tamanhoBytes: arquivo.tamanhoBytes,
+  }))
 
   return (
     <div className="flex flex-col gap-6">
@@ -31,6 +42,8 @@ export function ProjetoFormAdminView({
         projetoId={projetoId}
         projetoInicial={projetoInicial}
         slugAtual={slugAtual}
+        biblioteca={biblioteca}
+        hrefEnviarArquivos="/admin/biblioteca"
       />
     </div>
   )

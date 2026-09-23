@@ -376,7 +376,7 @@ const schemaPayload = z
     itens: z
       .array(textoObrigatorio(LIMITES.itemMax, 'Item vazio.'))
       .max(LIMITES.itensMax, `Use no máximo ${LIMITES.itensMax} itens.`),
-    arquivosExemplo: z.array(z.string().max(100)).max(100),
+    arquivosExemplo: z.array(z.uuid()).max(200),
     complementares: z.array(
       z.object({
         id: z.uuid(),

@@ -95,7 +95,7 @@ export class SupabaseFileStorage implements FileStorage {
   }
 
   async remover(destinos: DestinoDeArquivo[]): Promise<void> {
-    for (const acesso of ['publico', 'privado'] as const) {
+    for (const acesso of Object.keys(bucketDoAcesso) as AcessoDoArquivo[]) {
       const caminhos = destinos.filter((item) => item.acesso === acesso).map((item) => item.caminho)
       if (caminhos.length === 0) continue
       const armazemDoAcesso = await armazem(acesso)

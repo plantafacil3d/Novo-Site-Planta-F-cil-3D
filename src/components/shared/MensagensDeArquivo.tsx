@@ -6,7 +6,8 @@ type MensagensDeArquivoProps = {
   recusas?: string[]
 }
 
-/** Erro do campo de arquivos e a lista do que foi recusado na última escolha. */
+/** Erro do campo de arquivos e a lista do que foi recusado na última escolha. Sem domínio: usada no
+ *  cadastro de projeto e na biblioteca de arquivos de exemplo. */
 export function MensagensDeArquivo({ id, erro, recusas = [] }: MensagensDeArquivoProps) {
   return (
     <div aria-live="polite" className="flex flex-col gap-1 text-sm text-danger-fg">

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { MensagensDeArquivo } from '@/components/shared/MensagensDeArquivo'
 import { Field } from '@/components/ui/Field'
 import { FileInput } from '@/components/ui/FileInput'
 import { Input } from '@/components/ui/Input'
@@ -7,7 +8,6 @@ import { Input } from '@/components/ui/Input'
 import type { FormularioProjetoApi } from '../hooks/useFormularioProjeto'
 import { ARQUIVOS_DE_IMAGEM, LIMITES } from '../rules'
 import { GradeDeImagens } from './GradeDeImagens'
-import { MensagensDeArquivo } from './MensagensDeArquivo'
 import { PainelDaEtapa } from './PainelDaEtapa'
 
 const DICA_DE_IMAGEM = 'JPG, PNG ou WEBP, até 2 MB cada'

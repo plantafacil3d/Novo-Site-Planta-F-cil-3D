@@ -270,6 +270,7 @@ export async function salvarProjeto(
 
     await sincronizarArquivos(id, payload)
     await projetoAdminRepository.sincronizarComplementares(id, montarComplementares(payload))
+    await projetoAdminRepository.sincronizarArquivosExemplo(id, payload.arquivosExemplo)
 
     revalidatePath('/admin/projetos')
     return { ok: true, mensagem: 'Informações salvas.', projetoId: id }

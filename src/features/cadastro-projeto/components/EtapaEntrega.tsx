@@ -1,3 +1,4 @@
+import { MensagensDeArquivo } from '@/components/shared/MensagensDeArquivo'
 import { Alert } from '@/components/ui/Alert'
 import { Field } from '@/components/ui/Field'
 import { FileInput } from '@/components/ui/FileInput'
@@ -6,7 +7,6 @@ import { Input } from '@/components/ui/Input'
 import type { FormularioProjetoApi } from '../hooks/useFormularioProjeto'
 import { ARQUIVOS_DE_ENTREGA, LIMITES, formatarTamanho, somarTamanhos } from '../rules'
 import { ListaDeAnexos } from './ListaDeAnexos'
-import { MensagensDeArquivo } from './MensagensDeArquivo'
 import { PainelDaEtapa } from './PainelDaEtapa'
 
 /** Aba 7: como o cliente recebe o projeto: arquivos diretos, link externo, ou os dois. */

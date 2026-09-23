@@ -141,7 +141,8 @@ const COLUNAS_DO_CADASTRO_COMPLETO =
   'descricao, tags, video_url, largura_m, profundidade_m, area_construida_m2, quartos, suites, ' +
   'suite_master, banheiros, lavabo, vagas, pavimentos, piscina, area_gourmet, itens, entrega_link, ' +
   'projeto_complementares (id, titulo, valor_centavos, descricao, entrega, link, ordem), ' +
-  'projeto_arquivos (id, papel, complementar_id, caminho, nome_original, rotulo, tamanho_bytes, tipo_mime, ordem)'
+  'projeto_arquivos (id, papel, complementar_id, caminho, nome_original, rotulo, tamanho_bytes, tipo_mime, ordem), ' +
+  'projeto_arquivos_exemplo (arquivo_id)'
 
 type LinhaCadastroCompleto = {
   id: string
@@ -190,6 +191,7 @@ type LinhaCadastroCompleto = {
     tipo_mime: string
     ordem: number
   }[]
+  projeto_arquivos_exemplo: { arquivo_id: string }[]
 }
 
 function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoBanco {
@@ -240,6 +242,7 @@ function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoB
       tipoMime: arquivo.tipo_mime,
       ordem: arquivo.ordem,
     })),
+    arquivosExemplo: linha.projeto_arquivos_exemplo.map((vinculo) => vinculo.arquivo_id),
   }
 }
 
@@ -407,6 +410,52 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
           if (error) throw traduzir(error)
         }),
     )
+  }
+
+  async sincronizarArquivosExemplo(projetoId: string, arquivoIds: string[]): Promise<void> {
+    const supabase = await criarClienteServidor()
+
+    const { data: existentes, error: erroDaBusca } = await supabase
+      .from('projeto_arquivos_exemplo')
+      .select('arquivo_id')
+      .eq('projeto_id', projetoId)
+      .overrideTypes<{ arquivo_id: string }[], { merge: false }>()
+    if (erroDaBusca) throw traduzir(erroDaBusca)
+
+    const idsExistentes = new Set(existentes.map((linha) => linha.arquivo_id))
+    const idsNovos = new Set(arquivoIds)
+
+    const sobrando = [...idsExistentes].filter((id) => !idsNovos.has(id))
+    if (sobrando.length > 0) {
+      const { error } = await supabase
+        .from('projeto_arquivos_exemplo')
+        .delete()
+        .eq('projeto_id', projetoId)
+        .in('arquivo_id', sobrando)
+      if (error) throw traduzir(error)
+    }
+
+    const paraCriar = arquivoIds.filter((id) => !idsExistentes.has(id))
+    if (paraCriar.length > 0) {
+      const { error } = await supabase.from('projeto_arquivos_exemplo').insert(
+        paraCriar.map((arquivoId, indice) => ({
+          projeto_id: projetoId,
+          arquivo_id: arquivoId,
+          ordem: indice,
+        })),
+      )
+      // Um id que não existe mais na biblioteca (apagado entre a tela abrir e o "Salvar") vira erro
+      // de dados inválidos, não uma falha interna — a FK que barra é `23503`.
+      if (error) {
+        if (error.code === '23503') {
+          throw new AppError(
+            'dados_invalidos',
+            'Algum arquivo de exemplo escolhido não existe mais na biblioteca.',
+          )
+        }
+        throw traduzir(error)
+      }
+    }
   }
 
   async listarArquivos(projetoId: string): Promise<ArquivoGravado[]> {
