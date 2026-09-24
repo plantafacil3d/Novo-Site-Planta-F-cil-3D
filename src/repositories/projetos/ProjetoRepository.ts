@@ -2,6 +2,7 @@ import type {
   Categoria,
   Complementar,
   ConsultaProjetos,
+  LimitesDeFiltro,
   Projeto,
   ProjetoDetalhe,
 } from '@/features/projetos'
@@ -17,6 +18,8 @@ export interface ProjetoRepository {
    * nunca se baixa o catálogo inteiro para filtrar no navegador. Devolve só o resumo do projeto.
    */
   buscarProjetos(consulta: ConsultaProjetos): Promise<Pagina<Projeto>>
+  /** Menor/maior preço e área entre os projetos publicados, para balizar o filtro de faixa. */
+  buscarLimites(): Promise<LimitesDeFiltro>
   /** `null` quando não existe projeto com esse slug. */
   buscarPorSlug(slug: string): Promise<ProjetoDetalhe | null>
   listarSlugs(): Promise<string[]>

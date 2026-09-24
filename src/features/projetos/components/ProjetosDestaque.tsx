@@ -1,7 +1,7 @@
 import { ProjectCard } from '@/components/shared/ProjectCard'
 import { cn } from '@/components/ui/cn'
 
-import { formatarPreco, hrefProjeto } from '../rules'
+import { exibirPreco, hrefProjeto } from '../rules'
 import type { Projeto } from '../types'
 import { especificacoesDoCard } from './especificacoes'
 
@@ -15,20 +15,25 @@ type ProjetosDestaqueProps = {
 export function ProjetosDestaque({ projetos, className }: ProjetosDestaqueProps) {
   return (
     <ul className={cn('grid gap-6 sm:grid-cols-2 lg:grid-cols-4', className)}>
-      {projetos.map((projeto) => (
-        <li key={projeto.id} className="grid">
-          <ProjectCard
-            href={hrefProjeto(projeto)}
-            title={projeto.titulo}
-            code={projeto.codigoYoutube}
-            image={projeto.imagem}
-            badge={projeto.selo}
-            specs={especificacoesDoCard(projeto)}
-            price={formatarPreco(projeto.precoCentavos)}
-            favoriteLabel={`Favoritar ${projeto.titulo}`}
-          />
-        </li>
-      ))}
+      {projetos.map((projeto) => {
+        const preco = exibirPreco(projeto)
+        return (
+          <li key={projeto.id} className="grid">
+            <ProjectCard
+              href={hrefProjeto(projeto)}
+              title={projeto.titulo}
+              code={projeto.codigoYoutube}
+              image={projeto.imagem}
+              badge={projeto.selo}
+              specs={especificacoesDoCard(projeto)}
+              price={preco.atual}
+              priceOriginal={preco.original}
+              priceDiscount={preco.desconto}
+              favoriteLabel={`Favoritar ${projeto.titulo}`}
+            />
+          </li>
+        )
+      })}
     </ul>
   )
 }

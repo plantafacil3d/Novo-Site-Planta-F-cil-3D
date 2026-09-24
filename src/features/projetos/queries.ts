@@ -26,6 +26,11 @@ export function listarCategorias() {
   return projetoRepository.listarCategorias()
 }
 
+/** Menor/maior preço e área entre os projetos publicados, para balizar o filtro "De/Até". */
+export function listarLimitesDeFiltro() {
+  return projetoRepository.buscarLimites()
+}
+
 /**
  * `null` quando o slug não existe (a rota responde 404). Com `cache`, a página e o
  * `generateMetadata` compartilham uma única busca por requisição.

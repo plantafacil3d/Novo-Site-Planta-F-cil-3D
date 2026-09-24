@@ -1,8 +1,10 @@
+import { PriceTag } from '@/components/shared/PriceTag'
 import { Button } from '@/components/ui/Button'
 
+import type { PrecoExibido } from '../rules'
+
 type BarraCompraMobileProps = {
-  /** Preço já formatado (ex.: "R$ 299,90"). */
-  preco: string
+  preco: PrecoExibido
   /** Checkout já validado; `null` = compra indisponível. */
   checkoutUrl: string | null
 }
@@ -14,7 +16,12 @@ type BarraCompraMobileProps = {
 export function BarraCompraMobile({ preco, checkoutUrl }: BarraCompraMobileProps) {
   return (
     <div className="sticky bottom-0 z-30 flex items-center justify-between gap-4 border-t border-border bg-page p-3 shadow-lg md:hidden">
-      <p className="font-heading text-xl font-bold">{preco}</p>
+      <PriceTag
+        price={preco.atual}
+        originalPrice={preco.original}
+        discountLabel={preco.desconto}
+        priceClassName="text-xl"
+      />
       {checkoutUrl ? (
         <Button href={checkoutUrl} iconLeft="cart">
           Comprar projeto

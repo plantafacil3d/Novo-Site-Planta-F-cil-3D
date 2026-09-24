@@ -1,5 +1,5 @@
 export { FormularioProjeto } from './components/FormularioProjeto'
-export { categoriasDoCadastro } from './catalogo'
+export { categoriasDoCadastro, estilosDoCadastro } from './catalogo'
 export { publicarProjeto } from './actions'
 export { buscarProjetoParaEditar } from './queries'
 export { acessoDoPapel } from './rules'
@@ -17,3 +17,4 @@ export type {
   PapelDoArquivo,
   ProjetoCriado,
 } from './types'
+export type { CategoriaDoCadastro, EstiloDoCadastro } from './catalogo'

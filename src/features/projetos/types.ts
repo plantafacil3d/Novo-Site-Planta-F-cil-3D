@@ -1,4 +1,6 @@
-import type { EstiloArquitetonico, FaixaArea, OrdenacaoProjetos, TipoProjeto } from './catalogo'
+import type { CategoriaDoCadastro, EstiloDoCadastro } from '@/features/cadastro-projeto'
+
+import type { OrdenacaoProjetos } from './catalogo'
 
 export type ImagemRef = {
   src: string
@@ -24,9 +26,8 @@ export type Projeto = {
   titulo: string
   selo?: SeloProjeto
   imagem: ImagemRef
-  /** Taxonomia fixa da listagem/filtro público; projetos vindos do Cadastro não têm (usam só `categoria`/`estilo` como texto livre). */
-  tipo?: TipoProjeto
-  estilo?: EstiloArquitetonico
+  /** Mesmo vocabulário do cadastro (`estilosDoCadastro`); `undefined` quando o projeto não tem estilo cadastrado. */
+  estilo?: EstiloDoCadastro
   larguraM: number
   profundidadeM: number
   areaConstruidaM2: number
@@ -44,6 +45,8 @@ export type Projeto = {
   diferencial?: Diferencial
   /** Inteiro em centavos, para nunca somar/comparar valores com ponto flutuante. */
   precoCentavos: number
+  /** Cadastro: campo "Preço normal", só quando maior que `precoCentavos` (há desconto ativo). */
+  precoOriginalCentavos?: number
 }
 
 export type ItemGaleria = {
@@ -63,15 +66,9 @@ export type PerfilDoProjeto = {
   perfilDoTerreno: string
   /** Cadastro: campo "Família indicada" (aba 1). */
   familia: string
-  /**
-   * Cadastro: campo "Estilo arquitetônico" (aba 1), texto puro, como cadastrado — não confundir
-   * com `Projeto.estilo` (taxonomia fixa do site público, usada em filtro/listagem).
-   */
+  /** Cadastro: campo "Estilo arquitetônico" (aba 1), como cadastrado. */
   estilo: string
-  /**
-   * Cadastro: campo "Categoria" (aba 1), texto puro, como cadastrado — não confundir com
-   * `ProjetoDetalhe.categoria` (taxonomia fixa da listagem/breadcrumb).
-   */
+  /** Cadastro: campo "Categoria" (aba 1), como cadastrado. */
   categoria: string
 }
 
@@ -86,10 +83,7 @@ export type ConteudoSobre = {
 
 /** Página completa de um projeto: o `Projeto` do card mais tudo que só a página mostra. */
 export type ProjetoDetalhe = Projeto & {
-  /**
-   * Categoria como cadastrada (texto puro) — não confundir com `Categoria`, a taxonomia fixa da
-   * listagem/filtro público. Usada só para exibir no breadcrumb.
-   */
+  /** Categoria como cadastrada (texto puro), usada só para exibir no breadcrumb. */
   categoriaRotulo: string
   /** Checkout externo (Hotmart ou outra plataforma). Só `https:` é aceito (ver `checkoutSeguro`). */
   checkoutUrl: string
@@ -112,7 +106,11 @@ export type Complementar = {
   precoCentavos: number
 }
 
-/** `mais` é a categoria "E muito mais": leva à listagem completa. */
+/**
+ * Categorias em destaque na home ("Explore por categoria"): um subconjunto fixo e curado de
+ * `categoriasDoCadastro`, cada uma com ícone. `mais` é "E muito mais": leva à listagem completa,
+ * sem filtro. Não confundir com `CategoriaDoCadastro` (o vocabulário completo, usado no filtro).
+ */
 export type CategoriaSlug =
   | 'sobrados'
   | 'casas-terreas'
@@ -129,23 +127,29 @@ export type Categoria = {
   rotulo: string
 }
 
-/** Categorias que viram filtro na listagem; `mais` só leva à listagem sem filtro. */
-export type CategoriaFiltravel = Exclude<CategoriaSlug, 'mais'>
-
 /**
- * Estado da listagem como chega pela URL (`/projetos?tipo=sobrado&pagina=2`), já validado.
+ * Estado da listagem como chega pela URL (`/projetos?categoria=sobrados&pagina=2`), já validado.
  * Os nomes são os mesmos da URL; `q` é o texto digitado (nome ou código).
  */
 export type ParametrosListagem = {
   q?: string
-  categoria?: CategoriaFiltravel
-  tipo?: TipoProjeto
-  estilo?: EstiloArquitetonico
-  /** Os três a seguir são "N ou mais". */
+  /** Mesmo vocabulário do cadastro (`categoriasDoCadastro`): chega pelo card da home ou pelo filtro. */
+  categoria?: CategoriaDoCadastro
+  estilo?: EstiloDoCadastro
+  /** Estes cinco são "N ou mais". */
   quartos?: number
   suites?: number
+  suiteMaster?: number
+  banheiros?: number
+  lavabo?: number
   vagas?: number
-  area?: FaixaArea
+  pavimentos?: number
+  /** Faixa de área construída, em m²; os limites reais vêm de `listarLimitesDeFiltro`. */
+  areaMin?: number
+  areaMax?: number
+  /** Faixa de preço, em reais (não centavos: é o que o cliente digita). */
+  precoMin?: number
+  precoMax?: number
   /** Medidas do terreno do cliente, em metros: só entram projetos que cabem nele. */
   largura?: number
   profundidade?: number
@@ -160,14 +164,19 @@ export type ParametrosListagem = {
 export type FiltrosProjetos = {
   /** Nome ou código; todas as palavras precisam aparecer. */
   busca?: string
-  categoria?: CategoriaFiltravel
-  tipo?: TipoProjeto
-  estilo?: EstiloArquitetonico
+  categoria?: CategoriaDoCadastro
+  estilo?: EstiloDoCadastro
   quartosMin?: number
   suitesMin?: number
+  suiteMasterMin?: number
+  banheirosMin?: number
+  lavaboMin?: number
   vagasMin?: number
+  pavimentosMin?: number
   areaMinM2?: number
   areaMaxM2?: number
+  precoMinCentavos?: number
+  precoMaxCentavos?: number
   terrenoLarguraM?: number
   terrenoProfundidadeM?: number
   piscina?: boolean
@@ -179,4 +188,16 @@ export type ConsultaProjetos = {
   ordenacao: OrdenacaoProjetos
   pagina: number
   porPagina: number
+}
+
+/**
+ * Menor/maior preço e área entre os projetos publicados: baliza os campos "De/Até" do filtro,
+ * pra ninguém digitar um valor que não existe em nenhum projeto. Zero quando não há nenhum
+ * publicado ainda.
+ */
+export type LimitesDeFiltro = {
+  precoMinCentavos: number
+  precoMaxCentavos: number
+  areaMinM2: number
+  areaMaxM2: number
 }

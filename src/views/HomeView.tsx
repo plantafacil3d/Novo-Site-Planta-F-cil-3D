@@ -69,13 +69,15 @@ export async function HomeView() {
         <CategoriasGrid categorias={categorias} />
       </Section>
 
-      <Section
-        title="Projetos em destaque"
-        subtitle="Os mais acessados e bem avaliados pelos nossos clientes."
-        action={{ label: 'Ver todos os projetos', href: '/projetos' }}
-      >
-        <ProjetosDestaque projetos={destaques} />
-      </Section>
+      {destaques.length > 0 && (
+        <Section
+          title="Projetos em destaque"
+          subtitle="Os mais recentes publicados no nosso catálogo."
+          action={{ label: 'Ver todos os projetos', href: '/projetos' }}
+        >
+          <ProjetosDestaque projetos={destaques} />
+        </Section>
+      )}
 
       <Section
         tone="tint"

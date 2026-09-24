@@ -2,7 +2,7 @@ import { Section } from '@/components/layout/Section'
 import { Carousel } from '@/components/shared/Carousel'
 import { ProjectCard } from '@/components/shared/ProjectCard'
 
-import { formatarPreco, hrefProjeto } from '../rules'
+import { exibirPreco, hrefProjeto } from '../rules'
 import type { Projeto } from '../types'
 import { especificacoesDoCard } from './especificacoes'
 
@@ -16,19 +16,24 @@ export function ProjetosRelacionados({ projetos }: { projetos: Projeto[] }) {
       subtitle="Confira outros projetos que podem te interessar."
     >
       <Carousel label="Projetos relacionados" itemClassName="grid w-72 sm:w-80">
-        {projetos.map((projeto) => (
-          <ProjectCard
-            key={projeto.id}
-            href={hrefProjeto(projeto)}
-            title={projeto.titulo}
-            code={projeto.codigoYoutube}
-            image={projeto.imagem}
-            badge="Similar"
-            specs={especificacoesDoCard(projeto)}
-            price={formatarPreco(projeto.precoCentavos)}
-            favoriteLabel={`Favoritar ${projeto.titulo}`}
-          />
-        ))}
+        {projetos.map((projeto) => {
+          const preco = exibirPreco(projeto)
+          return (
+            <ProjectCard
+              key={projeto.id}
+              href={hrefProjeto(projeto)}
+              title={projeto.titulo}
+              code={projeto.codigoYoutube}
+              image={projeto.imagem}
+              badge="Similar"
+              specs={especificacoesDoCard(projeto)}
+              price={preco.atual}
+              priceOriginal={preco.original}
+              priceDiscount={preco.desconto}
+              favoriteLabel={`Favoritar ${projeto.titulo}`}
+            />
+          )
+        })}
       </Carousel>
     </Section>
   )

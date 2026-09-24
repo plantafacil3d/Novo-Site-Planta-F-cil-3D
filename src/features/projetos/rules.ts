@@ -1,6 +1,6 @@
+import { categoriasDoCadastro, estilosDoCadastro } from '@/features/cadastro-projeto'
 import type { Pagina } from '@/types/pagina'
 
-import { estilosArquitetonicos, faixasDeArea, tiposDeProjeto } from './catalogo'
 import type {
   Categoria,
   Complementar,
@@ -15,6 +15,25 @@ const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL
 /** 39900 → "R$ 399,00" */
 export function formatarPreco(centavos: number): string {
   return moeda.format(centavos / 100)
+}
+
+export type PrecoExibido = {
+  /** Preço que vale, já formatado. */
+  atual: string
+  /** Preço riscado; só existe quando há desconto ativo. */
+  original?: string
+  /** Selo do desconto (ex.: "60% OFF"); só existe junto de `original`. */
+  desconto?: string
+}
+
+/** Preço pronto para exibir: com `precoOriginalCentavos`, monta o riscado e o "% OFF"; sem ele, só o atual. */
+export function exibirPreco(projeto: Pick<Projeto, 'precoCentavos' | 'precoOriginalCentavos'>): PrecoExibido {
+  const atual = formatarPreco(projeto.precoCentavos)
+  const original = projeto.precoOriginalCentavos
+  if (!original) return { atual }
+
+  const percentual = Math.round((1 - projeto.precoCentavos / original) * 100)
+  return { atual, original: formatarPreco(original), desconto: `${percentual}% OFF` }
 }
 
 /** 7 x 20 → "7x20m" */
@@ -156,12 +175,18 @@ export function descreverResultados({
 const camposDeFiltro = [
   'q',
   'categoria',
-  'tipo',
   'estilo',
   'quartos',
   'suites',
+  'suiteMaster',
+  'banheiros',
+  'lavabo',
   'vagas',
-  'area',
+  'pavimentos',
+  'areaMin',
+  'areaMax',
+  'precoMin',
+  'precoMax',
   'largura',
   'profundidade',
   'piscina',
@@ -198,19 +223,24 @@ export function montarConsulta(
   params: ParametrosListagem,
   porPagina = PROJETOS_POR_PAGINA,
 ): ConsultaProjetos {
-  const faixa = faixasDeArea.find((item) => item.valor === params.area)
-
   return {
     filtros: {
       busca: params.q,
       categoria: params.categoria,
-      tipo: params.tipo,
       estilo: params.estilo,
       quartosMin: params.quartos,
       suitesMin: params.suites,
+      suiteMasterMin: params.suiteMaster,
+      banheirosMin: params.banheiros,
+      lavaboMin: params.lavabo,
       vagasMin: params.vagas,
-      areaMinM2: faixa?.minM2,
-      areaMaxM2: faixa?.maxM2,
+      pavimentosMin: params.pavimentos,
+      areaMinM2: params.areaMin,
+      areaMaxM2: params.areaMax,
+      precoMinCentavos:
+        params.precoMin === undefined ? undefined : Math.round(params.precoMin * 100),
+      precoMaxCentavos:
+        params.precoMax === undefined ? undefined : Math.round(params.precoMax * 100),
       terrenoLarguraM: params.largura,
       terrenoProfundidadeM: params.profundidade,
       piscina: params.piscina,
@@ -239,19 +269,31 @@ function rotuloDe<T extends string>(
 }
 
 /** Filtros ativos em forma de texto, cada um com o link que o remove. */
-export function listarFiltrosAplicados(
-  params: ParametrosListagem,
-  categorias: Categoria[],
-): FiltroAplicado[] {
+export function listarFiltrosAplicados(params: ParametrosListagem): FiltroAplicado[] {
   const rotulos: Record<CampoDeFiltro, string | undefined> = {
     q: params.q === undefined ? undefined : `Busca: ${params.q}`,
-    categoria: categorias.find((categoria) => categoria.slug === params.categoria)?.rotulo,
-    tipo: rotuloDe(tiposDeProjeto, params.tipo),
-    estilo: rotuloDe(estilosArquitetonicos, params.estilo),
+    categoria: rotuloDe(categoriasDoCadastro, params.categoria),
+    estilo: rotuloDe(estilosDoCadastro, params.estilo),
     quartos: params.quartos === undefined ? undefined : `${params.quartos} ou mais quartos`,
     suites: params.suites === undefined ? undefined : `${params.suites} ou mais suítes`,
+    suiteMaster:
+      params.suiteMaster === undefined ? undefined : `${params.suiteMaster} ou mais suítes master`,
+    banheiros: params.banheiros === undefined ? undefined : `${params.banheiros} ou mais banheiros`,
+    lavabo: params.lavabo === undefined ? undefined : `${params.lavabo} ou mais lavabos`,
     vagas: params.vagas === undefined ? undefined : `${params.vagas} ou mais vagas`,
-    area: rotuloDe(faixasDeArea, params.area),
+    pavimentos:
+      params.pavimentos === undefined ? undefined : `${params.pavimentos} ou mais pavimentos`,
+    areaMin:
+      params.areaMin === undefined ? undefined : `Área a partir de ${formatarArea(params.areaMin)}`,
+    areaMax: params.areaMax === undefined ? undefined : `Área até ${formatarArea(params.areaMax)}`,
+    precoMin:
+      params.precoMin === undefined
+        ? undefined
+        : `Preço a partir de ${formatarPreco(params.precoMin * 100)}`,
+    precoMax:
+      params.precoMax === undefined
+        ? undefined
+        : `Preço até ${formatarPreco(params.precoMax * 100)}`,
     largura:
       params.largura === undefined
         ? undefined

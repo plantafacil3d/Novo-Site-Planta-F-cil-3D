@@ -16,7 +16,7 @@ import {
   type ParametrosAdminProjetos,
 } from '@/features/admin'
 import { categoriasDoCadastro } from '@/features/cadastro-projeto'
-import { formatarPreco, totalDePaginas } from '@/features/projetos'
+import { formatarPreco, hrefProjeto, totalDePaginas } from '@/features/projetos'
 
 const rotulosDeCategoria: Record<string, string> = Object.fromEntries(
   categoriasDoCadastro.map((categoria) => [categoria.valor, categoria.rotulo]),
@@ -49,6 +49,8 @@ export async function ProjetosAdminView({ params, salvo }: ProjetosAdminViewProp
       ? (rotulosDeCategoria[projeto.categoria] ?? projeto.categoria)
       : SEM_VALOR,
     criadoEmRotulo: formatarData(projeto.criadoEm),
+    // Rascunho não tem página pública (a rota real 404 pra ele); só publicado vira link.
+    hrefPublico: projeto.status === 'publicado' ? hrefProjeto(projeto) : null,
   }))
   // Muda a cada busca ou página: a busca reflete a URL e a seleção da tabela recomeça vazia.
   const chave = montarHrefAdminProjetos(params)

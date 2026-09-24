@@ -14,18 +14,13 @@ export { ProjetosDestaque } from './components/ProjetosDestaque'
 export { ProjetosRelacionados } from './components/ProjetosRelacionados'
 export { ProjetosSkeleton } from './components/ProjetosSkeleton'
 export { SobreProjeto } from './components/SobreProjeto'
-export {
-  estilosArquitetonicos,
-  faixasDeArea,
-  opcoesDeQuantidade,
-  ordenacoesDeProjetos,
-  tiposDeProjeto,
-} from './catalogo'
-export type { EstiloArquitetonico, FaixaArea, OrdenacaoProjetos, TipoProjeto } from './catalogo'
+export { opcoesDeQuantidade, ordenacoesDeProjetos } from './catalogo'
+export type { OrdenacaoProjetos } from './catalogo'
 export {
   buscarProjeto,
   listarCategorias,
   listarComplementares,
+  listarLimitesDeFiltro,
   listarProjetos,
   listarProjetosEmDestaque,
   listarProjetosRelacionados,
@@ -36,6 +31,7 @@ export {
   checkoutSeguro,
   contarFiltros,
   descreverResultados,
+  exibirPreco,
   formatarFamiliaIndicada,
   formatarPreco,
   hrefCategoria,
@@ -46,10 +42,10 @@ export {
   temFiltros,
   totalDePaginas,
 } from './rules'
+export type { PrecoExibido } from './rules'
 export { lerParametrosListagem } from './schemas'
 export type {
   Categoria,
-  CategoriaFiltravel,
   CategoriaSlug,
   Complementar,
   ConsultaProjetos,
@@ -58,6 +54,7 @@ export type {
   FiltrosProjetos,
   ImagemRef,
   ItemGaleria,
+  LimitesDeFiltro,
   ParametrosListagem,
   PerfilDoProjeto,
   Projeto,

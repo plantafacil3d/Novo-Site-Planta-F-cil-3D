@@ -1,24 +1,41 @@
 import 'server-only'
 
-import { formatarFamiliaIndicada } from '@/features/projetos'
-import type { Diferencial, ItemGaleria, Projeto, ProjetoDetalhe } from '@/features/projetos'
+import {
+  formatarFamiliaIndicada,
+  type Categoria,
+  type Complementar,
+  type ConsultaProjetos,
+  type Diferencial,
+  type ItemGaleria,
+  type LimitesDeFiltro,
+  type OrdenacaoProjetos,
+  type Projeto,
+  type ProjetoDetalhe,
+} from '@/features/projetos'
 import { criarClientePublico } from '@/lib/supabase/publico'
 import { fileStorage } from '@/services/storage'
 import { AppError } from '@/types/erro'
+import type { Pagina } from '@/types/pagina'
 
 import { InMemoryProjetoRepository } from './InMemoryProjetoRepository'
 import type { ProjetoRepository } from './ProjetoRepository'
 
 /** Quantos projetos relacionados reais buscar no máximo. */
 const RELACIONADOS_MAXIMO = 8
+/** Quantos projetos aparecem na vitrine ("Projetos em destaque"): os publicados mais recentes. */
+const DESTAQUES_MAXIMO = 8
 
 type LinhaArquivo = { caminho: string; papel: string; ordem: number }
 
+// `!inner` + filtro por `papel` abaixo: só entra projeto com imagem principal cadastrada (índice
+// único garante no máximo uma por projeto), e a contagem da página fecha com o que é exibido —
+// sem isso, um projeto "publicado" sem foto ainda contaria no total mas sumiria do grid.
 const COLUNAS_RESUMO =
-  'id, codigo, slug, titulo, codigo_youtube, categoria, preco_centavos, preco_promocional_centavos, ' +
+  'id, codigo, slug, titulo, codigo_youtube, categoria, estilo, ' +
+  'preco_centavos, preco_promocional_centavos, preco_efetivo_centavos, ' +
   'largura_m, profundidade_m, area_construida_m2, quartos, suites, suite_master, banheiros, lavabo, ' +
   'vagas, pavimentos, piscina, area_gourmet, ' +
-  'projeto_arquivos (caminho, papel, ordem)'
+  'projeto_arquivos!inner (caminho, papel, ordem)'
 
 type LinhaResumo = {
   id: string
@@ -27,8 +44,11 @@ type LinhaResumo = {
   titulo: string
   codigo_youtube: string | null
   categoria: string | null
+  estilo: string | null
   preco_centavos: number | null
   preco_promocional_centavos: number | null
+  /** Sempre um número: a coluna gerada já resolve para 0 quando não há preço. */
+  preco_efetivo_centavos: number
   largura_m: number | null
   profundidade_m: number | null
   area_construida_m2: number | null
@@ -45,12 +65,15 @@ type LinhaResumo = {
 }
 
 const COLUNAS_DETALHE =
-  'id, codigo, slug, titulo, codigo_youtube, categoria, preco_centavos, preco_promocional_centavos, ' +
+  'id, codigo, slug, titulo, codigo_youtube, categoria, estilo, ' +
+  'preco_centavos, preco_promocional_centavos, preco_efetivo_centavos, ' +
   'largura_m, profundidade_m, area_construida_m2, quartos, suites, suite_master, banheiros, lavabo, ' +
   'vagas, pavimentos, piscina, area_gourmet, ' +
   'checkout_url, resumo, descricao, ambientes, indicado_para, aplicacoes, ' +
-  'perfil_terreno, familia_capacidade, estilo, itens, video_url, ' +
+  'perfil_terreno, familia_capacidade, itens, video_url, ' +
   'projeto_arquivos (caminho, papel, ordem)'
+
+type LinhaLimite = { preco_efetivo_centavos: number; area_construida_m2: number | null }
 
 type LinhaDetalhe = LinhaResumo & {
   checkout_url: string | null
@@ -61,9 +84,22 @@ type LinhaDetalhe = LinhaResumo & {
   aplicacoes: string | null
   perfil_terreno: string | null
   familia_capacidade: number | null
-  estilo: string | null
   itens: string[]
   video_url: string | null
+}
+
+/** Nome de coluna real de cada ordenação da URL. */
+const COLUNA_DE_ORDENACAO: Record<OrdenacaoProjetos, { coluna: string; ascendente: boolean }> = {
+  relevancia: { coluna: 'criado_em', ascendente: false },
+  'menor-preco': { coluna: 'preco_efetivo_centavos', ascendente: true },
+  'maior-preco': { coluna: 'preco_efetivo_centavos', ascendente: false },
+  'maior-area': { coluna: 'area_construida_m2', ascendente: false },
+  'menor-area': { coluna: 'area_construida_m2', ascendente: true },
+}
+
+/** Escapa os curingas do `like` para o texto digitado valer só como texto (skill `seguranca` §8.1). */
+function comoTrecho(palavra: string): string {
+  return `%${palavra.replace(/[\\%_]/g, '\\$&')}%`
 }
 
 async function resolverUrl(caminho: string): Promise<string> {
@@ -94,6 +130,7 @@ async function montarResumo(linha: LinhaResumo): Promise<Projeto | null> {
       src: await resolverUrl(principal.caminho),
       alt: `Foto principal do projeto ${linha.titulo}`,
     },
+    estilo: (linha.estilo ?? undefined) as Projeto['estilo'],
     larguraM: linha.largura_m ?? 0,
     profundidadeM: linha.profundidade_m ?? 0,
     areaConstruidaM2: linha.area_construida_m2 ?? 0,
@@ -107,8 +144,15 @@ async function montarResumo(linha: LinhaResumo): Promise<Projeto | null> {
     piscina,
     areaGourmet,
     diferencial: derivarDiferencial(piscina, areaGourmet),
-    // A promocional é o preço real de venda quando existe.
-    precoCentavos: linha.preco_promocional_centavos ?? linha.preco_centavos ?? 0,
+    precoCentavos: linha.preco_efetivo_centavos,
+    // Só existe quando o promocional cadastrado é de fato menor que o normal (o cadastro já
+    // impede promocional >= normal, mas um registro salvo antes dessa regra pode não valer mais).
+    precoOriginalCentavos:
+      linha.preco_promocional_centavos !== null &&
+      linha.preco_centavos !== null &&
+      linha.preco_promocional_centavos < linha.preco_centavos
+        ? linha.preco_centavos
+        : undefined,
   }
 }
 
@@ -154,48 +198,170 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
 }
 
 /**
- * Adapter real do site público. Página de um projeto, relacionados e slugs já vêm do Cadastro
- * (Supabase). TEMPORÁRIO: listagem, filtros, destaques, categorias e complementares continuam no
- * mock — o vocabulário de categoria/estilo da listagem pública ainda não foi unificado com o do
- * Cadastro (fica para uma etapa própria).
+ * Adapter real do site público: todo o catálogo (vitrine, listagem com filtros, detalhe,
+ * relacionados e slugs) vem do Supabase, sempre projetos com `status = 'publicado'` (a mesma regra
+ * que já tem RLS no banco). `listarComplementares`/`listarCategorias` continuam num adapter à
+ * parte (`InMemoryProjetoRepository`): complementares ainda não têm tabela própria, e categorias é
+ * a navegação fixa da home — nenhum dos dois é "projeto".
  */
 export class SupabaseProjetoRepository implements ProjetoRepository {
-  private readonly mock = new InMemoryProjetoRepository()
+  private readonly estatico = new InMemoryProjetoRepository()
 
-  async listarDestaques() {
-    return this.mock.listarDestaques()
+  async listarDestaques(): Promise<Projeto[]> {
+    const supabase = criarClientePublico()
+    const { data, error } = await supabase
+      .from('projetos')
+      .select(COLUNAS_RESUMO)
+      .eq('status', 'publicado')
+      .eq('projeto_arquivos.papel', 'principal')
+      .order('criado_em', { ascending: false })
+      .limit(DESTAQUES_MAXIMO)
+      .overrideTypes<LinhaResumo[], { merge: false }>()
+    if (error) {
+      throw new AppError('falha_inesperada', 'Não foi possível carregar os projetos em destaque.')
+    }
+    const projetos = await Promise.all(data.map(montarResumo))
+    return projetos.filter((projeto): projeto is Projeto => projeto !== null)
   }
 
-  async buscarProjetos(consulta: Parameters<ProjetoRepository['buscarProjetos']>[0]) {
-    return this.mock.buscarProjetos(consulta)
+  async buscarProjetos(consulta: ConsultaProjetos): Promise<Pagina<Projeto>> {
+    const { filtros, ordenacao, pagina, porPagina } = consulta
+    const tamanho = Math.max(1, Math.floor(porPagina))
+    const de = (Math.max(1, Math.floor(pagina)) - 1) * tamanho
+    const supabase = criarClientePublico()
+
+    let consultaSupabase = supabase
+      .from('projetos')
+      .select(COLUNAS_RESUMO, { count: 'exact' })
+      .eq('status', 'publicado')
+      .eq('projeto_arquivos.papel', 'principal')
+
+    // Cada palavra vira um filtro parametrizado na coluna `busca` (nome + código, em minúsculas).
+    for (const palavra of (filtros.busca ?? '').toLowerCase().split(/\s+/).filter(Boolean)) {
+      consultaSupabase = consultaSupabase.ilike('busca', comoTrecho(palavra))
+    }
+    if (filtros.categoria) consultaSupabase = consultaSupabase.eq('categoria', filtros.categoria)
+    if (filtros.estilo) consultaSupabase = consultaSupabase.eq('estilo', filtros.estilo)
+    if (filtros.quartosMin !== undefined) {
+      consultaSupabase = consultaSupabase.gte('quartos_total', filtros.quartosMin)
+    }
+    if (filtros.suitesMin !== undefined) {
+      consultaSupabase = consultaSupabase.gte('suites', filtros.suitesMin)
+    }
+    if (filtros.suiteMasterMin !== undefined) {
+      consultaSupabase = consultaSupabase.gte('suite_master', filtros.suiteMasterMin)
+    }
+    if (filtros.banheirosMin !== undefined) {
+      consultaSupabase = consultaSupabase.gte('banheiros', filtros.banheirosMin)
+    }
+    if (filtros.lavaboMin !== undefined) {
+      consultaSupabase = consultaSupabase.gte('lavabo', filtros.lavaboMin)
+    }
+    if (filtros.vagasMin !== undefined) {
+      consultaSupabase = consultaSupabase.gte('vagas', filtros.vagasMin)
+    }
+    if (filtros.pavimentosMin !== undefined) {
+      consultaSupabase = consultaSupabase.gte('pavimentos', filtros.pavimentosMin)
+    }
+    if (filtros.areaMinM2 !== undefined) {
+      consultaSupabase = consultaSupabase.gte('area_construida_m2', filtros.areaMinM2)
+    }
+    if (filtros.areaMaxM2 !== undefined) {
+      consultaSupabase = consultaSupabase.lte('area_construida_m2', filtros.areaMaxM2)
+    }
+    if (filtros.precoMinCentavos !== undefined) {
+      consultaSupabase = consultaSupabase.gte('preco_efetivo_centavos', filtros.precoMinCentavos)
+    }
+    if (filtros.precoMaxCentavos !== undefined) {
+      consultaSupabase = consultaSupabase.lte('preco_efetivo_centavos', filtros.precoMaxCentavos)
+    }
+    // O projeto precisa caber no terreno informado.
+    if (filtros.terrenoLarguraM !== undefined) {
+      consultaSupabase = consultaSupabase.lte('largura_m', filtros.terrenoLarguraM)
+    }
+    if (filtros.terrenoProfundidadeM !== undefined) {
+      consultaSupabase = consultaSupabase.lte('profundidade_m', filtros.terrenoProfundidadeM)
+    }
+    if (filtros.piscina) consultaSupabase = consultaSupabase.eq('piscina', true)
+    if (filtros.areaGourmet) consultaSupabase = consultaSupabase.eq('area_gourmet', true)
+
+    const { coluna, ascendente } = COLUNA_DE_ORDENACAO[ordenacao]
+    // Desempate por `id`: sem ele, itens iguais podem trocar de lugar entre uma página e outra.
+    const { data, count, error } = await consultaSupabase
+      .order(coluna, { ascending: ascendente })
+      .order('id', { ascending: false })
+      .range(de, de + tamanho - 1)
+      .overrideTypes<LinhaResumo[], { merge: false }>()
+    if (error) throw new AppError('falha_inesperada', 'Não foi possível carregar os projetos.')
+
+    const projetos = await Promise.all(data.map(montarResumo))
+    return {
+      itens: projetos.filter((projeto): projeto is Projeto => projeto !== null),
+      total: count ?? 0,
+      pagina,
+      porPagina: tamanho,
+    }
   }
 
-  async listarComplementares() {
-    return this.mock.listarComplementares()
+  /**
+   * Menor/maior valor de preço e área entre os projetos exibíveis (publicados, com foto
+   * principal) — quatro buscas de 1 linha cada, cada uma usando o índice da própria coluna
+   * ordenada, em vez de baixar o catálogo inteiro para calcular o mínimo/máximo no servidor.
+   */
+  async buscarLimites(): Promise<LimitesDeFiltro> {
+    const supabase = criarClientePublico()
+    const base = () =>
+      supabase
+        .from('projetos')
+        .select('preco_efetivo_centavos, area_construida_m2, projeto_arquivos!inner(papel)')
+        .eq('status', 'publicado')
+        .eq('projeto_arquivos.papel', 'principal')
+
+    const [precoMin, precoMax, areaMin, areaMax] = await Promise.all([
+      base()
+        .order('preco_efetivo_centavos', { ascending: true })
+        .limit(1)
+        .maybeSingle()
+        .overrideTypes<LinhaLimite, { merge: false }>(),
+      base()
+        .order('preco_efetivo_centavos', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .overrideTypes<LinhaLimite, { merge: false }>(),
+      base()
+        .order('area_construida_m2', { ascending: true })
+        .limit(1)
+        .maybeSingle()
+        .overrideTypes<LinhaLimite, { merge: false }>(),
+      base()
+        .order('area_construida_m2', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .overrideTypes<LinhaLimite, { merge: false }>(),
+    ])
+
+    const erro = precoMin.error ?? precoMax.error ?? areaMin.error ?? areaMax.error
+    if (erro) {
+      throw new AppError('falha_inesperada', 'Não foi possível carregar os limites de filtro.')
+    }
+
+    return {
+      precoMinCentavos: precoMin.data?.preco_efetivo_centavos ?? 0,
+      precoMaxCentavos: precoMax.data?.preco_efetivo_centavos ?? 0,
+      areaMinM2: areaMin.data?.area_construida_m2 ?? 0,
+      areaMaxM2: areaMax.data?.area_construida_m2 ?? 0,
+    }
   }
 
-  async listarCategorias() {
-    return this.mock.listarCategorias()
+  async listarComplementares(): Promise<Complementar[]> {
+    return this.estatico.listarComplementares()
+  }
+
+  async listarCategorias(): Promise<Categoria[]> {
+    return this.estatico.listarCategorias()
   }
 
   async buscarPorSlug(slug: string): Promise<ProjetoDetalhe | null> {
-    const real = await this.buscarRealPorSlug(slug)
-    if (real) return real
-    return this.mock.buscarPorSlug(slug)
-  }
-
-  async listarSlugs(): Promise<string[]> {
-    const [doMock, reais] = await Promise.all([this.mock.listarSlugs(), this.listarSlugsReais()])
-    return [...doMock, ...reais]
-  }
-
-  async listarRelacionados(slug: string): Promise<Projeto[]> {
-    const reais = await this.relacionadosReais(slug)
-    if (reais.length > 0) return reais
-    return this.mock.listarRelacionados(slug)
-  }
-
-  private async buscarRealPorSlug(slug: string): Promise<ProjetoDetalhe | null> {
     const supabase = criarClientePublico()
     const { data, error } = await supabase
       .from('projetos')
@@ -209,7 +375,7 @@ export class SupabaseProjetoRepository implements ProjetoRepository {
     return montarDetalhe(data)
   }
 
-  private async listarSlugsReais(): Promise<string[]> {
+  async listarSlugs(): Promise<string[]> {
     const supabase = criarClientePublico()
     const { data, error } = await supabase
       .from('projetos')
@@ -220,7 +386,7 @@ export class SupabaseProjetoRepository implements ProjetoRepository {
     return data.map((linha) => linha.slug)
   }
 
-  private async relacionadosReais(slug: string): Promise<Projeto[]> {
+  async listarRelacionados(slug: string): Promise<Projeto[]> {
     const supabase = criarClientePublico()
     const { data: atual, error: erroAtual } = await supabase
       .from('projetos')
@@ -238,6 +404,7 @@ export class SupabaseProjetoRepository implements ProjetoRepository {
       .from('projetos')
       .select(COLUNAS_RESUMO)
       .eq('status', 'publicado')
+      .eq('projeto_arquivos.papel', 'principal')
       .neq('id', atual.id)
     if (atual.categoria) consulta = consulta.eq('categoria', atual.categoria)
 

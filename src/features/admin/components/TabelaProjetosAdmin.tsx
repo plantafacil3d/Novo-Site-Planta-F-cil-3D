@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState, useTransition } from 'react'
 
 import { DialogoDeConfirmacao } from '@/components/shared/DialogoDeConfirmacao'
@@ -140,7 +141,21 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
                 />
               </TableCell>
               <TableCell className="whitespace-nowrap text-fg-muted">{linha.codigo}</TableCell>
-              <TableCell className="min-w-56 font-medium">{linha.titulo}</TableCell>
+              <TableCell className="min-w-56 font-medium">
+                {linha.hrefPublico ? (
+                  <Link
+                    href={linha.hrefPublico}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                    title="Ver página pública do projeto"
+                  >
+                    {linha.titulo}
+                  </Link>
+                ) : (
+                  linha.titulo
+                )}
+              </TableCell>
               <TableCell className="whitespace-nowrap">{linha.categoriaRotulo}</TableCell>
               <TableCell className="whitespace-nowrap">{linha.precoFormatado}</TableCell>
               <TableCell>

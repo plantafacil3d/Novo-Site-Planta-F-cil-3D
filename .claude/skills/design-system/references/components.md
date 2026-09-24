@@ -182,9 +182,16 @@ Container de seção: título (h2), subtítulo, link "Ver todos" e conteúdo. Va
 
 `<form role="search" method="get">` com Input + Button `primary` + ícone; funciona sem JavaScript. Rótulo `sr-only` (a referência visual só mostra placeholder). `defaultValue` opcional preenche o campo com a busca atual da URL (dê uma `key` que mude com ela).
 
+### PriceTag
+
+- **Propósito:** preço com desconto, no padrão "Mercado Livre": preço original riscado acima, preço atual em destaque e um selo verde do desconto (ex.: "40% OFF") ao lado. Sem preço original, mostra só o atual.
+- **Props:** `price`, `originalPrice?`, `discountLabel?`, `priceClassName?` (tamanho do preço atual, na escala tipográfica de onde aparece: `text-lg` no card, `text-3xl` no topo da página), `originalPriceClassName?` (cor do riscado; `text-fg-inverse/70` sobre fundo escuro, como no `CTABanner`).
+- **Tokens:** `--color-fg-muted` (riscado, padrão), `bg-accent`/`text-fg` (selo, via `Badge` `accent`).
+- **Usado em:** `ProjectCard`, `ProjetoHero`, `BarraCompraMobile` e `CTABanner` (`variant="card"`). A montagem do desconto (regra: preço original só existe quando é realmente maior que o atual) fica em `features/projetos/rules.ts` (`exibirPreco`).
+
 ### ProjectCard
 
-Card de projeto (ver `ux-rules.md`). Puramente visual: recebe textos e preço já formatados (a montagem fica em `features/projetos/components/ProjetosDestaque`). Compõe Badge, FavoriteButton, lista de especificações (ícone + texto) e Button. O card inteiro é um único link (botão "Ver detalhes" esticado); o coração fica acima. **Se ganhar regra de domínio, mova para `features/projetos/components/`.**
+Card de projeto (ver `ux-rules.md`). Puramente visual: recebe textos e preço já formatados (a montagem fica em `features/projetos/components/ProjetosDestaque`). Compõe Badge, FavoriteButton, `PriceTag`, lista de especificações (ícone + texto) e Button. O card inteiro é um único link (botão "Ver detalhes" esticado); o coração fica acima. **Se ganhar regra de domínio, mova para `features/projetos/components/`.**
 
 ### MediaCard
 

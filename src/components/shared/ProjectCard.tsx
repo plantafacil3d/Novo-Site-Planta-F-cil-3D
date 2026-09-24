@@ -4,6 +4,7 @@ import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { Icon, type IconName } from '../ui/Icon'
 import { FavoriteButton } from './FavoriteButton'
+import { PriceTag } from './PriceTag'
 
 export type ProjectSpec = { icon: IconName; label: string }
 
@@ -17,6 +18,10 @@ type ProjectCardProps = {
   specs: ProjectSpec[]
   /** Preço já formatado (ex.: "R$ 399,00"). */
   price: string
+  /** Preço riscado; omitido quando não há desconto ativo. */
+  priceOriginal?: string
+  /** Selo verde do desconto (ex.: "60% OFF"); omitido junto de `priceOriginal`. */
+  priceDiscount?: string
   favoriteLabel: string
 }
 
@@ -32,6 +37,8 @@ export function ProjectCard({
   badge,
   specs,
   price,
+  priceOriginal,
+  priceDiscount,
   favoriteLabel,
 }: ProjectCardProps) {
   return (
@@ -65,8 +72,8 @@ export function ProjectCard({
           ))}
         </ul>
 
-        <div className="mt-auto flex items-center justify-between gap-3 pt-2">
-          <p className="font-heading text-lg font-bold">{price}</p>
+        <div className="mt-auto flex items-end justify-between gap-3 pt-2">
+          <PriceTag price={price} originalPrice={priceOriginal} discountLabel={priceDiscount} />
           <Button
             href={href}
             iconRight="arrow-right"

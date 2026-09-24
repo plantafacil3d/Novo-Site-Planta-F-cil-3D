@@ -1,5 +1,6 @@
-// Vocabulário do cadastro: valores e textos exibidos. Só o cadastro usa estas listas; o site público
-// tem as suas (features/projetos/catalogo.ts). Unificar as duas fica para a etapa do banco.
+// Vocabulário do cadastro: valores e textos exibidos. É a fonte única também para o site público
+// (features/projetos importa `categoriasDoCadastro`/`estilosDoCadastro` daqui), para categoria e
+// estilo nunca ficarem com listas diferentes entre o cadastro e o filtro público.
 
 import type { EtapaId } from './types'
 
@@ -20,6 +21,8 @@ export const categoriasDoCadastro = [
   { valor: 'loja', rotulo: 'Loja' },
   { valor: 'outros', rotulo: 'Outros' },
 ] as const
+
+export type CategoriaDoCadastro = (typeof categoriasDoCadastro)[number]['valor']
 
 export const estilosDoCadastro = [
   { valor: 'moderno', rotulo: 'Moderno' },
@@ -54,6 +57,8 @@ export const estilosDoCadastro = [
   { valor: 'romantico', rotulo: 'Romântico' },
   { valor: 'outros', rotulo: 'Outros' },
 ] as const
+
+export type EstiloDoCadastro = (typeof estilosDoCadastro)[number]['valor']
 
 /** Opções de "Perfil do terreno" (aba 1). `descricao` vira dica (tooltip) na opção. */
 export const perfisDeTerrenoDoCadastro = [

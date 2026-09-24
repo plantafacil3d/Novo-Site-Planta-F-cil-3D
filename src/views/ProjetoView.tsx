@@ -13,7 +13,7 @@ import {
   ProjetosRelacionados,
   SobreProjeto,
   checkoutSeguro,
-  formatarPreco,
+  exibirPreco,
   hrefProjeto,
   listarProjetosRelacionados,
   type ProjetoDetalhe,
@@ -23,7 +23,7 @@ import { siteConfig, siteUrl } from '@/features/site'
 /** Página pública de um projeto. A ordem das seções segue a referência visual aprovada. */
 export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
   const relacionados = await listarProjetosRelacionados(projeto.slug)
-  const preco = formatarPreco(projeto.precoCentavos)
+  const preco = exibirPreco(projeto)
   const checkoutUrl = checkoutSeguro(projeto.checkoutUrl)
 
   return (
@@ -82,7 +82,12 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
           title="Gostou deste projeto?"
           description="Tenha acesso aos arquivos e comece a transformar sua ideia em realidade."
           image={projeto.imagem}
-          price={{ value: preco, note: 'Pagamento facilitado' }}
+          price={{
+            value: preco.atual,
+            original: preco.original,
+            discount: preco.desconto,
+            note: 'Pagamento facilitado',
+          }}
           action={{ label: 'Comprar projeto', href: checkoutUrl, iconLeft: 'cart' }}
         />
       )}

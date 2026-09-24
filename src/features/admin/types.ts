@@ -23,6 +23,8 @@ export type LinhaProjetoAdmin = ProjetoAdmin & {
   precoFormatado: string
   categoriaRotulo: string
   criadoEmRotulo: string
+  /** Link da página pública; `null` quando o projeto é rascunho (não tem página pública ainda). */
+  hrefPublico: string | null
 }
 
 /** Dados para criar um projeto novo; o código é gerado pelo banco. */

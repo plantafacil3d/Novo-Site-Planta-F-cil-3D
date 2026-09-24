@@ -6,15 +6,15 @@ import { Icon, type IconName } from '@/components/ui/Icon'
 import { FavoriteButton } from '@/components/shared/FavoriteButton'
 import { FeatureItem } from '@/components/shared/FeatureItem'
 import { MediaGallery } from '@/components/shared/MediaGallery'
+import { PriceTag } from '@/components/shared/PriceTag'
 import { selosDeConfianca } from '@/features/site'
 
-import { resumirProjeto } from '../rules'
+import { resumirProjeto, type PrecoExibido } from '../rules'
 import type { ProjetoDetalhe } from '../types'
 
 type ProjetoHeroProps = {
   projeto: ProjetoDetalhe
-  /** Preço já formatado (ex.: "R$ 299,90"). */
-  preco: string
+  preco: PrecoExibido
   /** Checkout já validado (`checkoutSeguro`); `null` = compra indisponível. */
   checkoutUrl: string | null
 }
@@ -65,7 +65,12 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
           </ul>
 
           <div>
-            <p className="font-heading text-3xl font-bold">{preco}</p>
+            <PriceTag
+              price={preco.atual}
+              originalPrice={preco.original}
+              discountLabel={preco.desconto}
+              priceClassName="text-3xl"
+            />
             <p className="text-sm text-fg-muted">Pagamento facilitado • Acesso imediato</p>
           </div>
 

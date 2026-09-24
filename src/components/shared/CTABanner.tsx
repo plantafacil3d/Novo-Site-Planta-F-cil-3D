@@ -4,6 +4,7 @@ import { useId } from 'react'
 import { Button } from '../ui/Button'
 import { Eyebrow } from '../ui/Eyebrow'
 import { Icon } from '../ui/Icon'
+import { PriceTag } from './PriceTag'
 
 type BannerAction = {
   label: string
@@ -33,8 +34,8 @@ type CardBannerProps = {
   title: string
   description: string
   image: { src: string; alt: string }
-  /** Preço já formatado (ex.: "R$ 299,90") e a condição de pagamento. */
-  price: { value: string; note: string }
+  /** Preço (com desconto opcional) e a condição de pagamento. */
+  price: { value: string; original?: string; discount?: string; note: string }
   action: BannerAction & { iconLeft?: 'cart' }
 }
 
@@ -95,7 +96,13 @@ export function CTABanner(props: CTABannerProps) {
               <p className="max-w-md text-fg-inverse/80">{description}</p>
               <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
                 <div>
-                  <p className="font-heading text-2xl font-bold">{props.price.value}</p>
+                  <PriceTag
+                    price={props.price.value}
+                    originalPrice={props.price.original}
+                    discountLabel={props.price.discount}
+                    priceClassName="text-2xl"
+                    originalPriceClassName="text-fg-inverse/70"
+                  />
                   <p className="text-sm text-fg-inverse/80">{props.price.note}</p>
                 </div>
                 <Button
