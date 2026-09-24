@@ -120,10 +120,13 @@ function PainelDoPavimento({
       </div>
 
       {reservarPainel && pavimento.itens.length > 0 && (
-        <div>
-          {pavimento.itens.map((item) => (
-            <LinhaDeInformacao key={item.id} item={item} />
-          ))}
+        <div className="lg:pt-8">
+          <h3 className="text-lg">Ambientes</h3>
+          <div className="mt-4">
+            {pavimento.itens.map((item) => (
+              <LinhaDeInformacao key={item.id} item={item} />
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -167,6 +170,7 @@ export function GaleriaPlantaHumanizada({ pavimentos }: { pavimentos: PavimentoP
       ) : (
         <Tabs
           label="Pavimentos do projeto"
+          focusPanelOnExternalChange={false}
           items={pavimentos.map((pavimento, indice) => ({
             id: pavimento.id,
             label: pavimento.nome,

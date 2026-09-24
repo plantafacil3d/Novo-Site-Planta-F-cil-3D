@@ -30,7 +30,13 @@ export function Modal({ open, onClose, label, tone = 'inverse', children, classN
     const dialog = dialogRef.current
     if (!dialog) return
 
-    if (open && !dialog.open) dialog.showModal()
+    if (open && !dialog.open) {
+      // `showModal()` foca o `<dialog>`, e o navegador rola a página até a posição dele no
+      // documento antes da promoção à top layer — some para o topo da seção. Devolve a rolagem.
+      const posicaoAnterior = window.scrollY
+      dialog.showModal()
+      window.scrollTo(0, posicaoAnterior)
+    }
     if (!open && dialog.open) dialog.close()
 
     if (!open) return

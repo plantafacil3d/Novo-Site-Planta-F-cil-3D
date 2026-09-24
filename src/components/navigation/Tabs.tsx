@@ -21,6 +21,13 @@ type TabsProps = {
   onValueChange?: (id: string) => void
   /** Conteúdo abaixo dos painéis, na mesma coluna (ex.: botões de navegação e de salvar). */
   footer?: ReactNode
+  /**
+   * Troca vinda de fora leva a tela ao topo do painel e move o foco para ele (padrão: `true`,
+   * pensado para "Próxima etapa" de formulário). Desligue quando a troca externa é só outro jeito
+   * de fazer a mesma coisa que clicar na aba (ex.: setas de navegação sobre uma imagem), para não
+   * mover a página.
+   */
+  focusPanelOnExternalChange?: boolean
 }
 
 const marcadores = {
@@ -54,6 +61,7 @@ export function Tabs({
   value,
   onValueChange,
   footer,
+  focusPanelOnExternalChange = true,
 }: TabsProps) {
   const baseId = useId()
   const vertical = orientation === 'vertical'
@@ -79,10 +87,11 @@ export function Tabs({
       trocouPelaAba.current = false
       return
     }
+    if (!focusPanelOnExternalChange) return
     const painel = activeId ? painelRefs.current[activeId] : null
     painel?.focus({ preventScroll: true })
     painel?.scrollIntoView({ block: 'start' })
-  }, [activeId])
+  }, [activeId, focusPanelOnExternalChange])
 
   function selectByIndex(index: number) {
     const target = (index + items.length) % items.length
