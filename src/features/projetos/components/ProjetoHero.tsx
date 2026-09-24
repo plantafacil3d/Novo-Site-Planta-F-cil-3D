@@ -7,9 +7,10 @@ import { FavoriteButton } from '@/components/shared/FavoriteButton'
 import { FeatureItem } from '@/components/shared/FeatureItem'
 import { MediaGallery } from '@/components/shared/MediaGallery'
 import { PriceTag } from '@/components/shared/PriceTag'
+import { TextoExpansivel } from '@/components/shared/TextoExpansivel'
 import { selosDeConfianca } from '@/features/site'
 
-import { resumirProjeto, type PrecoExibido } from '../rules'
+import { descreverProjeto, type PrecoExibido } from '../rules'
 import type { ProjetoDetalhe } from '../types'
 
 type ProjetoHeroProps = {
@@ -22,10 +23,10 @@ type ProjetoHeroProps = {
 /** Topo da página: galeria à esquerda, dados e compra à direita. */
 export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
   const headingId = useId()
-  const resumo = resumirProjeto(projeto)
+  const resumo = descreverProjeto(projeto)
   const specs: { icon: IconName; label: string }[] = [
-    { icon: 'bed-double', label: resumo.suites },
-    ...(resumo.quartoExtra ? [{ icon: 'bed-single' as const, label: resumo.quartoExtra }] : []),
+    { icon: 'ruler', label: resumo.terreno },
+    { icon: 'bed-double', label: resumo.quartos },
     { icon: 'bath', label: resumo.banheiros },
     { icon: 'car', label: resumo.vagas },
   ]
@@ -47,13 +48,17 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
               {projeto.selo}
             </Badge>
           )}
-          {projeto.codigoYoutube && (
-            <p className="text-sm font-medium text-fg-muted">{projeto.codigoYoutube}</p>
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            {projeto.codigoYoutube && (
+              <p className="text-sm font-medium text-fg-muted">Cód. {projeto.codigoYoutube}</p>
+            )}
+            {projeto.perfil.categoria && <Badge variant="neutral">{projeto.perfil.categoria}</Badge>}
+            {projeto.perfil.estilo && <Badge variant="neutral">{projeto.perfil.estilo}</Badge>}
+          </div>
           <h1 id={headingId} className="text-3xl">
             {projeto.titulo}
           </h1>
-          <p className="font-medium">{projeto.resumo}</p>
+          <TextoExpansivel texto={projeto.resumo} limite={280} className="font-medium" />
 
           <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
             {specs.map((spec) => (
@@ -71,6 +76,12 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
               discountLabel={preco.desconto}
               priceClassName="text-3xl"
             />
+            {preco.desconto && (
+              <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-danger-solid">
+                <Icon name="clock" className="size-4" />
+                Promoção por tempo limitado!
+              </p>
+            )}
             <p className="text-sm text-fg-muted">Pagamento facilitado • Acesso imediato</p>
           </div>
 

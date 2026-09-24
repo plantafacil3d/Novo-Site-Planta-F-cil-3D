@@ -11,6 +11,7 @@ const badgeStyles = cva('inline-flex items-center rounded-sm px-2.5 py-1 text-xs
       success: 'bg-badge-success-bg text-badge-success-fg',
       draft: 'border border-draft-border bg-badge-draft-bg text-badge-draft-fg',
       discount: 'bg-badge-discount-bg text-badge-discount-fg',
+      neutral: 'border border-border bg-subtle text-fg-muted',
     },
   },
   defaultVariants: { variant: 'solid' },

@@ -4,6 +4,18 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-24 (alinhamento preço/botão no ProjectCard)
+
+- Corrigido: no `ProjectCard`, a linha "preço atual + botão Ver detalhes" usava `items-end` (base alinhada). Voltou para `items-center` (centralizado verticalmente), como era antes do desconto existir.
+- Por quê: o usuário comparou com uma versão salva do site (antes do recurso de desconto) e notou que o preço ficava mais bem alinhado com o botão. O `items-end` tinha sido escolhido quando riscado + selo + preço + botão dividiam a mesma linha (precisava alinhar pela base para caber). Isso já não existe: riscado + selo agora ficam numa linha própria acima (ver entrada "selo de desconto com texto branco"), então a linha do preço atual com o botão voltou a ter só os dois elementos de sempre, sem motivo para não centralizar.
+
+## 2026-09-24 (aviso "Promoção por tempo limitado")
+
+- Novo aviso no topo da página do projeto (`ProjetoHero`): ícone de relógio + "Promoção por tempo limitado!", só quando há desconto ativo (`preco.desconto`). Fica entre o preço e a linha "Pagamento facilitado • Acesso imediato" (ajustado no mesmo dia: nasceu acima do preço, o usuário pediu para descer para essa posição). Não aparece no `ProjectCard` da vitrine — pedido explícito do usuário, que trouxe uma referência visual de outro site só para esse ponto da página.
+- Sem componente novo: é `className` pontual (texto + `Icon`), como manda a regra de "só promover a variante/componente quando repetir numa segunda tela" — hoje só existe na página do projeto. Se o aviso passar a aparecer em mais um lugar (ex.: `BarraCompraMobile`), promover para um componente compartilhado nessa hora.
+- Sem token novo: reaproveita `--color-danger-solid` (`--red-600`) como cor do texto e do ícone. Por quê: a referência do usuário era um vermelho-alaranjado vivo de aviso urgente, e o site já tem essa cor no papel de "atenção urgente" — dá 5,6:1 de contraste sobre branco (passa AA), mais vivo que `--color-danger-fg` (`--red-800`, criado para texto sobre fundo `-subtle`, mais escuro e menos parecido com a referência).
+- Ícone novo no registro: `clock` (lucide-react).
+
 ## 2026-09-24 (selo de desconto com texto branco)
 
 - Componente novo: `PriceTag` (shared) — preço com desconto (original riscado + preço atual + selo verde), usado no card da vitrine, no topo da página do projeto, na faixa de compra do celular e no banner "Gostou deste projeto?". Detalhes em `components.md`.

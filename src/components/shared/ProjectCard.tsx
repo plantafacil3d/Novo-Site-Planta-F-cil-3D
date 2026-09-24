@@ -78,7 +78,7 @@ export function ProjectCard({
               {priceDiscount && <Badge variant="discount">{priceDiscount}</Badge>}
             </div>
           )}
-          <div className="flex items-end justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <p className="font-heading text-lg font-bold">{price}</p>
             <Button
               href={href}

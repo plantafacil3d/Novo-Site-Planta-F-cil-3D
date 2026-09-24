@@ -54,8 +54,8 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ### Badge
 
 - **Propósito:** selo sobre a imagem (Mais vendido, Lançamento).
-- **Variantes:** `solid` (preto), `accent` (verde vivo, texto preto), `success` (verde suave, para status como Publicado), `draft` (cinza com borda, para Rascunho) e `discount` (verde escuro sólido `--green-700` com texto branco — nasceu porque o verde vivo do `accent` só dá 2,3:1 com texto branco, abaixo do mínimo de acessibilidade; usado só no selo de desconto do `PriceTag`, ex.: "40% OFF"). `success` e `draft` nasceram no painel do administrador.
-- **Tokens:** `--color-primary`, `--color-accent`, `--color-badge-success-*`, `--color-badge-draft-*`, `--color-badge-discount-*`, `--color-draft-border`, `--radius-sm`, `--text-xs`.
+- **Variantes:** `solid` (preto), `accent` (verde vivo, texto preto), `success` (verde suave, para status como Publicado), `draft` (cinza com borda, para Rascunho), `discount` (verde escuro sólido `--green-700` com texto branco — nasceu porque o verde vivo do `accent` só dá 2,3:1 com texto branco, abaixo do mínimo de acessibilidade; usado só no selo de desconto do `PriceTag`, ex.: "40% OFF") e `neutral` (cinza claro com borda, texto `fg-muted` — tag informativa sem peso promocional, ex.: categoria/estilo no `ProjetoHero`; distinto do `draft`, que é só para o status "Rascunho"). `success` e `draft` nasceram no painel do administrador.
+- **Tokens:** `--color-primary`, `--color-accent`, `--color-badge-success-*`, `--color-badge-draft-*`, `--color-badge-discount-*`, `--color-draft-border`, `--color-border`, `--color-subtle`, `--color-fg-muted`, `--radius-sm`, `--text-xs`.
 
 ### Eyebrow
 
@@ -213,6 +213,10 @@ Card compacto: imagem, título e preço. O card inteiro é um único link, pelo 
 ### CollapsiblePanel
 
 `'use client'`. No celular, o conteúdo fica atrás de um botão `secondary` com ícone de filtro e contador (`count`, ex.: "Filtros (2)"), com `aria-expanded`/`aria-controls`. A partir de `lg` o conteúdo aparece sempre e o botão some. O conteúdo (`children`) é renderizado no servidor; só o abrir/fechar é estado do navegador. Quem usa dá uma `key` que mude a cada consulta, para o painel fechar depois de aplicar um filtro.
+
+### TextoExpansivel
+
+`'use client'`. Texto longo cortado em `limite` caracteres (padrão 280, corta na última palavra inteira, sem quebrar no meio); abaixo, um botão "Ver mais"/"Ver menos" com `aria-expanded`/`aria-controls` alterna o texto completo. Some sozinho (renderiza só o `<p>`) quando o texto já cabe no limite. Usado no resumo curto do `ProjetoHero`. **Tokens:** `text-primary` no botão.
 
 ### EmptyState
 

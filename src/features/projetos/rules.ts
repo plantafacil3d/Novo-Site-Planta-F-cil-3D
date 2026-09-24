@@ -97,25 +97,6 @@ export function totalDeQuartos(projeto: Pick<Projeto, 'suites' | 'quartos'>): nu
   return projeto.suites + projeto.quartos
 }
 
-export type ResumoRapido = {
-  suites: string
-  /** Só existe quando há quarto além das suítes (ex.: "+1 Quarto"). */
-  quartoExtra?: string
-  banheiros: string
-  vagas: string
-}
-
-/** Textos das especificações rápidas do topo da página. */
-export function resumirProjeto(projeto: ProjetoDetalhe): ResumoRapido {
-  return {
-    suites: contar(projeto.suites, 'Suíte', 'Suítes'),
-    quartoExtra:
-      projeto.quartos > 0 ? `+${contar(projeto.quartos, 'Quarto', 'Quartos')}` : undefined,
-    banheiros: contar(projeto.banheiros, 'Banheiro', 'Banheiros'),
-    vagas: contar(projeto.vagas, 'Vaga', 'Vagas'),
-  }
-}
-
 /** Descrição curta para Google e redes sociais (meta description). */
 export function resumirParaBusca(projeto: ProjetoDetalhe): string {
   const area = formatarArea(projeto.areaConstruidaM2)
