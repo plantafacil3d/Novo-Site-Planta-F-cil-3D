@@ -210,24 +210,39 @@ export function CartaoPavimento({
 
         <div className="flex flex-col gap-4 border-t border-border p-4">
           {pavimento.itens.length > 0 && (
-            <ul className="flex flex-col gap-2">
-              {pavimento.itens.map((item, indiceDoItem) => (
-                <li
-                  key={item.id}
-                  {...itemProps(item.id)}
-                  className={arrastando === item.id ? 'opacity-50' : undefined}
-                >
-                  <ItemDaPlantaLinha
-                    form={form}
-                    pavimentoId={pavimento.id}
-                    pavimentoIndice={indice}
-                    item={item}
-                    indice={indiceDoItem}
-                    dragHandleProps={handleProps(item.id)}
-                  />
-                </li>
-              ))}
-            </ul>
+            <div>
+              {/* Cabeçalho da "tabela": os rótulos aparecem uma vez só aqui, não repetidos em
+                  cada linha (`hideLabel` no `Field` de dentro) — pra lista não ficar pesada. Os
+                  espaçadores (`size-9`/`size-11`) reproduzem a largura da alça de arrastar e do
+                  botão de remover de cada linha, pra as colunas baterem certinho. */}
+              <div className="flex items-center gap-2 px-2 text-sm font-medium text-fg-muted">
+                <span aria-hidden className="size-9 shrink-0" />
+                <div className="grid flex-1 grid-cols-[1fr_7rem_5rem] gap-2">
+                  <span>Nome</span>
+                  <span>Metragem</span>
+                  <span>Nº</span>
+                </div>
+                <span aria-hidden className="size-11 shrink-0" />
+              </div>
+              <ul className="mt-1 flex flex-col gap-1.5">
+                {pavimento.itens.map((item, indiceDoItem) => (
+                  <li
+                    key={item.id}
+                    {...itemProps(item.id)}
+                    className={arrastando === item.id ? 'opacity-50' : undefined}
+                  >
+                    <ItemDaPlantaLinha
+                      form={form}
+                      pavimentoId={pavimento.id}
+                      pavimentoIndice={indice}
+                      item={item}
+                      indice={indiceDoItem}
+                      dragHandleProps={handleProps(item.id)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
 
           <div className="flex flex-wrap gap-3">

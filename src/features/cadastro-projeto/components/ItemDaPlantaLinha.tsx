@@ -43,18 +43,18 @@ export function ItemDaPlantaLinha({
   }
 
   return (
-    <div className="flex items-start gap-2">
+    <div className="flex items-center gap-2">
       <button
         type="button"
         aria-label={`Arrastar para reordenar o item ${indice + 1}`}
-        className="mt-7 shrink-0 cursor-grab touch-none rounded p-2 text-fg-muted hover:bg-subtle active:cursor-grabbing"
+        className="shrink-0 cursor-grab touch-none rounded p-2 text-fg-muted hover:bg-subtle active:cursor-grabbing"
         {...dragHandleProps}
       >
         <Icon name="grip" />
       </button>
 
       <div className="grid flex-1 grid-cols-[1fr_7rem_5rem] gap-2">
-        <Field label="Nome" htmlFor={nomeCampo.id} error={erroDe(chave('nome'))}>
+        <Field label="Nome" htmlFor={nomeCampo.id} error={erroDe(chave('nome'))} hideLabel>
           <Input
             {...nomeCampo}
             value={item.nome}
@@ -66,7 +66,12 @@ export function ItemDaPlantaLinha({
             }
           />
         </Field>
-        <Field label="Metragem" htmlFor={metragemCampo.id} error={erroDe(chave('metragem'))}>
+        <Field
+          label="Metragem"
+          htmlFor={metragemCampo.id}
+          error={erroDe(chave('metragem'))}
+          hideLabel
+        >
           <Input
             {...metragemCampo}
             value={item.metragem}
@@ -79,7 +84,7 @@ export function ItemDaPlantaLinha({
             }
           />
         </Field>
-        <Field label="Nº" htmlFor={numeroCampo.id} error={erroDe(chave('numeroBolinha'))}>
+        <Field label="Nº" htmlFor={numeroCampo.id} error={erroDe(chave('numeroBolinha'))} hideLabel>
           <Input
             {...numeroCampo}
             value={item.numeroBolinha}
@@ -99,7 +104,6 @@ export function ItemDaPlantaLinha({
         icon="trash"
         label={`Remover o item ${indice + 1}`}
         onClick={() => form.removerItemDaPlanta(pavimentoId, item.id)}
-        className="mt-6"
       />
     </div>
   )

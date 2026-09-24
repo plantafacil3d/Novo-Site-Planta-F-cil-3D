@@ -84,7 +84,7 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ### Field
 
 - **Propósito:** rótulo + campo + dica ou erro, para formulários. Envolve `Input`, `Select` ou `Textarea`; o `htmlFor` liga o rótulo ao campo. Com `error`, a mensagem substitui a dica e ganha o id `<htmlFor>-erro` (o campo aponta para ela com `aria-describedby`).
-- **Props:** `label`, `htmlFor`, `hint?`, `error?`, `counter?` (contador de caracteres à direita, ex.: "35/120"), `icon?` (`IconName`, ao lado do rótulo, para identificar o campo de relance), `className?`.
+- **Props:** `label`, `htmlFor`, `hint?`, `error?`, `counter?` (contador de caracteres à direita, ex.: "35/120"), `icon?` (`IconName`, ao lado do rótulo, para identificar o campo de relance), `hideLabel?` (rótulo só para leitor de tela — lista compacta tipo tabela, com o rótulo real aparecendo uma vez só, como cabeçalho de coluna; ex.: `ItemDaPlantaLinha`), `className?`.
 - **Tokens:** `--color-fg-muted` (dica e contador), `--color-danger-fg` (erro, AA sobre o fundo claro).
 
 ### FileInput

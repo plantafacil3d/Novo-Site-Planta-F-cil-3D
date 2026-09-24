@@ -16,6 +16,8 @@ type FieldProps = {
   counter?: string
   /** Ícone ao lado do rótulo, para identificar o campo de relance. */
   icon?: IconName
+  /** Rótulo só para leitor de tela (ex.: cabeçalho da coluna já aparece visível acima da lista). */
+  hideLabel?: boolean
   className?: string
   children: ReactNode
 }
@@ -28,12 +30,16 @@ export function Field({
   error,
   counter,
   icon,
+  hideLabel,
   className,
   children,
 }: FieldProps) {
   return (
     <div className={cn('flex flex-col gap-1.5', className)}>
-      <label htmlFor={htmlFor} className="flex items-center gap-2 text-sm font-medium">
+      <label
+        htmlFor={htmlFor}
+        className={cn('flex items-center gap-2 text-sm font-medium', hideLabel && 'sr-only')}
+      >
         {icon && <Icon name={icon} className="size-4 text-fg-muted" />}
         {label}
       </label>
