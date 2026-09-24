@@ -34,7 +34,7 @@ export function PriceTag({
       )}
       <div className="flex flex-wrap items-center gap-2">
         <p className={cn('font-heading font-bold', priceClassName)}>{price}</p>
-        {discountLabel && <Badge variant="accent">{discountLabel}</Badge>}
+        {discountLabel && <Badge variant="discount">{discountLabel}</Badge>}
       </div>
     </div>
   )

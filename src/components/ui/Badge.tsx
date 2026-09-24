@@ -10,6 +10,7 @@ const badgeStyles = cva('inline-flex items-center rounded-sm px-2.5 py-1 text-xs
       accent: 'bg-accent text-fg',
       success: 'bg-badge-success-bg text-badge-success-fg',
       draft: 'border border-draft-border bg-badge-draft-bg text-badge-draft-fg',
+      discount: 'bg-badge-discount-bg text-badge-discount-fg',
     },
   },
   defaultVariants: { variant: 'solid' },

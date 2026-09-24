@@ -21,6 +21,7 @@ A marca é preto e branco, minimalista; o verde vivo é a única cor de destaque
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | `--black-900`                                     | botão principal, hero, ícones e preços sobre fundo claro                                      |
 | `--black-800`                                     | faixas escuras (banners): preto com leve tom azul-petróleo (`#141d20`)                        |
+| `--green-700`                                     | só o selo de desconto (`Badge discount`): fundo sólido para texto branco, onde o verde vivo não tem contraste suficiente |
 | `--green-600`                                     | hover do verde vivo e anel de foco                                                            |
 | `--green-500`                                     | verde vivo: destaques sobre fundo escuro, botão sobre fundo escuro, selos, sublinhado do menu |
 | `--green-100`                                     | fundo de seções claras e chips                                                                |
@@ -79,10 +80,11 @@ Quatro tokens por família: `-solid` (ícone, borda de campo, botão), `-subtle`
 | `--color-notification-{…}-icon`                           | `-solid` do estado                               |
 | `--color-badge-{draft\|success\|error\|warning\|info}-bg` | `-subtle` do estado (`draft` usa `draft-subtle`) |
 | `--color-badge-{…}-fg`                                    | `-fg` do estado                                  |
+| `--color-badge-discount-bg` / `-fg`                        | `--green-700` / `--white` — foge do padrão acima: fundo sólido (não `-subtle`) e texto branco (não `-fg` escuro), porque o verde vivo (`--green-500`) não dá contraste (2,3:1) para texto branco |
 
 Ex.: `bg-notification-error-bg text-notification-error-fg border-notification-error-border`. Para trocar só a cor da notificação de erro, mude `--color-notification-error-*`; `danger-*` e o erro de formulário não mudam.
 
-**Contraste (WCAG, calculado):** `--gray-900` (texto) sobre `--green-500` 7,4:1 e sobre `--green-600` 5,1:1 (botão e selo verdes, repouso e hover); `--green-500` sobre `--black-900` 8,2:1 e sobre `--black-800` 7,5:1; branco sobre `--black-800` 17,1:1; `--green-500` sobre branco 2,3:1 (só preenchimento, nunca texto); `--green-600` sobre branco 3,3:1 e sobre `--black-900` 5,7:1 (anel de foco); branco sobre `--black-900` 18,7:1 e sobre `--gray-700` 12:1. `--gray-500` (texto secundário, `#627068`) dá 5,2:1 sobre branco, 4,9:1 sobre `--gray-50` e 4,7:1 sobre `--green-100`: passa AA (4,5:1) em todos os fundos claros. Se algum contraste falhar, ajuste o primitivo, não o componente.
+**Contraste (WCAG, calculado):** `--gray-900` (texto) sobre `--green-500` 7,4:1 e sobre `--green-600` 5,1:1 (botão e selo verdes, repouso e hover); `--green-500` sobre `--black-900` 8,2:1 e sobre `--black-800` 7,5:1; branco sobre `--black-800` 17,1:1; `--green-500` sobre branco 2,3:1 (só preenchimento, nunca texto); `--green-600` sobre branco 3,3:1 e sobre `--black-900` 5,7:1 (anel de foco); branco sobre `--black-900` 18,7:1 e sobre `--gray-700` 12:1; branco sobre `--green-700` 4,7:1 (selo de desconto — o único lugar com texto branco sobre verde; é o tom mais claro que ainda passa AA, pedido do usuário depois de ver o primeiro tom, mais escuro, testado). `--gray-500` (texto secundário, `#627068`) dá 5,2:1 sobre branco, 4,9:1 sobre `--gray-50` e 4,7:1 sobre `--green-100`: passa AA (4,5:1) em todos os fundos claros. Se algum contraste falhar, ajuste o primitivo, não o componente.
 
 ## Tipografia
 

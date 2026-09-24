@@ -4,6 +4,15 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-24 (selo de desconto com texto branco)
+
+- Componente novo: `PriceTag` (shared) — preço com desconto (original riscado + preço atual + selo verde), usado no card da vitrine, no topo da página do projeto, na faixa de compra do celular e no banner "Gostou deste projeto?". Detalhes em `components.md`.
+- Token novo: `--color-badge-discount-bg`/`-fg` (`--green-700`/`--white`), e o primitivo `--green-700` (`#15803d`) que o token aponta. Variante nova do `Badge`: `discount`.
+- Por quê: o usuário pediu o selo de desconto com texto branco (como no Mercado Livre) sobre o verde vivo da marca (`--green-500`), testando direto no navegador. Esse par só dá 2,3:1 de contraste — falha o mínimo de acessibilidade do site (4,5:1). Em vez de aceitar o contraste baixo ou trocar para texto escuro (perdendo o efeito pedido), criamos um verde mais escuro só para esse selo: `--green-700` dá 5:1 com texto branco, passa AA e continua verde, só um tom mais fechado que o `accent` vivo usado nas outras tags (Mais vendido, Lançamento), que **não mudam**.
+- Nota: `--green-700` **tinha sido removido** da paleta em 2026-09-20 (simplificação para preto + verde vivo, ver entrada "paleta preto + verde vivo"). Reintroduzido agora com um propósito único e documentado (não é o mesmo uso de antes), para não repetir a mistura de tons que motivou a remoção.
+- Ajuste no mesmo dia: usuário achou o primeiro tom (`#15803d`, 5,0:1) escuro demais e pediu algo mais claro, "com mais vida". Clareado para `#15853f` (4,7:1) — o tom mais claro que ainda passa o mínimo de acessibilidade (4,5:1) com texto branco; não dá para clarear mais sem cair abaixo do mínimo. Valor final não é mais o Tailwind `green-700` padrão (`#15803d`); é um tom próprio, calculado para esse limite.
+- Correção de layout no mesmo dia: no `ProjectCard`, o selo de desconto estava quebrando para uma terceira linha própria (riscado / selo sozinho / atual + botão), deixando o card mais alto do que devia. Causa: o preço divide a linha com o botão "Ver detalhes"; sobra só ~88px de largura ali, e riscado + selo juntos (~130px) não cabem. Corrigido montando o preço à mão no `ProjectCard` (sem passar pelo `PriceTag`): riscado + selo numa linha cheia (largura do card inteiro, sem disputar espaço com o botão), preço atual ao lado do botão embaixo, como já era antes do desconto existir. `PriceTag` continua igual (selo ao lado do preço atual) nos outros três lugares, onde há espaço de sobra.
+
 ## 2026-09-23 (loading da página de um projeto)
 
 - Corrigido: ao clicar num projeto a partir da home, aparecia por um instante a grade de cards da listagem (`ProjetosSkeleton`) em vez de um "em branco" da própria página. Causa: `/projetos/[slug]` não tinha `loading.tsx` próprio, então herdava o da rota pai `/projetos` (regra do App Router: sem `loading.tsx` no segmento, usa o do ancestral mais próximo).

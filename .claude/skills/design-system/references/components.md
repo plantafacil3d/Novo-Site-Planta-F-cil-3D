@@ -54,8 +54,8 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ### Badge
 
 - **Propósito:** selo sobre a imagem (Mais vendido, Lançamento).
-- **Variantes:** `solid` (preto), `accent` (verde vivo, texto preto), `success` (verde suave, para status como Publicado) e `draft` (cinza com borda, para Rascunho). As duas últimas nasceram no painel do administrador.
-- **Tokens:** `--color-primary`, `--color-accent`, `--color-badge-success-*`, `--color-badge-draft-*`, `--color-draft-border`, `--radius-sm`, `--text-xs`.
+- **Variantes:** `solid` (preto), `accent` (verde vivo, texto preto), `success` (verde suave, para status como Publicado), `draft` (cinza com borda, para Rascunho) e `discount` (verde escuro sólido `--green-700` com texto branco — nasceu porque o verde vivo do `accent` só dá 2,3:1 com texto branco, abaixo do mínimo de acessibilidade; usado só no selo de desconto do `PriceTag`, ex.: "40% OFF"). `success` e `draft` nasceram no painel do administrador.
+- **Tokens:** `--color-primary`, `--color-accent`, `--color-badge-success-*`, `--color-badge-draft-*`, `--color-badge-discount-*`, `--color-draft-border`, `--radius-sm`, `--text-xs`.
 
 ### Eyebrow
 
@@ -186,12 +186,13 @@ Container de seção: título (h2), subtítulo, link "Ver todos" e conteúdo. Va
 
 - **Propósito:** preço com desconto, no padrão "Mercado Livre": preço original riscado acima, preço atual em destaque e um selo verde do desconto (ex.: "40% OFF") ao lado. Sem preço original, mostra só o atual.
 - **Props:** `price`, `originalPrice?`, `discountLabel?`, `priceClassName?` (tamanho do preço atual, na escala tipográfica de onde aparece: `text-lg` no card, `text-3xl` no topo da página), `originalPriceClassName?` (cor do riscado; `text-fg-inverse/70` sobre fundo escuro, como no `CTABanner`).
-- **Tokens:** `--color-fg-muted` (riscado, padrão), `bg-accent`/`text-fg` (selo, via `Badge` `accent`).
-- **Usado em:** `ProjectCard`, `ProjetoHero`, `BarraCompraMobile` e `CTABanner` (`variant="card"`). A montagem do desconto (regra: preço original só existe quando é realmente maior que o atual) fica em `features/projetos/rules.ts` (`exibirPreco`).
+- **Tokens:** `--color-fg-muted` (riscado, padrão), `--color-badge-discount-bg`/`-fg` (selo, via `Badge` `discount`).
+- **Usado em:** `ProjetoHero`, `BarraCompraMobile` e `CTABanner` (`variant="card"`) — nos três, o preço tem a linha só para si (o botão de compra fica abaixo ou numa coluna separada). A montagem do desconto (regra: preço original só existe quando é realmente maior que o atual) fica em `features/projetos/rules.ts` (`exibirPreco`).
+- **Não usado no `ProjectCard`:** ali o preço divide a linha com o botão "Ver detalhes", sem largura para o riscado + selo do `PriceTag` (testado: quebra em 3 linhas). O card monta o preço à mão: riscado + selo numa linha cheia acima (sem disputar espaço com o botão), preço atual ao lado do botão embaixo — mesmos tokens do `PriceTag`, layout diferente.
 
 ### ProjectCard
 
-Card de projeto (ver `ux-rules.md`). Puramente visual: recebe textos e preço já formatados (a montagem fica em `features/projetos/components/ProjetosDestaque`). Compõe Badge, FavoriteButton, `PriceTag`, lista de especificações (ícone + texto) e Button. O card inteiro é um único link (botão "Ver detalhes" esticado); o coração fica acima. **Se ganhar regra de domínio, mova para `features/projetos/components/`.**
+Card de projeto (ver `ux-rules.md`). Puramente visual: recebe textos e preço já formatados (a montagem fica em `features/projetos/components/ProjetosDestaque`). Compõe Badge, FavoriteButton, lista de especificações (ícone + texto) e Button; o preço (com ou sem desconto) é montado com os mesmos tokens do `PriceTag`, mas sem usá-lo — ver nota acima. O card inteiro é um único link (botão "Ver detalhes" esticado); o coração fica acima. **Se ganhar regra de domínio, mova para `features/projetos/components/`.**
 
 ### MediaCard
 

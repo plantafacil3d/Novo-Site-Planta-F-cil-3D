@@ -4,7 +4,6 @@ import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { Icon, type IconName } from '../ui/Icon'
 import { FavoriteButton } from './FavoriteButton'
-import { PriceTag } from './PriceTag'
 
 export type ProjectSpec = { icon: IconName; label: string }
 
@@ -72,16 +71,24 @@ export function ProjectCard({
           ))}
         </ul>
 
-        <div className="mt-auto flex items-end justify-between gap-3 pt-2">
-          <PriceTag price={price} originalPrice={priceOriginal} discountLabel={priceDiscount} />
-          <Button
-            href={href}
-            iconRight="arrow-right"
-            aria-label={`Ver detalhes de ${title}`}
-            className="after:absolute after:inset-0"
-          >
-            Ver detalhes
-          </Button>
+        <div className="mt-auto pt-2">
+          {priceOriginal && (
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <p className="text-sm text-fg-muted line-through">{priceOriginal}</p>
+              {priceDiscount && <Badge variant="discount">{priceDiscount}</Badge>}
+            </div>
+          )}
+          <div className="flex items-end justify-between gap-3">
+            <p className="font-heading text-lg font-bold">{price}</p>
+            <Button
+              href={href}
+              iconRight="arrow-right"
+              aria-label={`Ver detalhes de ${title}`}
+              className="after:absolute after:inset-0"
+            >
+              Ver detalhes
+            </Button>
+          </div>
         </div>
       </div>
     </article>

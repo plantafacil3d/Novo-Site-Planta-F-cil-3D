@@ -9,6 +9,10 @@
 :root {
   --black-900: #0b1410;
   --black-800: #141d20;
+  /* Só para o selo de desconto: texto branco em cima do verde vivo (--green-500) dá 2,3:1, abaixo
+     do mínimo de acessibilidade (4,5:1). Este é o tom mais claro que ainda passa (4,7:1) — a faixa
+     entre "passa" e "não passa" é estreita nesse tom de verde com texto branco. */
+  --green-700: #15853f;
   --green-600: #16a34a;
   --green-500: #22c55e;
   --green-100: #e7f8ec;
@@ -131,6 +135,10 @@
   --color-badge-warning-fg: var(--color-warning-fg);
   --color-badge-info-bg: var(--color-info-subtle);
   --color-badge-info-fg: var(--color-info-fg);
+  /* Selo de desconto (ex.: "40% OFF"): fundo sólido, não o "-subtle" dos outros badges, porque
+     aqui o texto é branco, não o "-fg" escuro do estado. */
+  --color-badge-discount-bg: var(--green-700);
+  --color-badge-discount-fg: var(--white);
 
   /* Atalhos antigos, mantidos para não quebrar o que já usa (ex.: Input invalid). */
   --color-success: var(--color-success-solid);
