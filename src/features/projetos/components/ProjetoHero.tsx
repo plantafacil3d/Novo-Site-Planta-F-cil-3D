@@ -2,6 +2,7 @@ import { useId } from 'react'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { cn } from '@/components/ui/cn'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import { FavoriteButton } from '@/components/shared/FavoriteButton'
 import { FeatureItem } from '@/components/shared/FeatureItem'
@@ -34,7 +35,7 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
   return (
     <section aria-labelledby={headingId} className="mx-auto max-w-content px-4 py-6 md:py-8">
       <div className="grid gap-8 lg:grid-cols-2 xl:grid-cols-12">
-        <div className="xl:col-span-7">
+        <div className="xl:col-span-6">
           <MediaGallery
             images={projeto.galeria.map((item) => item.imagem)}
             video={projeto.video}
@@ -42,7 +43,7 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
           />
         </div>
 
-        <div className="flex flex-col gap-4 xl:col-span-5">
+        <div className="flex flex-col gap-4 xl:col-span-4">
           {projeto.selo && (
             <Badge variant="accent" className="self-start">
               {projeto.selo}
@@ -58,7 +59,7 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
           <h1 id={headingId} className="text-3xl">
             {projeto.titulo}
           </h1>
-          <TextoExpansivel texto={projeto.resumo} limite={280} className="font-medium" />
+          <TextoExpansivel texto={projeto.resumo} limite={140} className="font-medium" />
 
           <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
             {specs.map((spec) => (
@@ -97,15 +98,21 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
             )}
             <FavoriteButton variant="button" label="Adicionar aos favoritos" />
           </div>
-
-          <ul className="grid gap-3 border-t border-border pt-4 sm:grid-cols-3">
-            {selosDeConfianca.map((selo) => (
-              <li key={selo.title}>
-                <FeatureItem layout="stack" className="max-sm:flex-row max-sm:gap-3" {...selo} />
-              </li>
-            ))}
-          </ul>
         </div>
+
+        <ul
+          className={cn(
+            'grid gap-3 border-t border-border sm:grid-cols-3',
+            'lg:col-start-2',
+            'xl:col-span-2 xl:col-start-11 xl:grid-cols-1 xl:content-start xl:rounded-lg xl:border-0 xl:bg-tint xl:p-5',
+          )}
+        >
+          {selosDeConfianca.map((selo) => (
+            <li key={selo.title}>
+              <FeatureItem layout="stack" className="max-sm:flex-row max-sm:gap-3" {...selo} />
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   )

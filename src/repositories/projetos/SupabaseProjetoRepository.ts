@@ -160,18 +160,24 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
   const base = await montarResumo(linha)
   if (!base) return null
 
+  // A foto principal (mesma do card) sempre entra como a 1ª da galeria, pra abrir a página com a
+  // mesma imagem que o cliente já viu na listagem, em vez de uma foto aleatória da galeria.
+  const principal = linha.projeto_arquivos.find((arquivo) => arquivo.papel === 'principal')
+  if (!principal) return null
+
   const galeriaArquivos = linha.projeto_arquivos
-    .filter((arquivo) => arquivo.papel === 'galeria')
+    .filter((arquivo) => arquivo.papel === 'galeria' && arquivo.caminho !== principal.caminho)
     .sort((a, b) => a.ordem - b.ordem)
-  const galeria: ItemGaleria[] = await Promise.all(
+  const restante: ItemGaleria[] = await Promise.all(
     galeriaArquivos.map(async (arquivo, indice) => ({
       id: arquivo.caminho,
       imagem: {
         src: await resolverUrl(arquivo.caminho),
-        alt: `Foto ${indice + 1} do projeto ${linha.titulo}`,
+        alt: `Foto ${indice + 2} do projeto ${linha.titulo}`,
       },
     })),
   )
+  const galeria: ItemGaleria[] = [{ id: principal.caminho, imagem: base.imagem }, ...restante]
 
   return {
     ...base,

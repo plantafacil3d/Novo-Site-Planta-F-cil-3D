@@ -105,8 +105,8 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
               aria-current={thumbIndex === index}
               onClick={() => setIndex(thumbIndex)}
               className={cn(
-                'relative block aspect-4/3 w-full overflow-hidden rounded-md border-2',
-                thumbIndex === index ? 'border-primary' : 'border-transparent',
+                'group relative block aspect-4/3 w-full overflow-hidden rounded-md border-2 transition-colors duration-150 ease-standard',
+                thumbIndex === index ? 'border-primary' : 'border-transparent hover:border-border-strong',
               )}
             >
               <Image
@@ -114,7 +114,7 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
                 alt=""
                 fill
                 sizes="(min-width: 640px) 8vw, 25vw"
-                className="object-cover"
+                className="object-cover transition-transform duration-250 ease-standard group-hover:scale-105"
               />
             </button>
           </li>
@@ -126,16 +126,16 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
               type="button"
               aria-label={`Ver todas as ${total} fotos`}
               onClick={() => setLightboxIndex(MAX_THUMBNAILS)}
-              className="relative block aspect-4/3 w-full overflow-hidden rounded-md text-sm font-semibold text-fg-inverse"
+              className="group relative block aspect-4/3 w-full overflow-hidden rounded-md text-sm font-semibold text-fg-inverse"
             >
               <Image
                 src={firstHidden.src}
                 alt=""
                 fill
                 sizes="(min-width: 640px) 8vw, 25vw"
-                className="object-cover"
+                className="object-cover transition-transform duration-250 ease-standard group-hover:scale-105"
               />
-              <span className="absolute inset-0 flex items-center justify-center bg-inverse/70">
+              <span className="absolute inset-0 flex items-center justify-center bg-inverse/70 transition-colors duration-150 ease-standard group-hover:bg-inverse/60">
                 +{hidden}
               </span>
             </button>
