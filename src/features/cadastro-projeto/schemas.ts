@@ -211,18 +211,52 @@ const schemaImagens = z.object({
       const erro = primeiroErroDeImagem(imagens)
       if (erro) ctx.addIssue({ code: 'custom', message: erro })
     }),
-  plantas: z
-    .array(
-      z.object({
-        ...dadosDoArquivo,
-        nome: textoObrigatorio(LIMITES.plantaNomeMax, 'Dê um nome à planta (ex.: Térreo).'),
-      }),
-    )
-    .min(1, 'Envie pelo menos uma planta.')
-    .superRefine((plantas, ctx) => {
-      const erro = primeiroErroDeImagem(plantas)
+})
+
+// ── 2.1 Planta humanizada (opcional: 0 pavimentos é válido) ───────────────────────────────────────
+
+const schemaItemDaPlanta = z.object({
+  nome: textoObrigatorio(LIMITES.itemDaPlantaNomeMax, 'Dê um nome ao item.'),
+  metragem: z
+    .string()
+    .trim()
+    .refine(
+      (texto) => texto === '' || /^\d{1,4}(,\d{1,2})?$/.test(texto),
+      'Use um número, como 24,36.',
+    ),
+  numeroBolinha: z
+    .string()
+    .trim()
+    .refine((texto) => {
+      if (texto === '') return true
+      const numero = Number(texto)
+      return /^\d{1,3}$/.test(texto) && numero >= 1 && numero <= LIMITES.numeroBolinhaMax
+    }, `Use um número entre 1 e ${LIMITES.numeroBolinhaMax}.`),
+})
+
+const schemaPavimento = z.object({
+  // Pode ficar vazio: sem nome customizado, a tela mostra o padrão pela posição.
+  nome: z
+    .string()
+    .trim()
+    .max(LIMITES.pavimentoNomeMax, maximo(LIMITES.pavimentoNomeMax))
+    .refine(semSimbolos, SEM_SIMBOLOS),
+  imagem: z
+    .object(dadosDoArquivo)
+    .nullable()
+    .superRefine((imagem, ctx) => {
+      const erro = imagem ? primeiroErroDeImagem([imagem]) : 'Envie a imagem deste pavimento.'
       if (erro) ctx.addIssue({ code: 'custom', message: erro })
     }),
+  itens: z
+    .array(schemaItemDaPlanta)
+    .max(LIMITES.itensDaPlantaMax, `Use no máximo ${LIMITES.itensDaPlantaMax} itens.`),
+})
+
+const schemaPlantaHumanizada = z.object({
+  plantaHumanizada: z
+    .array(schemaPavimento)
+    .max(LIMITES.pavimentosMax, `Use no máximo ${LIMITES.pavimentosMax} pavimentos.`),
 })
 
 // ── 3. Características ───────────────────────────────────────────────────────────────────────────
@@ -320,7 +354,7 @@ const schemaEntrega = z
 
 // ── Leitura dos resultados ───────────────────────────────────────────────────────────────────────
 
-/** Primeira mensagem de cada campo; a chave é o caminho (`plantas.0.nome`). */
+/** Primeira mensagem de cada campo; a chave é o caminho (`plantaHumanizada.0.imagem`). */
 function coletarErros(resultado: ReturnType<z.ZodType['safeParse']>): ErrosDaEtapa {
   if (resultado.success) return {}
   const erros: ErrosDaEtapa = {}
@@ -333,6 +367,7 @@ function coletarErros(resultado: ReturnType<z.ZodType['safeParse']>): ErrosDaEta
 const schemasPorEtapa: Record<EtapaId, z.ZodType> = {
   informacoes: schemaInformacoes,
   imagens: schemaImagens,
+  plantaHumanizada: schemaPlantaHumanizada,
   caracteristicas: schemaCaracteristicas,
   itens: schemaItens,
   exemplos: schemaExemplos,
@@ -396,7 +431,25 @@ const schemaPayload = z
     checkoutUrl: linkHttpsOpcional,
     imagemPrincipal: arquivoDoPayload.nullable(),
     imagens: z.array(arquivoDoPayload),
-    plantas: z.array(arquivoDoPayload.extend({ nome: textoLivre(LIMITES.plantaNomeMax) })),
+    plantaHumanizada: z
+      .array(
+        z.object({
+          id: z.uuid(),
+          nome: textoLivre(LIMITES.pavimentoNomeMax),
+          imagem: arquivoDoPayload.nullable(),
+          itens: z
+            .array(
+              z.object({
+                id: z.uuid(),
+                nome: textoLivre(LIMITES.itemDaPlantaNomeMax),
+                metragem: z.string().trim().max(10),
+                numeroBolinha: z.string().trim().max(3),
+              }),
+            )
+            .max(LIMITES.itensDaPlantaMax),
+        }),
+      )
+      .max(LIMITES.pavimentosMax),
     ...Object.fromEntries(
       camposDeCaracteristicas.map((campo) => [campo.chave, campoNumerico(campo, false)]),
     ),

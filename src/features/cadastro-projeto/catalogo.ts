@@ -86,10 +86,11 @@ export const perfisDeTerrenoDoCadastro = [
 /** Faixa aceita para "Família indicada" (aba 1): capacidade de pessoas, vira "Até N pessoas". */
 export const FAMILIA_CAPACIDADE = { min: 1, max: 20 } as const
 
-/** As 7 abas, na ordem do menu. `opcional`: não bloqueia o "Salvar". */
+/** As 8 abas, na ordem do menu. `opcional`: não bloqueia o "Salvar". */
 export const etapasDoCadastro: readonly { id: EtapaId; rotulo: string; opcional: boolean }[] = [
   { id: 'informacoes', rotulo: 'Informações Gerais', opcional: false },
   { id: 'imagens', rotulo: 'Imagens', opcional: false },
+  { id: 'plantaHumanizada', rotulo: 'Planta Humanizada', opcional: true },
   { id: 'caracteristicas', rotulo: 'Características', opcional: false },
   { id: 'itens', rotulo: 'Itens Incluídos', opcional: false },
   { id: 'exemplos', rotulo: 'Arquivos de Exemplo', opcional: true },

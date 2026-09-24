@@ -25,11 +25,14 @@ import {
   listarArquivosDoFormulario,
   listarEmTexto,
   montarPayload,
+  parsearListaColada,
   semSimbolos,
   situacaoDaEtapa,
   somarTamanhos,
+  sugerirProximoNumero,
   formatarTamanho,
   type ArquivoDoFormulario,
+  type LinhaColada,
 } from '../rules'
 import { validarEtapas, validarRascunho } from '../schemas'
 import type {
@@ -39,7 +42,9 @@ import type {
   DadosProjeto,
   EtapaId,
   ImagemProjeto,
+  ItemDaPlanta,
   ModoSalvar,
+  PavimentoProjeto,
   SituacaoDaEtapa,
 } from '../types'
 
@@ -63,7 +68,7 @@ type ChaveDeTexto = {
   [K in keyof DadosProjeto]: DadosProjeto[K] extends string ? K : never
 }[keyof DadosProjeto]
 
-type CampoDeImagem = 'imagemPrincipal' | 'imagens' | 'plantas'
+type CampoDeImagem = 'imagemPrincipal' | 'imagens'
 
 const novoId = () => crypto.randomUUID()
 
@@ -71,6 +76,13 @@ const metadados = (arquivo: File) => ({
   nomeArquivo: arquivo.name,
   tamanho: arquivo.size,
   tipo: arquivo.type,
+})
+
+const novoItemVazio = (itens: readonly ItemDaPlanta[]): ItemDaPlanta => ({
+  id: novoId(),
+  nome: '',
+  metragem: '',
+  numeroBolinha: sugerirProximoNumero(itens),
 })
 
 /**
@@ -93,6 +105,11 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
   const [salvando, setSalvando] = useState<ModoSalvar | null>(null)
   const [avisosDeArquivo, setAvisosDeArquivo] = useState<Record<string, string[]>>({})
   const [complementarNovo, setComplementarNovo] = useState<string | null>(null)
+  /** Prévia do "Colar lista" (aba Planta Humanizada), esperando o usuário confirmar. */
+  const [previaColada, setPreviaColada] = useState<{
+    pavimentoId: string
+    linhas: LinhaColada[]
+  } | null>(null)
   const urlsDePrevia = useRef(new Set<string>())
 
   // Libera da memória as prévias locais das imagens ao sair da tela.
@@ -240,11 +257,8 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
 
     if (chave === 'imagemPrincipal') {
       atualizar({ imagemPrincipal: aceitas[0] })
-    } else if (chave === 'imagens') {
-      setDados((atual) => ({ ...atual, imagens: [...atual.imagens, ...aceitas] }))
     } else {
-      const plantas = aceitas.map((imagem) => ({ ...imagem, nome: '' }))
-      setDados((atual) => ({ ...atual, plantas: [...atual.plantas, ...plantas] }))
+      setDados((atual) => ({ ...atual, imagens: [...atual.imagens, ...aceitas] }))
     }
   }
 
@@ -261,15 +275,6 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     }
     guardarAvisosDeArquivo(chave, [])
     tocar(chave)
-  }
-
-  function atualizarNomeDaPlanta(id: string, nome: string) {
-    setDados((atual) => ({
-      ...atual,
-      plantas: atual.plantas.map((planta) =>
-        planta.id === id ? { ...planta, nome: semSimbolos(nome) } : planta,
-      ),
-    }))
   }
 
   /** Arquivos da entrega (PDF, ZIP, RAR): a soma deles não pode passar de 20 MB. */
@@ -307,6 +312,229 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     }))
     guardarAvisosDeArquivo('entregaArquivos', [])
     tocar('entregaArquivos')
+  }
+
+  // ── Planta humanizada ────────────────────────────────────────────────────────────────────────
+
+  function indiceDoPavimento(id: string) {
+    return dados.plantaHumanizada.findIndex((pavimento) => pavimento.id === id)
+  }
+
+  function adicionarPavimento() {
+    const novo: PavimentoProjeto = { id: novoId(), nome: '', imagem: null, itens: [] }
+    setDados((atual) => ({ ...atual, plantaHumanizada: [...atual.plantaHumanizada, novo] }))
+  }
+
+  /** Nome vazio volta ao padrão calculado pela posição — não guarda flag nenhuma para isso. */
+  function renomearPavimento(id: string, nome: string) {
+    setDados((atual) => ({
+      ...atual,
+      plantaHumanizada: atual.plantaHumanizada.map((pavimento) =>
+        pavimento.id === id ? { ...pavimento, nome: semSimbolos(nome) } : pavimento,
+      ),
+    }))
+  }
+
+  /** Copia a imagem (reenviando os bytes se ela já estava salva no servidor) e os itens; o nome
+   *  nasce vazio, pega o padrão da nova posição, em vez de repetir o nome do original. */
+  async function duplicarPavimento(id: string) {
+    const original = dados.plantaHumanizada.find((pavimento) => pavimento.id === id)
+    if (!original) return
+
+    let imagem: ImagemProjeto | null = null
+    if (original.imagem) {
+      let arquivoLocal = original.imagem.arquivo
+      if (!arquivoLocal) {
+        try {
+          const resposta = await fetch(original.imagem.url)
+          const blob = await resposta.blob()
+          arquivoLocal = new File([blob], original.imagem.nomeArquivo, {
+            type: original.imagem.tipo,
+          })
+        } catch {
+          arquivoLocal = undefined
+        }
+      }
+      if (arquivoLocal) {
+        imagem = {
+          id: novoId(),
+          ...metadados(arquivoLocal),
+          arquivo: arquivoLocal,
+          url: criarPrevia(arquivoLocal),
+        }
+      }
+    }
+
+    const novo: PavimentoProjeto = {
+      id: novoId(),
+      nome: '',
+      imagem,
+      itens: original.itens.map((item) => ({ ...item, id: novoId() })),
+    }
+    setDados((atual) => ({ ...atual, plantaHumanizada: [...atual.plantaHumanizada, novo] }))
+  }
+
+  function removerPavimento(id: string) {
+    const pavimento = dados.plantaHumanizada.find((item) => item.id === id)
+    if (pavimento?.imagem) liberarPrevia(pavimento.imagem.url)
+    setDados((atual) => ({
+      ...atual,
+      plantaHumanizada: atual.plantaHumanizada.filter((item) => item.id !== id),
+    }))
+    // Os erros são guardados pela posição do cartão; depois de remover um, as posições mudam.
+    esquecerToques('plantaHumanizada.')
+    guardarAvisosDeArquivo(`pavimento-${id}`, [])
+  }
+
+  function reordenarPavimentos(idOrigem: string, idDestino: string) {
+    if (idOrigem === idDestino) return
+    setDados((atual) => {
+      const pavimentos = [...atual.plantaHumanizada]
+      const origem = pavimentos.findIndex((pavimento) => pavimento.id === idOrigem)
+      const destino = pavimentos.findIndex((pavimento) => pavimento.id === idDestino)
+      if (origem === -1 || destino === -1) return atual
+      const [movido] = pavimentos.splice(origem, 1)
+      if (!movido) return atual
+      pavimentos.splice(destino, 0, movido)
+      return { ...atual, plantaHumanizada: pavimentos }
+    })
+  }
+
+  function enviarImagemDoPavimento(pavimentoId: string, arquivos: File[]) {
+    const arquivo = arquivos[0]
+    if (!arquivo) return
+    const erro = erroDeImagem(metadados(arquivo))
+    guardarAvisosDeArquivo(`pavimento-${pavimentoId}`, erro ? [`${arquivo.name}: ${erro}`] : [])
+    if (erro) return
+    const nova: ImagemProjeto = {
+      id: novoId(),
+      ...metadados(arquivo),
+      arquivo,
+      url: criarPrevia(arquivo),
+    }
+    setDados((atual) => ({
+      ...atual,
+      plantaHumanizada: atual.plantaHumanizada.map((pavimento) =>
+        pavimento.id === pavimentoId ? { ...pavimento, imagem: nova } : pavimento,
+      ),
+    }))
+  }
+
+  function removerImagemDoPavimento(pavimentoId: string) {
+    const pavimento = dados.plantaHumanizada.find((item) => item.id === pavimentoId)
+    if (pavimento?.imagem) liberarPrevia(pavimento.imagem.url)
+    setDados((atual) => ({
+      ...atual,
+      plantaHumanizada: atual.plantaHumanizada.map((item) =>
+        item.id === pavimentoId ? { ...item, imagem: null } : item,
+      ),
+    }))
+    guardarAvisosDeArquivo(`pavimento-${pavimentoId}`, [])
+  }
+
+  /** Novo item nasce com o próximo número de bolinha sugerido; o foco vai para o nome dele. */
+  function adicionarItemDaPlanta(pavimentoId: string) {
+    const pavimento = dados.plantaHumanizada.find((item) => item.id === pavimentoId)
+    if (!pavimento) return
+    const indiceDoPavimentoAtual = indiceDoPavimento(pavimentoId)
+    const indiceDoItem = pavimento.itens.length
+    setDados((atual) => ({
+      ...atual,
+      plantaHumanizada: atual.plantaHumanizada.map((item) =>
+        item.id === pavimentoId
+          ? { ...item, itens: [...item.itens, novoItemVazio(item.itens)] }
+          : item,
+      ),
+    }))
+    focarCampo(`plantaHumanizada.${indiceDoPavimentoAtual}.itens.${indiceDoItem}.nome`)
+  }
+
+  function atualizarItemDaPlanta(
+    pavimentoId: string,
+    itemId: string,
+    patch: Partial<Omit<ItemDaPlanta, 'id'>>,
+  ) {
+    const limpo = {
+      ...patch,
+      ...(patch.nome !== undefined ? { nome: semSimbolos(patch.nome) } : {}),
+    }
+    setDados((atual) => ({
+      ...atual,
+      plantaHumanizada: atual.plantaHumanizada.map((pavimento) =>
+        pavimento.id === pavimentoId
+          ? {
+              ...pavimento,
+              itens: pavimento.itens.map((item) =>
+                item.id === itemId ? { ...item, ...limpo } : item,
+              ),
+            }
+          : pavimento,
+      ),
+    }))
+  }
+
+  function removerItemDaPlanta(pavimentoId: string, itemId: string) {
+    setDados((atual) => ({
+      ...atual,
+      plantaHumanizada: atual.plantaHumanizada.map((pavimento) =>
+        pavimento.id === pavimentoId
+          ? { ...pavimento, itens: pavimento.itens.filter((item) => item.id !== itemId) }
+          : pavimento,
+      ),
+    }))
+  }
+
+  function reordenarItensDaPlanta(pavimentoId: string, idOrigem: string, idDestino: string) {
+    if (idOrigem === idDestino) return
+    setDados((atual) => ({
+      ...atual,
+      plantaHumanizada: atual.plantaHumanizada.map((pavimento) => {
+        if (pavimento.id !== pavimentoId) return pavimento
+        const itens = [...pavimento.itens]
+        const origem = itens.findIndex((item) => item.id === idOrigem)
+        const destino = itens.findIndex((item) => item.id === idDestino)
+        if (origem === -1 || destino === -1) return pavimento
+        const [movido] = itens.splice(origem, 1)
+        if (!movido) return pavimento
+        itens.splice(destino, 0, movido)
+        return { ...pavimento, itens }
+      }),
+    }))
+  }
+
+  /** Prévia do "Colar lista", para o usuário confirmar antes de os itens entrarem de fato. */
+  function colarListaDeItens(pavimentoId: string, texto: string) {
+    const linhas = parsearListaColada(texto)
+    setPreviaColada(linhas.length > 0 ? { pavimentoId, linhas } : null)
+  }
+
+  function cancelarListaColada() {
+    setPreviaColada(null)
+  }
+
+  function confirmarListaColada() {
+    if (!previaColada) return
+    const { pavimentoId, linhas } = previaColada
+    setDados((atual) => ({
+      ...atual,
+      plantaHumanizada: atual.plantaHumanizada.map((pavimento) => {
+        if (pavimento.id !== pavimentoId) return pavimento
+        let itens = pavimento.itens
+        for (const linha of linhas) {
+          itens = [
+            ...itens,
+            {
+              id: novoId(),
+              nome: linha.nome,
+              metragem: linha.metragem,
+              numeroBolinha: sugerirProximoNumero(itens),
+            },
+          ]
+        }
+        return { ...pavimento, itens }
+      }),
+    }))
+    setPreviaColada(null)
   }
 
   // ── Complementares ───────────────────────────────────────────────────────────────────────────
@@ -401,7 +629,7 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     arquivo,
     ordem,
     complementarId,
-    rotulo,
+    pavimentoId,
   }: ArquivoDoFormulario<ArquivoEscolhido>) => ({
     id: arquivo.id,
     papel,
@@ -409,7 +637,7 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     tamanho: arquivo.tamanho,
     tipo: arquivo.tipo,
     complementarId,
-    rotulo,
+    pavimentoId,
     ordem,
   })
 
@@ -597,7 +825,21 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     avisosDeArquivo,
     enviarImagens,
     removerImagem,
-    atualizarNomeDaPlanta,
+    adicionarPavimento,
+    renomearPavimento,
+    duplicarPavimento,
+    removerPavimento,
+    reordenarPavimentos,
+    enviarImagemDoPavimento,
+    removerImagemDoPavimento,
+    adicionarItemDaPlanta,
+    atualizarItemDaPlanta,
+    removerItemDaPlanta,
+    reordenarItensDaPlanta,
+    previaColada,
+    colarListaDeItens,
+    cancelarListaColada,
+    confirmarListaColada,
     enviarArquivosDeEntrega,
     removerArquivoDeEntrega,
     adicionarComplementar,

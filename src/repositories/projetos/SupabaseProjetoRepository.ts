@@ -7,8 +7,10 @@ import {
   type ConsultaProjetos,
   type Diferencial,
   type ItemGaleria,
+  type ItemInformacaoPavimento,
   type LimitesDeFiltro,
   type OrdenacaoProjetos,
+  type PavimentoPublico,
   type Projeto,
   type ProjetoDetalhe,
 } from '@/features/projetos'
@@ -71,11 +73,29 @@ const COLUNAS_DETALHE =
   'vagas, pavimentos, piscina, area_gourmet, ' +
   'checkout_url, resumo, descricao, ambientes, indicado_para, aplicacoes, ' +
   'perfil_terreno, familia_capacidade, itens, video_url, ' +
-  'projeto_arquivos (caminho, papel, ordem)'
+  'projeto_arquivos (caminho, papel, ordem, pavimento_id), ' +
+  'projeto_pavimentos (id, nome, ordem, pavimento_itens (id, nome, metragem_m2, numero_bolinha, ordem))'
 
 type LinhaLimite = { preco_efetivo_centavos: number; area_construida_m2: number | null }
 
-type LinhaDetalhe = LinhaResumo & {
+type LinhaArquivoDetalhe = LinhaArquivo & { pavimento_id: string | null }
+
+type LinhaPavimento = {
+  id: string
+  nome: string | null
+  ordem: number
+  pavimento_itens: {
+    id: string
+    nome: string
+    metragem_m2: number | null
+    numero_bolinha: number | null
+    ordem: number
+  }[]
+}
+
+type LinhaDetalhe = Omit<LinhaResumo, 'projeto_arquivos'> & {
+  projeto_arquivos: LinhaArquivoDetalhe[]
+  projeto_pavimentos: LinhaPavimento[]
   checkout_url: string | null
   resumo: string | null
   descricao: string | null
@@ -179,6 +199,40 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
   )
   const galeria: ItemGaleria[] = [{ id: principal.caminho, imagem: base.imagem }, ...restante]
 
+  // Só entram pavimentos com imagem gravada (a publicação já exige isso; defensivo contra estado
+  // inconsistente, no mesmo espírito de `principal` acima).
+  const plantaHumanizada: PavimentoPublico[] = (
+    await Promise.all(
+      linha.projeto_pavimentos
+        .slice()
+        .sort((a, b) => a.ordem - b.ordem)
+        .map(async (pavimento, indice): Promise<PavimentoPublico | null> => {
+          const arquivo = linha.projeto_arquivos.find(
+            (item) => item.papel === 'planta' && item.pavimento_id === pavimento.id,
+          )
+          if (!arquivo) return null
+          // Mesmo padrão de `nomePadraoPavimento` (cadastro-projeto/rules.ts): nulo = sem nome
+          // customizado, mostra o padrão calculado pela posição.
+          const nome = pavimento.nome ?? `Pavimento ${indice + 1}`
+          const itens: ItemInformacaoPavimento[] = pavimento.pavimento_itens
+            .slice()
+            .sort((a, b) => a.ordem - b.ordem)
+            .map((item) => ({
+              id: item.id,
+              nome: item.nome,
+              metragemM2: item.metragem_m2,
+              numeroBolinha: item.numero_bolinha,
+            }))
+          return {
+            id: pavimento.id,
+            nome,
+            imagem: { src: await resolverUrl(arquivo.caminho), alt: `Planta: ${nome}` },
+            itens,
+          }
+        }),
+    )
+  ).filter((pavimento): pavimento is PavimentoPublico => pavimento !== null)
+
   return {
     ...base,
     categoriaRotulo: linha.categoria ?? '',
@@ -191,6 +245,7 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
       aplicacoes: linha.aplicacoes ?? '',
     },
     galeria,
+    plantaHumanizada,
     video: linha.video_url ? { src: linha.video_url } : undefined,
     itensInclusos: linha.itens,
     perfil: {

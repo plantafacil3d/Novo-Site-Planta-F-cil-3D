@@ -16,6 +16,7 @@ import { EtapaEntrega } from './EtapaEntrega'
 import { EtapaImagens } from './EtapaImagens'
 import { EtapaInformacoesGerais } from './EtapaInformacoesGerais'
 import { EtapaItensIncluidos } from './EtapaItensIncluidos'
+import { EtapaPlantaHumanizada } from './EtapaPlantaHumanizada'
 
 type FormularioProjetoProps = {
   /** Projeto para editar: o formulário já vem preenchido. Sem ele, cadastro novo, tudo vazio. */
@@ -52,6 +53,7 @@ export function FormularioProjeto({
   const conteudos: Record<EtapaId, ReactNode> = {
     informacoes: <EtapaInformacoesGerais form={form} />,
     imagens: <EtapaImagens form={form} />,
+    plantaHumanizada: <EtapaPlantaHumanizada form={form} />,
     caracteristicas: <EtapaCaracteristicas form={form} />,
     itens: <EtapaItensIncluidos form={form} />,
     exemplos: (

@@ -16,8 +16,11 @@ import type {
   EtapaId,
   ErrosDaEtapa,
   ImagemProjeto,
+  ItemDaPlanta,
   MetaArquivo,
   PapelDoArquivo,
+  PavimentoGravavel,
+  PavimentoProjeto,
   PayloadProjeto,
   SimNao,
   SituacaoDaEtapa,
@@ -38,9 +41,15 @@ export const LIMITES = {
   tagsMax: 10,
   tagTamanhoMax: 30,
   linkMax: 500,
-  plantaNomeMax: 60,
   itemMax: 100,
   itensMax: 100,
+  pavimentoNomeMax: 60,
+  pavimentosMax: 30,
+  itemDaPlantaNomeMax: 80,
+  itensDaPlantaMax: 60,
+  /** Metragem de um item da planta, em m². */
+  metragemMax: 9999,
+  numeroBolinhaMax: 999,
   complementarTituloMax: 80,
   complementarDescricaoMin: 10,
   complementarDescricaoMax: 300,
@@ -253,7 +262,7 @@ export function dadosVazios(): DadosProjeto {
     checkoutUrl: '',
     imagemPrincipal: null,
     imagens: [],
-    plantas: [],
+    plantaHumanizada: [],
     larguraTerreno: '',
     profundidadeTerreno: '',
     areaConstruida: '',
@@ -278,6 +287,7 @@ export function dadosVazios(): DadosProjeto {
 function temConteudo(etapa: EtapaId, dados: DadosProjeto): boolean {
   if (etapa === 'exemplos') return dados.arquivosExemplo.length > 0
   if (etapa === 'complementares') return dados.complementares.length > 0
+  if (etapa === 'plantaHumanizada') return dados.plantaHumanizada.length > 0
   return true
 }
 
@@ -298,7 +308,7 @@ export function listarEmTexto(nomes: readonly string[]): string {
   return `${nomes.slice(0, -1).join(', ')} e ${nomes[nomes.length - 1]}`
 }
 
-/** Id do elemento HTML de um campo, a partir da chave do erro (`plantas.0.nome` → `campo-plantas-0-nome`). */
+/** Id do elemento HTML de um campo, a partir da chave do erro (`titulo` → `campo-titulo`). */
 export const idDoCampo = (chave: string) => `campo-${chave.replaceAll('.', '-')}`
 
 // ── Arquivos por papel ───────────────────────────────────────────────────────────────────────────
@@ -350,7 +360,7 @@ export { formatoConfere } from '@/services/upload/assinaturas'
 type FontesDeArquivo<A extends MetaArquivo & { id: string }> = {
   imagemPrincipal: A | null
   imagens: A[]
-  plantas: (A & { nome: string })[]
+  plantaHumanizada: { id: string; imagem: A | null }[]
   entregaArquivos: A[]
   complementares: { id: string; pdf: A | null }[]
 }
@@ -358,11 +368,11 @@ type FontesDeArquivo<A extends MetaArquivo & { id: string }> = {
 export type ArquivoDoFormulario<A> = {
   papel: PapelDoArquivo
   arquivo: A
-  /** Posição dentro da própria lista (imagens, plantas...). */
+  /** Posição dentro da própria lista (imagens, pavimentos...). */
   ordem: number
   complementarId: string | null
-  /** Nome que o cliente vê (só as plantas). */
-  rotulo: string | null
+  /** Pavimento a que a imagem pertence (só o papel `planta`). */
+  pavimentoId: string | null
 }
 
 /** Todos os arquivos do projeto, cada um com o papel, a posição e o vínculo. */
@@ -374,21 +384,21 @@ export function listarArquivosDoFormulario<A extends MetaArquivo & { id: string 
     papel: PapelDoArquivo,
     arquivo: A,
     ordem: number,
-    extra?: { complementarId?: string; rotulo?: string },
+    extra?: { complementarId?: string; pavimentoId?: string },
   ) =>
     lista.push({
       papel,
       arquivo,
       ordem,
       complementarId: extra?.complementarId ?? null,
-      rotulo: extra?.rotulo ?? null,
+      pavimentoId: extra?.pavimentoId ?? null,
     })
 
   if (dados.imagemPrincipal) incluir('principal', dados.imagemPrincipal, 0)
   dados.imagens.forEach((imagem, indice) => incluir('galeria', imagem, indice))
-  dados.plantas.forEach((planta, indice) =>
-    incluir('planta', planta, indice, { rotulo: planta.nome }),
-  )
+  dados.plantaHumanizada.forEach((pavimento, indice) => {
+    if (pavimento.imagem) incluir('planta', pavimento.imagem, indice, { pavimentoId: pavimento.id })
+  })
   dados.entregaArquivos.forEach((anexo, indice) => incluir('entrega', anexo, indice))
   dados.complementares.forEach((complementar) => {
     if (complementar.pdf) {
@@ -417,7 +427,10 @@ export function montarPayload(dados: DadosProjeto, salvos: ReadonlySet<string>):
     ...dados,
     imagemPrincipal: dados.imagemPrincipal ? doPayload(dados.imagemPrincipal) : null,
     imagens: dados.imagens.map(doPayload),
-    plantas: dados.plantas.map((planta) => ({ ...doPayload(planta), nome: planta.nome })),
+    plantaHumanizada: dados.plantaHumanizada.map((pavimento) => ({
+      ...pavimento,
+      imagem: pavimento.imagem ? doPayload(pavimento.imagem) : null,
+    })),
     entregaArquivos: dados.entregaArquivos.map(doPayload),
     complementares: dados.complementares.map((complementar) => ({
       ...complementar,
@@ -432,7 +445,6 @@ export function arquivosQueFaltam(estado: EstadoParaPublicar): string[] {
   const faltas: string[] = []
   if (!tem('principal')) faltas.push('a imagem principal')
   if (!tem('galeria')) faltas.push('as imagens do projeto')
-  if (!tem('planta')) faltas.push('as plantas')
   if (!tem('entrega') && !estado.entregaLink) faltas.push('os arquivos da entrega')
   const semPdf = estado.complementares.some(
     (complementar) =>
@@ -443,7 +455,54 @@ export function arquivosQueFaltam(estado: EstadoParaPublicar): string[] {
       ),
   )
   if (semPdf) faltas.push('o PDF de um complementar')
+  const semImagem = estado.plantaHumanizada.some(
+    (pavimento) =>
+      !estado.arquivos.some(
+        (arquivo) => arquivo.papel === 'planta' && arquivo.pavimentoId === pavimento.id,
+      ),
+  )
+  if (semImagem) faltas.push('a imagem de um pavimento da Planta Humanizada')
   return faltas
+}
+
+// ── Planta humanizada ───────────────────────────────────────────────────────────────────────────
+
+/** Nome padrão de um pavimento pela posição (1-indexado): "Pavimento 1", "Pavimento 2"... */
+export const nomePadraoPavimento = (indice: number) => `Pavimento ${indice + 1}`
+
+/** Próximo número de bolinha sugerido: o maior já usado nos itens do pavimento, mais um. */
+export function sugerirProximoNumero(itens: readonly ItemDaPlanta[]): string {
+  const usados = itens
+    .map((item) => Number(item.numeroBolinha))
+    .filter((numero) => Number.isInteger(numero) && numero > 0)
+  const proximo = usados.length > 0 ? Math.max(...usados) + 1 : 1
+  return proximo <= LIMITES.numeroBolinhaMax ? String(proximo) : ''
+}
+
+/** Uma linha entendida do texto colado: nome e, se achou um número no fim da linha, a metragem. */
+export type LinhaColada = { nome: string; metragem: string }
+
+// Nome + um número no fim (vírgula ou ponto decimal), opcionalmente seguido de "m²"/"m2".
+const LINHA_COLADA_REGEX = /^(.*?)[\s:-]+(\d{1,4}(?:[.,]\d{1,2})?)\s*(?:m[²2])?$/i
+
+/**
+ * Lê o texto colado no "Colar lista" (uma linha por item, ex.: "Sala 24,36") e devolve uma prévia
+ * para o usuário confirmar antes de adicionar. Linha sem número reconhecível vira só um nome (ex.:
+ * título de um grupo, como "Área externa"); linhas em branco são ignoradas.
+ */
+export function parsearListaColada(texto: string): LinhaColada[] {
+  return texto
+    .split('\n')
+    .map((linha) => linha.trim())
+    .filter((linha) => linha !== '')
+    .map((linha) => {
+      const encontrado = linha.match(LINHA_COLADA_REGEX)
+      const nome = encontrado?.[1]
+      const numero = encontrado?.[2]
+      if (!nome || !numero) return { nome: semSimbolos(linha), metragem: '' }
+      return { nome: semSimbolos(nome.trim()), metragem: numero.replace('.', ',') }
+    })
+    .filter((linha) => linha.nome !== '')
 }
 
 // ── Gravação ─────────────────────────────────────────────────────────────────────────────────────
@@ -503,6 +562,23 @@ export function montarComplementares(dados: DadosValidaveis): ComplementarGravav
   }))
 }
 
+/** Dados dos pavimentos (aba "Planta Humanizada") já conferidos, no formato do banco. A imagem de
+ *  cada um viaja à parte, pelo mesmo caminho dos outros arquivos (`listarArquivosDoFormulario`). */
+export function montarPavimentos(dados: DadosValidaveis): PavimentoGravavel[] {
+  return dados.plantaHumanizada.map((pavimento, indice) => ({
+    id: pavimento.id,
+    nome: textoOuNulo(pavimento.nome),
+    ordem: indice,
+    itens: pavimento.itens.map((item, indiceDoItem) => ({
+      id: item.id,
+      nome: item.nome.trim(),
+      metragemM2: lerNumero(item.metragem),
+      numeroBolinha: item.numeroBolinha.trim() === '' ? null : Number(item.numeroBolinha),
+      ordem: indiceDoItem,
+    })),
+  }))
+}
+
 // ── Edição (banco → formulário) ─────────────────────────────────────────────────────────────────
 
 /** Inverso de `lerPrecoEmCentavos`: 129990 → "1299,90". */
@@ -551,6 +627,29 @@ export function paraDadosProjeto(
     )
 
   const principal = doPapel('principal')[0]
+  const imagemDoPavimento = (pavimentoId: string) =>
+    doPapel('planta').find((arquivo) => arquivo.pavimentoId === pavimentoId)
+
+  const pavimentos: PavimentoProjeto[] = cadastro.plantaHumanizada
+    .slice()
+    .sort((a, b) => a.ordem - b.ordem)
+    .map((pavimento) => {
+      const imagem = imagemDoPavimento(pavimento.id)
+      return {
+        id: pavimento.id,
+        nome: pavimento.nome ?? '',
+        imagem: imagem ? paraImagem(imagem, urlDoArquivo(imagem)) : null,
+        itens: pavimento.itens
+          .slice()
+          .sort((a, b) => a.ordem - b.ordem)
+          .map((item): ItemDaPlanta => ({
+            id: item.id,
+            nome: item.nome,
+            metragem: numeroParaTexto(item.metragemM2),
+            numeroBolinha: item.numeroBolinha === null ? '' : String(item.numeroBolinha),
+          })),
+      }
+    })
 
   const complementares: ComplementarProjeto[] = cadastro.complementares
     .slice()
@@ -587,10 +686,7 @@ export function paraDadosProjeto(
     checkoutUrl: cadastro.checkoutUrl ?? '',
     imagemPrincipal: principal ? paraImagem(principal, urlDoArquivo(principal)) : null,
     imagens: doPapel('galeria').map((arquivo) => paraImagem(arquivo, urlDoArquivo(arquivo))),
-    plantas: doPapel('planta').map((arquivo) => ({
-      ...paraImagem(arquivo, urlDoArquivo(arquivo)),
-      nome: arquivo.rotulo ?? '',
-    })),
+    plantaHumanizada: pavimentos,
     larguraTerreno: numeroParaTexto(cadastro.larguraM),
     profundidadeTerreno: numeroParaTexto(cadastro.profundidadeM),
     areaConstruida: numeroParaTexto(cadastro.areaConstruidaM2),

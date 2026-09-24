@@ -15,8 +15,11 @@ import type {
   CadastroGravavel,
   ComplementarGravavel,
   EstadoParaPublicar,
+  ItemDaPlantaGravavel,
   NovoArquivoProjeto,
   PapelDoArquivo,
+  PavimentoDoBanco,
+  PavimentoGravavel,
   ProjetoCriado,
 } from '@/features/cadastro-projeto'
 import { criarClienteServidor } from '@/lib/supabase/server'
@@ -120,10 +123,20 @@ function paraColunasDoComplementar(complementar: ComplementarGravavel) {
   }
 }
 
+function paraColunasDoItemDaPlanta(item: ItemDaPlantaGravavel) {
+  return {
+    nome: item.nome,
+    metragem_m2: item.metragemM2,
+    numero_bolinha: item.numeroBolinha,
+    ordem: item.ordem,
+  }
+}
+
 type LinhaDeArquivo = {
   id: string
   papel: PapelDoArquivo
   complementar_id: string | null
+  pavimento_id: string | null
   caminho: string
   tamanho_bytes: number
 }
@@ -138,7 +151,12 @@ type LinhaDeArquivoDeProjeto = {
 type LinhaParaPublicar = {
   entrega_link: string | null
   projeto_complementares: { id: string; entrega: 'link' | 'pdf' | null }[]
-  projeto_arquivos: { papel: PapelDoArquivo; complementar_id: string | null }[]
+  projeto_pavimentos: { id: string }[]
+  projeto_arquivos: {
+    papel: PapelDoArquivo
+    complementar_id: string | null
+    pavimento_id: string | null
+  }[]
 }
 
 /** Colunas de `CadastroGravavel` + `id`, para a tela de edição. */
@@ -148,7 +166,8 @@ const COLUNAS_DO_CADASTRO_COMPLETO =
   'largura_m, profundidade_m, area_construida_m2, quartos, suites, ' +
   'suite_master, banheiros, lavabo, vagas, pavimentos, piscina, area_gourmet, itens, entrega_link, ' +
   'projeto_complementares (id, titulo, valor_centavos, descricao, entrega, link, ordem), ' +
-  'projeto_arquivos (id, papel, complementar_id, caminho, nome_original, rotulo, tamanho_bytes, tipo_mime, ordem), ' +
+  'projeto_pavimentos (id, nome, ordem, pavimento_itens (id, nome, metragem_m2, numero_bolinha, ordem)), ' +
+  'projeto_arquivos (id, papel, complementar_id, pavimento_id, caminho, nome_original, tamanho_bytes, tipo_mime, ordem), ' +
   'projeto_arquivos_exemplo (arquivo_id)'
 
 type LinhaCadastroCompleto = {
@@ -193,13 +212,25 @@ type LinhaCadastroCompleto = {
     link: string | null
     ordem: number
   }[]
+  projeto_pavimentos: {
+    id: string
+    nome: string | null
+    ordem: number
+    pavimento_itens: {
+      id: string
+      nome: string
+      metragem_m2: number | null
+      numero_bolinha: number | null
+      ordem: number
+    }[]
+  }[]
   projeto_arquivos: {
     id: string
     papel: PapelDoArquivo
     complementar_id: string | null
+    pavimento_id: string | null
     caminho: string
     nome_original: string
-    rotulo: string | null
     tamanho_bytes: number
     tipo_mime: string
     ordem: number
@@ -250,13 +281,25 @@ function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoB
       link: complementar.link,
       ordem: complementar.ordem,
     })),
+    plantaHumanizada: linha.projeto_pavimentos.map((pavimento): PavimentoDoBanco => ({
+      id: pavimento.id,
+      nome: pavimento.nome,
+      ordem: pavimento.ordem,
+      itens: pavimento.pavimento_itens.map((item) => ({
+        id: item.id,
+        nome: item.nome,
+        metragemM2: item.metragem_m2,
+        numeroBolinha: item.numero_bolinha,
+        ordem: item.ordem,
+      })),
+    })),
     arquivos: linha.projeto_arquivos.map((arquivo) => ({
       id: arquivo.id,
       papel: arquivo.papel,
       complementarId: arquivo.complementar_id,
+      pavimentoId: arquivo.pavimento_id,
       caminho: arquivo.caminho,
       nomeOriginal: arquivo.nome_original,
-      rotulo: arquivo.rotulo,
       tamanhoBytes: arquivo.tamanho_bytes,
       tipoMime: arquivo.tipo_mime,
       ordem: arquivo.ordem,
@@ -431,6 +474,114 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
     )
   }
 
+  /** Sincroniza os itens de UM pavimento (mesmo padrão de `sincronizarComplementares`, um nível
+   *  abaixo). Chamado para cada pavimento por `sincronizarPavimentos`. */
+  private async sincronizarItensDaPlanta(
+    pavimentoId: string,
+    itens: ItemDaPlantaGravavel[],
+  ): Promise<void> {
+    const supabase = await criarClienteServidor()
+
+    const { data: existentes, error: erroDaBusca } = await supabase
+      .from('pavimento_itens')
+      .select('id')
+      .eq('pavimento_id', pavimentoId)
+      .overrideTypes<{ id: string }[], { merge: false }>()
+    if (erroDaBusca) throw traduzir(erroDaBusca)
+
+    const idsExistentes = new Set(existentes.map((linha) => linha.id))
+    const idsNovos = new Set(itens.map((item) => item.id))
+
+    const sobrando = [...idsExistentes].filter((id) => !idsNovos.has(id))
+    if (sobrando.length > 0) {
+      const { error } = await supabase
+        .from('pavimento_itens')
+        .delete()
+        .eq('pavimento_id', pavimentoId)
+        .in('id', sobrando)
+      if (error) throw traduzir(error)
+    }
+
+    const paraCriar = itens.filter((item) => !idsExistentes.has(item.id))
+    if (paraCriar.length > 0) {
+      const { error } = await supabase.from('pavimento_itens').insert(
+        paraCriar.map((item) => ({
+          id: item.id,
+          pavimento_id: pavimentoId,
+          ...paraColunasDoItemDaPlanta(item),
+        })),
+      )
+      if (error) throw traduzir(error)
+    }
+
+    await Promise.all(
+      itens
+        .filter((item) => idsExistentes.has(item.id))
+        .map(async (item) => {
+          const { error } = await supabase
+            .from('pavimento_itens')
+            .update(paraColunasDoItemDaPlanta(item))
+            .eq('id', item.id)
+            .eq('pavimento_id', pavimentoId)
+          if (error) throw traduzir(error)
+        }),
+    )
+  }
+
+  async sincronizarPavimentos(projetoId: string, pavimentos: PavimentoGravavel[]): Promise<void> {
+    const supabase = await criarClienteServidor()
+
+    const { data: existentes, error: erroDaBusca } = await supabase
+      .from('projeto_pavimentos')
+      .select('id')
+      .eq('projeto_id', projetoId)
+      .overrideTypes<{ id: string }[], { merge: false }>()
+    if (erroDaBusca) throw traduzir(erroDaBusca)
+
+    const idsExistentes = new Set(existentes.map((linha) => linha.id))
+    const idsNovos = new Set(pavimentos.map((pavimento) => pavimento.id))
+
+    const sobrando = [...idsExistentes].filter((id) => !idsNovos.has(id))
+    if (sobrando.length > 0) {
+      const { error } = await supabase
+        .from('projeto_pavimentos')
+        .delete()
+        .eq('projeto_id', projetoId)
+        .in('id', sobrando)
+      if (error) throw traduzir(error)
+    }
+
+    const paraCriar = pavimentos.filter((pavimento) => !idsExistentes.has(pavimento.id))
+    if (paraCriar.length > 0) {
+      const { error } = await supabase.from('projeto_pavimentos').insert(
+        paraCriar.map((pavimento) => ({
+          id: pavimento.id,
+          projeto_id: projetoId,
+          nome: pavimento.nome,
+          ordem: pavimento.ordem,
+        })),
+      )
+      if (error) throw traduzir(error)
+    }
+
+    await Promise.all(
+      pavimentos
+        .filter((pavimento) => idsExistentes.has(pavimento.id))
+        .map(async (pavimento) => {
+          const { error } = await supabase
+            .from('projeto_pavimentos')
+            .update({ nome: pavimento.nome, ordem: pavimento.ordem })
+            .eq('id', pavimento.id)
+            .eq('projeto_id', projetoId)
+          if (error) throw traduzir(error)
+        }),
+    )
+
+    await Promise.all(
+      pavimentos.map((pavimento) => this.sincronizarItensDaPlanta(pavimento.id, pavimento.itens)),
+    )
+  }
+
   async sincronizarArquivosExemplo(projetoId: string, arquivoIds: string[]): Promise<void> {
     const supabase = await criarClienteServidor()
 
@@ -481,7 +632,7 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
     const supabase = await criarClienteServidor()
     const { data, error } = await supabase
       .from('projeto_arquivos')
-      .select('id, papel, complementar_id, caminho, tamanho_bytes')
+      .select('id, papel, complementar_id, pavimento_id, caminho, tamanho_bytes')
       .eq('projeto_id', projetoId)
       .overrideTypes<LinhaDeArquivo[], { merge: false }>()
     if (error) throw traduzir(error)
@@ -489,6 +640,7 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
       id: linha.id,
       papel: linha.papel,
       complementarId: linha.complementar_id,
+      pavimentoId: linha.pavimento_id,
       caminho: linha.caminho,
       tamanhoBytes: linha.tamanho_bytes,
     }))
@@ -517,9 +669,9 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
       projeto_id: arquivo.projetoId,
       papel: arquivo.papel,
       complementar_id: arquivo.complementarId,
+      pavimento_id: arquivo.pavimentoId,
       caminho: arquivo.caminho,
       nome_original: arquivo.nomeOriginal,
-      rotulo: arquivo.rotulo,
       tamanho_bytes: arquivo.tamanhoBytes,
       tipo_mime: arquivo.tipoMime,
       ordem: arquivo.ordem,
@@ -542,22 +694,13 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
     if (error) throw traduzir(error)
   }
 
-  async atualizarRotulos(rotulos: { id: string; rotulo: string | null }[]): Promise<void> {
-    const supabase = await criarClienteServidor()
-    await Promise.all(
-      rotulos.map(async ({ id, rotulo }) => {
-        const { error } = await supabase.from('projeto_arquivos').update({ rotulo }).eq('id', id)
-        if (error) throw traduzir(error)
-      }),
-    )
-  }
-
   async lerParaPublicar(id: string): Promise<EstadoParaPublicar | null> {
     const supabase = await criarClienteServidor()
     const { data, error } = await supabase
       .from('projetos')
       .select(
-        'entrega_link, projeto_complementares(id, entrega), projeto_arquivos(papel, complementar_id)',
+        'entrega_link, projeto_complementares(id, entrega), projeto_pavimentos(id), ' +
+          'projeto_arquivos(papel, complementar_id, pavimento_id)',
       )
       .eq('id', id)
       .maybeSingle()
@@ -568,9 +711,11 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
     return {
       entregaLink: linha.entrega_link,
       complementares: linha.projeto_complementares,
+      plantaHumanizada: linha.projeto_pavimentos,
       arquivos: linha.projeto_arquivos.map((arquivo) => ({
         papel: arquivo.papel,
         complementarId: arquivo.complementar_id,
+        pavimentoId: arquivo.pavimento_id,
       })),
     }
   }

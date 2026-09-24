@@ -1,12 +1,10 @@
 import type { ReactNode } from 'react'
 
 import { MensagensDeArquivo } from '@/components/shared/MensagensDeArquivo'
-import { Field } from '@/components/ui/Field'
 import { FileInput } from '@/components/ui/FileInput'
-import { Input } from '@/components/ui/Input'
 
 import type { FormularioProjetoApi } from '../hooks/useFormularioProjeto'
-import { ARQUIVOS_DE_IMAGEM, LIMITES } from '../rules'
+import { ARQUIVOS_DE_IMAGEM } from '../rules'
 import { GradeDeImagens } from './GradeDeImagens'
 import { PainelDaEtapa } from './PainelDaEtapa'
 
@@ -25,12 +23,11 @@ function Grupo({ titulo, dica, children }: { titulo: string; dica: string; child
   )
 }
 
-/** Aba 2: imagem principal, imagens do projeto e plantas (com nome). */
+/** Aba 2: imagem principal e imagens do projeto. As plantas têm aba própria ("Planta Humanizada"). */
 export function EtapaImagens({ form }: { form: FormularioProjetoApi }) {
   const { dados, erroDe, campo, avisosDeArquivo } = form
   const principal = campo('imagemPrincipal')
   const imagens = campo('imagens')
-  const plantas = campo('plantas')
 
   return (
     <PainelDaEtapa
@@ -84,49 +81,6 @@ export function EtapaImagens({ form }: { form: FormularioProjetoApi }) {
           imagens={dados.imagens}
           rotuloDeRemover={(_imagem, indice) => `Remover a imagem ${indice + 1}`}
           aoRemover={(id) => form.removerImagem('imagens', id)}
-        />
-      </Grupo>
-
-      <Grupo
-        titulo="Plantas *"
-        dica="Dê um nome a cada planta, como o pavimento a que ela pertence."
-      >
-        <FileInput
-          id={plantas.id}
-          name={plantas.name}
-          label="Escolher plantas"
-          hint={DICA_DE_IMAGEM}
-          accept={ARQUIVOS_DE_IMAGEM.accept}
-          multiple
-          invalid={plantas.invalid}
-          aria-describedby={plantas['aria-describedby']}
-          onFiles={(arquivos) => form.enviarImagens('plantas', arquivos)}
-        />
-        <MensagensDeArquivo
-          id={plantas.id}
-          erro={erroDe('plantas')}
-          recusas={avisosDeArquivo.plantas}
-        />
-        <GradeDeImagens
-          imagens={dados.plantas}
-          rotuloDeRemover={(planta, indice) => `Remover a planta ${planta.nome || indice + 1}`}
-          aoRemover={(id) => form.removerImagem('plantas', id)}
-          extra={(planta, indice) => {
-            const chave = `plantas.${indice}.nome`
-            const nome = campo(chave)
-            return (
-              <Field label="Nome da planta *" htmlFor={nome.id} error={erroDe(chave)}>
-                <Input
-                  {...nome}
-                  value={planta.nome}
-                  maxLength={LIMITES.plantaNomeMax}
-                  placeholder="Ex.: Térreo"
-                  autoComplete="off"
-                  onChange={(evento) => form.atualizarNomeDaPlanta(planta.id, evento.target.value)}
-                />
-              </Field>
-            )
-          }}
         />
       </Grupo>
     </PainelDaEtapa>

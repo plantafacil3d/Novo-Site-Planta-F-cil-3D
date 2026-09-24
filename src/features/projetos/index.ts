@@ -3,6 +3,7 @@ export { CategoriasGrid } from './components/CategoriasGrid'
 export { ComplementaresGrid } from './components/ComplementaresGrid'
 export { EspecificacoesTecnicas } from './components/EspecificacoesTecnicas'
 export { GaleriaCompleta } from './components/GaleriaCompleta'
+export { GaleriaPlantaHumanizada } from './components/GaleriaPlantaHumanizada'
 export { GlossarioEspecificacoes } from './components/GlossarioEspecificacoes'
 export { IncluidoNoProjeto } from './components/IncluidoNoProjeto'
 export { PerfilProjeto } from './components/PerfilProjeto'
@@ -55,8 +56,10 @@ export type {
   FiltrosProjetos,
   ImagemRef,
   ItemGaleria,
+  ItemInformacaoPavimento,
   LimitesDeFiltro,
   ParametrosListagem,
+  PavimentoPublico,
   PerfilDoProjeto,
   Projeto,
   ProjetoDetalhe,

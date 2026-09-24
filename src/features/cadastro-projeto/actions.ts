@@ -24,6 +24,7 @@ import {
   listarEmTexto,
   montarCadastro,
   montarComplementares,
+  montarPavimentos,
   tipoDeConteudoDaExtensao,
 } from './rules'
 import { lerPayload, validarEtapas } from './schemas'
@@ -75,10 +76,11 @@ const schemaArquivo = z
     tamanho: z.number().int().positive(),
     tipo: z.string().max(100),
     complementarId: z.uuid().nullable(),
-    rotulo: z.string().trim().max(LIMITES.plantaNomeMax).nullable(),
+    pavimentoId: z.uuid().nullable(),
     ordem: z.number().int().min(0).max(1000),
   })
   .refine((arquivo) => (arquivo.papel === 'complementar_pdf') === (arquivo.complementarId !== null))
+  .refine((arquivo) => (arquivo.papel === 'planta') === (arquivo.pavimentoId !== null))
 
 type DadosDoArquivo = z.infer<typeof schemaArquivo>
 
@@ -203,11 +205,13 @@ async function sincronizarArquivos(projetoId: string, payload: PayloadProjeto) {
     doFormulario.filter((item) => item.arquivo.salvo).map((item) => item.arquivo.id),
   )
   const complementares = new Set(payload.complementares.map((complementar) => complementar.id))
+  const pavimentos = new Set(payload.plantaHumanizada.map((pavimento) => pavimento.id))
 
   const sobrando = gravados.filter(
     (gravado) =>
       !mantidos.has(gravado.id) ||
-      (gravado.complementarId !== null && !complementares.has(gravado.complementarId)),
+      (gravado.complementarId !== null && !complementares.has(gravado.complementarId)) ||
+      (gravado.pavimentoId !== null && !pavimentos.has(gravado.pavimentoId)),
   )
   await projetoAdminRepository.removerArquivos(sobrando.map((gravado) => gravado.id))
   try {
@@ -220,13 +224,6 @@ async function sincronizarArquivos(projetoId: string, payload: PayloadProjeto) {
   } catch {
     // A linha já saiu do banco; se o arquivo ficar no Storage, é só espaço ocupado (limpeza futura).
   }
-
-  const idsGravados = new Set(gravados.map((gravado) => gravado.id))
-  await projetoAdminRepository.atualizarRotulos(
-    doFormulario
-      .filter((item) => item.papel === 'planta' && idsGravados.has(item.arquivo.id))
-      .map((item) => ({ id: item.arquivo.id, rotulo: item.rotulo?.trim() || null })),
-  )
 }
 
 /**
@@ -268,6 +265,7 @@ export async function salvarProjeto(
       id = (await criarComSlugLivre(cadastro)).id
     }
 
+    await projetoAdminRepository.sincronizarPavimentos(id, montarPavimentos(payload))
     await sincronizarArquivos(id, payload)
     await projetoAdminRepository.sincronizarComplementares(id, montarComplementares(payload))
     await projetoAdminRepository.sincronizarArquivosExemplo(id, payload.arquivosExemplo)
@@ -367,9 +365,9 @@ export async function confirmarEnvioEmLote(
               projetoId: id,
               papel: arquivo.papel,
               complementarId: arquivo.complementarId,
+              pavimentoId: arquivo.pavimentoId,
               caminho: destino.caminho,
               nomeOriginal: arquivo.nomeArquivo,
-              rotulo: arquivo.rotulo || null,
               tamanhoBytes: noStorage.tamanho,
               tipoMime: tipoDoConteudo,
               ordem: arquivo.ordem,

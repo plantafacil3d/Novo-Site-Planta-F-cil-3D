@@ -12,6 +12,7 @@ import type {
   ComplementarGravavel,
   EstadoParaPublicar,
   NovoArquivoProjeto,
+  PavimentoGravavel,
   ProjetoCriado,
 } from '@/features/cadastro-projeto'
 import type { Pagina } from '@/types/pagina'
@@ -44,6 +45,9 @@ export interface ProjetoAdminRepository {
     projetoId: string,
     complementares: ComplementarGravavel[],
   ): Promise<void>
+  /** Deixa os pavimentos da Planta Humanizada (e os itens de cada um) exatamente como a lista: cria,
+   *  atualiza e apaga o que sobrou. A imagem de cada pavimento viaja à parte, como arquivo. */
+  sincronizarPavimentos(projetoId: string, pavimentos: PavimentoGravavel[]): Promise<void>
   /**
    * Deixa os arquivos de exemplo vinculados ao projeto exatamente como a lista de ids (aba
    * "Arquivos de Exemplo"): vincula o que é novo, desvincula o que saiu. Nunca apaga o arquivo da
@@ -58,8 +62,6 @@ export interface ProjetoAdminRepository {
   listarArquivosDeProjetos(ids: string[]): Promise<ArquivoDeProjeto[]>
   registrarArquivo(arquivo: NovoArquivoProjeto): Promise<void>
   removerArquivos(ids: string[]): Promise<void>
-  /** Muda o nome que o cliente vê nas plantas já gravadas. */
-  atualizarRotulos(rotulos: { id: string; rotulo: string | null }[]): Promise<void>
   /** `null` se o projeto não existe. */
   lerParaPublicar(id: string): Promise<EstadoParaPublicar | null>
 }

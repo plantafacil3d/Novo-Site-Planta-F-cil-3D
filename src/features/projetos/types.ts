@@ -54,6 +54,22 @@ export type ItemGaleria = {
   imagem: ImagemRef
 }
 
+/** Uma linha da lista "Informações da planta" (painel ao lado da imagem, na galeria de pavimentos). */
+export type ItemInformacaoPavimento = {
+  id: string
+  nome: string
+  metragemM2: number | null
+  numeroBolinha: number | null
+}
+
+/** Um pavimento da galeria "Planta Humanizada". */
+export type PavimentoPublico = {
+  id: string
+  nome: string
+  imagem: ImagemRef
+  itens: ItemInformacaoPavimento[]
+}
+
 /** Cadastro: campo "Link de vídeo ou tour virtual" (YouTube ou Vimeo). */
 export type VideoProjeto = {
   src: string
@@ -91,6 +107,10 @@ export type ProjetoDetalhe = Projeto & {
   resumo: string
   sobre: ConteudoSobre
   galeria: ItemGaleria[]
+  /** Pavimentos da aba "Planta Humanizada" do cadastro, na ordem de exibição. Lista vazia = a
+   *  seção não aparece na página. Nome diferente de `pavimentos` (herdado de `Projeto`: o número
+   *  de pavimentos do imóvel) para não colidir com ele. */
+  plantaHumanizada: PavimentoPublico[]
   /** `undefined` quando o projeto não tem vídeo cadastrado. */
   video?: VideoProjeto
   /** Cadastro: coluna `itens` (aba 4, "Itens Incluídos"). Alimenta a seção "O que está incluso". */

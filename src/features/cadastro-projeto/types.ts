@@ -1,6 +1,7 @@
 export type EtapaId =
   | 'informacoes'
   | 'imagens'
+  | 'plantaHumanizada'
   | 'caracteristicas'
   | 'itens'
   | 'exemplos'
@@ -31,9 +32,24 @@ export type ImagemProjeto = ArquivoEscolhido & {
   url: string
 }
 
-export type PlantaProjeto = ImagemProjeto & {
-  /** Nome que o cliente vê (ex.: "Térreo"). */
+/** Uma linha da lista "Informações da planta" de um pavimento. Números ficam como texto digitado
+ *  (a conversão mora em `rules.ts`/`schemas.ts`, igual ao resto do formulário). */
+export type ItemDaPlanta = {
+  id: string
   nome: string
+  /** Só o número, vírgula decimal (ex.: "24,36"); vazio = sem metragem. O "m²" é só de exibição. */
+  metragem: string
+  /** Número desenhado na imagem (ex.: "3"); vazio = sem bolinha. */
+  numeroBolinha: string
+}
+
+/** Um cartão de pavimento na aba "Planta humanizada". */
+export type PavimentoProjeto = {
+  id: string
+  /** '' = sem nome customizado: a tela mostra o padrão calculado pela posição ("Pavimento N"). */
+  nome: string
+  imagem: ImagemProjeto | null
+  itens: ItemDaPlanta[]
 }
 
 export type AnexoProjeto = ArquivoEscolhido
@@ -78,7 +94,9 @@ export type DadosProjeto = {
   // 2. Imagens
   imagemPrincipal: ImagemProjeto | null
   imagens: ImagemProjeto[]
-  plantas: PlantaProjeto[]
+  // 2.1 Planta humanizada (aba própria, opcional). Nome diferente de `pavimentos` (abaixo, o
+  // número de pavimentos do imóvel, aba Características) para não colidir com ele.
+  plantaHumanizada: PavimentoProjeto[]
   // 3. Características
   larguraTerreno: string
   profundidadeTerreno: string
@@ -113,7 +131,7 @@ export type ArquivoDeExemplo = {
 
 export type ModoSalvar = 'rascunho' | 'completo'
 
-/** Erros de uma etapa: mensagem por campo (`titulo`, `plantas.0.nome`, ...). */
+/** Erros de uma etapa: mensagem por campo (`titulo`, `plantaHumanizada.0.imagem`, ...). */
 export type ErrosDaEtapa = Record<string, string>
 
 // ── Arquivos ─────────────────────────────────────────────────────────────────────────────────────
@@ -129,11 +147,11 @@ export type ArquivoDoPayload = MetaArquivo & { id: string; salvo: boolean }
 
 type DadosComArquivos<A extends MetaArquivo> = Omit<
   DadosProjeto,
-  'imagemPrincipal' | 'imagens' | 'plantas' | 'entregaArquivos' | 'complementares'
+  'imagemPrincipal' | 'imagens' | 'plantaHumanizada' | 'entregaArquivos' | 'complementares'
 > & {
   imagemPrincipal: A | null
   imagens: A[]
-  plantas: (A & { nome: string })[]
+  plantaHumanizada: (Omit<PavimentoProjeto, 'imagem'> & { imagem: A | null })[]
   entregaArquivos: A[]
   complementares: (Omit<ComplementarProjeto, 'pdf'> & { pdf: A | null })[]
 }
@@ -190,6 +208,24 @@ export type ComplementarGravavel = {
   ordem: number
 }
 
+/** Uma linha de `pavimento_itens`, pronta para gravar. */
+export type ItemDaPlantaGravavel = {
+  id: string
+  nome: string
+  metragemM2: number | null
+  numeroBolinha: number | null
+  ordem: number
+}
+
+/** Um pavimento pronto para gravar (`projeto_pavimentos`); a imagem viaja à parte, como arquivo. */
+export type PavimentoGravavel = {
+  id: string
+  /** `null` = sem nome customizado. */
+  nome: string | null
+  ordem: number
+  itens: ItemDaPlantaGravavel[]
+}
+
 export type ProjetoCriado = { id: string; codigo: string; slug: string }
 
 /** Um arquivo gravado, com tudo que a tela de edição precisa (nome, tamanho e o papel dele). */
@@ -197,13 +233,21 @@ export type ArquivoCompletoDoBanco = {
   id: string
   papel: PapelDoArquivo
   complementarId: string | null
+  /** Pavimento a que a imagem pertence (só o papel `planta`). */
+  pavimentoId: string | null
   caminho: string
   nomeOriginal: string
-  /** Nome que o cliente vê (só as plantas). */
-  rotulo: string | null
   tamanhoBytes: number
   tipoMime: string
   ordem: number
+}
+
+/** Um pavimento como está gravado (linha de `projeto_pavimentos` + seus `pavimento_itens`). */
+export type PavimentoDoBanco = {
+  id: string
+  nome: string | null
+  ordem: number
+  itens: ItemDaPlantaGravavel[]
 }
 
 /** O projeto como está gravado, para carregar a tela de edição: dados, complementares e arquivos. */
@@ -213,6 +257,9 @@ export type CadastroCompletoDoBanco = CadastroGravavel & {
    *  muda o que já está gravado (skill `arquitetura`: URLs estáveis, ver `references/stack.md`). */
   slug: string
   complementares: ComplementarGravavel[]
+  /** Cartões de pavimento da aba "Planta humanizada". Nome diferente de `pavimentos` (herdado de
+   *  `CadastroGravavel`: o número de pavimentos do imóvel) para não colidir com ele. */
+  plantaHumanizada: PavimentoDoBanco[]
   arquivos: ArquivoCompletoDoBanco[]
   /** Ids dos arquivos da biblioteca vinculados a este projeto (aba 5). */
   arquivosExemplo: string[]
@@ -223,6 +270,7 @@ export type ArquivoGravado = {
   id: string
   papel: PapelDoArquivo
   complementarId: string | null
+  pavimentoId: string | null
   caminho: string
   tamanhoBytes: number
 }
@@ -232,10 +280,9 @@ export type NovoArquivoProjeto = {
   projetoId: string
   papel: PapelDoArquivo
   complementarId: string | null
+  pavimentoId: string | null
   caminho: string
   nomeOriginal: string
-  /** Nome que o cliente vê (só as plantas). */
-  rotulo: string | null
   tamanhoBytes: number
   tipoMime: string
   ordem: number
@@ -245,7 +292,9 @@ export type NovoArquivoProjeto = {
 export type EstadoParaPublicar = {
   entregaLink: string | null
   complementares: { id: string; entrega: 'link' | 'pdf' | null }[]
-  arquivos: { papel: PapelDoArquivo; complementarId: string | null }[]
+  /** Cada pavimento cadastrado precisa ter uma imagem entre os `arquivos` abaixo. */
+  plantaHumanizada: { id: string }[]
+  arquivos: { papel: PapelDoArquivo; complementarId: string | null; pavimentoId: string | null }[]
 }
 
 /** Resposta das ações do servidor: ou deu certo (com o que a ação devolve) ou vem a mensagem do problema. */
