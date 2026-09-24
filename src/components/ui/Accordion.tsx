@@ -16,7 +16,7 @@ export function Accordion({ items }: AccordionProps) {
       {items.map((item) => (
         <li key={item.title}>
           <details className="group rounded-md border border-border bg-surface">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 rounded-md px-4 py-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 rounded-md px-4 py-3 text-sm font-medium transition-colors duration-150 ease-standard hover:bg-tint [&::-webkit-details-marker]:hidden">
               {item.title}
               <Icon name="plus" className="size-4 group-open:hidden" />
               <Icon name="minus" className="hidden size-4 group-open:block" />

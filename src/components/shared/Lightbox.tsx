@@ -17,9 +17,13 @@ type LightboxProps = {
 }
 
 /** Visualizador de fotos em tela cheia, com setas do teclado e contador. */
+const LIGHTBOX_SIZES = '(min-width: 1024px) 1024px, 100vw'
+
 export function Lightbox({ images, index, onIndexChange, onClose, label }: LightboxProps) {
   const total = images.length
   const current = index === null ? undefined : images[index]
+  const proxima = index !== null && total > 1 ? images[(index + 1) % total] : null
+  const anterior = index !== null && total > 1 ? images[(index - 1 + total) % total] : null
 
   function go(step: number) {
     if (index === null) return
@@ -40,10 +44,26 @@ export function Lightbox({ images, index, onIndexChange, onClose, label }: Light
               src={current.src}
               alt={current.alt}
               fill
-              sizes="(min-width: 1024px) 1024px, 100vw"
+              sizes={LIGHTBOX_SIZES}
               className="object-contain"
             />
           </div>
+
+          {/* Pré-carrega a foto anterior e a próxima para as setas trocarem sem espera. */}
+          {(proxima || anterior) && (
+            <div aria-hidden className="pointer-events-none absolute size-px overflow-hidden opacity-0">
+              {proxima && (
+                <div className="relative aspect-4/3">
+                  <Image src={proxima.src} alt="" fill sizes={LIGHTBOX_SIZES} />
+                </div>
+              )}
+              {anterior && (
+                <div className="relative aspect-4/3">
+                  <Image src={anterior.src} alt="" fill sizes={LIGHTBOX_SIZES} />
+                </div>
+              )}
+            </div>
+          )}
 
           {total > 1 && (
             <>

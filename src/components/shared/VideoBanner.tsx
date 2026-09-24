@@ -23,13 +23,13 @@ export function VideoBanner({ title, description, image, videoSrc }: VideoBanner
   return (
     <section aria-labelledby={headingId} className="py-12 md:py-16">
       <div className="mx-auto max-w-content px-4">
-        <div className="relative isolate flex min-h-72 flex-col overflow-hidden rounded-lg bg-inverse text-fg-inverse md:min-h-80">
+        <div className="group relative isolate flex min-h-72 flex-col overflow-hidden rounded-lg bg-inverse text-fg-inverse md:min-h-80">
           <Image
             src={image.src}
             alt={image.alt}
             fill
             sizes="(min-width: 1200px) 1168px, 100vw"
-            className="-z-20 object-cover"
+            className="-z-20 object-cover transition-transform duration-250 ease-standard group-hover:scale-105"
           />
           <div
             aria-hidden="true"

@@ -42,8 +42,8 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ### Accordion
 
 - **Propósito:** perguntas que abrem e fecham (FAQ). `<details>` nativo: funciona sem JavaScript, teclado de graça e o texto já vem no HTML (SEO). Recebe `items: { title, content }[]`.
-- **Estados:** fechado (ícone `+`), aberto (ícone `−`), foco.
-- **Tokens:** `--color-border`, `--color-surface`, `--color-fg-muted`, `--radius-md`.
+- **Estados:** fechado (ícone `+`), aberto (ícone `−`), hover (`bg-tint`, mesmo verdinho do botão `ghost`), foco.
+- **Tokens:** `--color-border`, `--color-surface`, `--color-fg-muted`, `--color-tint`, `--radius-md`.
 
 ### Icon
 
@@ -269,7 +269,7 @@ Lista com marcador de check: círculo `--color-accent` (só preenchimento) com o
 
 ### VideoBanner
 
-`'use client'`. Bloco escuro arredondado com imagem ao fundo, título, texto e um grande play (`IconButton` `lg`) que abre o vídeo num `Modal`. Selo de duração opcional (`Badge`).
+`'use client'`. Bloco escuro arredondado com imagem ao fundo, título, texto e um grande play (`IconButton` `lg`) que abre o vídeo num `Modal`. Selo de duração opcional (`Badge`). Hover: imagem de fundo dá zoom leve (`scale-105`), mesmo padrão dos cards de projeto.
 
 ### JsonLd
 

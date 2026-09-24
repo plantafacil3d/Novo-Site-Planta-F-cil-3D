@@ -37,6 +37,8 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
   const hidden = total - MAX_THUMBNAILS
   const firstHidden = images[MAX_THUMBNAILS]
   const current = images[index]
+  const proxima = total > 1 ? images[(index + 1) % total] : null
+  const anterior = total > 1 ? images[(index - 1 + total) % total] : null
 
   function closeLightbox() {
     // Ao fechar, a foto grande acompanha a última vista no visualizador.
@@ -95,6 +97,32 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
           </>
         )}
       </div>
+
+      {/* Pré-carrega a foto anterior e a próxima para as setas trocarem sem espera. */}
+      {(proxima || anterior) && (
+        <div aria-hidden className="pointer-events-none absolute size-px overflow-hidden opacity-0">
+          {proxima && (
+            <div className="relative aspect-4/3">
+              <Image
+                src={proxima.src}
+                alt=""
+                fill
+                sizes="(min-width: 1280px) 42vw, (min-width: 1024px) 50vw, 100vw"
+              />
+            </div>
+          )}
+          {anterior && (
+            <div className="relative aspect-4/3">
+              <Image
+                src={anterior.src}
+                alt=""
+                fill
+                sizes="(min-width: 1280px) 42vw, (min-width: 1024px) 50vw, 100vw"
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       <ul className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-7">
         {thumbnails.map((image, thumbIndex) => (
