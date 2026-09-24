@@ -97,6 +97,46 @@ export function totalDeQuartos(projeto: Pick<Projeto, 'suites' | 'quartos'>): nu
   return projeto.suites + projeto.quartos
 }
 
+/** Especificações técnicas exibidas na página do projeto (`EspecificacoesTecnicas` e `GlossarioEspecificacoes`). */
+export type ChaveEspecificacao =
+  | 'larguraTerreno'
+  | 'profundidadeTerreno'
+  | 'areaConstruida'
+  | 'quartos'
+  | 'suites'
+  | 'banheiros'
+  | 'vagas'
+  | 'pavimentos'
+  | 'piscina'
+  | 'areaGourmet'
+
+type CamposDeEspecificacao = Pick<
+  Projeto,
+  'suites' | 'quartos' | 'banheiros' | 'vagas' | 'areaGourmet'
+>
+
+/**
+ * Quais especificações aparecem para este projeto. No Cadastro, 0 significa "o projeto não tem"
+ * (ver `EtapaCaracteristicas`), então esses campos somem — exceto Piscina, que sempre aparece
+ * como Sim/Não. Única fonte desta regra: `EspecificacoesTecnicas` e `GlossarioEspecificacoes`
+ * mostram sempre o mesmo conjunto de itens, cada um a seu jeito (valor e explicação).
+ */
+export function listarChavesDeEspecificacao(projeto: CamposDeEspecificacao): ChaveEspecificacao[] {
+  const chaves: (ChaveEspecificacao | false)[] = [
+    'larguraTerreno',
+    'profundidadeTerreno',
+    'areaConstruida',
+    totalDeQuartos(projeto) > 0 && 'quartos',
+    projeto.suites > 0 && 'suites',
+    projeto.banheiros > 0 && 'banheiros',
+    projeto.vagas > 0 && 'vagas',
+    'pavimentos',
+    'piscina',
+    projeto.areaGourmet && 'areaGourmet',
+  ]
+  return chaves.filter((chave): chave is ChaveEspecificacao => chave !== false)
+}
+
 /** Descrição curta para Google e redes sociais (meta description). */
 export function resumirParaBusca(projeto: ProjetoDetalhe): string {
   const area = formatarArea(projeto.areaConstruidaM2)

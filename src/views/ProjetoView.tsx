@@ -6,6 +6,7 @@ import {
   BarraCompraMobile,
   EspecificacoesTecnicas,
   GaleriaCompleta,
+  GlossarioEspecificacoes,
   IncluidoNoProjeto,
   PerfilProjeto,
   PerguntasFrequentes,
@@ -61,6 +62,7 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
 
       <ProjetoHero projeto={projeto} preco={preco} checkoutUrl={checkoutUrl} />
       <EspecificacoesTecnicas projeto={projeto} />
+      <GlossarioEspecificacoes projeto={projeto} />
       <SobreProjeto sobre={projeto.sobre} imagem={projeto.imagem} />
       <IncluidoNoProjeto itens={projeto.itensInclusos} />
       <GaleriaCompleta itens={projeto.galeria} />

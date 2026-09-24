@@ -293,6 +293,7 @@ Ficam na feature porque conhecem o `ProjetoDetalhe`; a tela é montada em `views
 - `ProjetosSkeleton`: uma página de cards em branco (12), para a tela não pular enquanto carrega.
 - `ProjetoDetalheSkeleton`: "em branco" do topo da página de um projeto (galeria + dados), usado no `loading.tsx` de `/projetos/[slug]` — sem ele, essa rota herdava o `ProjetosSkeleton` da listagem (rota pai) e mostrava a grade errada ao abrir um projeto.
 - `EspecificacoesTecnicas`, `SobreProjeto`, `IncluidoNoProjeto`, `GaleriaCompleta`, `CaracteristicasAmbientes`, `PerfilProjeto`, `PerguntasFrequentes`, `ProjetosRelacionados` (reaproveita o `ProjectCard` da home, com selo "Similar").
+- `GlossarioEspecificacoes`: logo abaixo da `EspecificacoesTecnicas`. Reaproveita o `Accordion` (`ui/`) com um único item ("O que significa cada especificação?"), fechado por padrão — explica em linguagem simples cada item que aparece na faixa de especificações (o site vende para vários idiomas; termos como "suíte" não são óbvios fora do Brasil). Mesma lista de itens da `EspecificacoesTecnicas` (`listarChavesDeEspecificacao`, em `rules.ts`) e mesmos rótulos/explicações (`textosDeEspecificacao`, em `conteudo.ts`), então nunca sai de sincronia; some quando não há nenhuma especificação. Sem componente novo.
 
 ## Painel do administrador (`features/admin/components/`)
 
