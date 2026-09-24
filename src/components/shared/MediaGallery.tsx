@@ -56,7 +56,9 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
           alt={current.alt}
           fill
           priority={index === 0}
-          sizes="(min-width: 1280px) 42vw, (min-width: 1024px) 50vw, 100vw"
+          // Sem otimização: a foto já vem pronta do Storage, e passar pelo proxy de resize do
+          // Next a cada troca (busca remota + processamento) é o que travava a navegação nas setas.
+          unoptimized
           className="object-cover"
         />
 
@@ -103,22 +105,12 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
         <div aria-hidden className="pointer-events-none absolute size-px overflow-hidden opacity-0">
           {proxima && (
             <div className="relative aspect-4/3">
-              <Image
-                src={proxima.src}
-                alt=""
-                fill
-                sizes="(min-width: 1280px) 42vw, (min-width: 1024px) 50vw, 100vw"
-              />
+              <Image src={proxima.src} alt="" fill unoptimized />
             </div>
           )}
           {anterior && (
             <div className="relative aspect-4/3">
-              <Image
-                src={anterior.src}
-                alt=""
-                fill
-                sizes="(min-width: 1280px) 42vw, (min-width: 1024px) 50vw, 100vw"
-              />
+              <Image src={anterior.src} alt="" fill unoptimized />
             </div>
           )}
         </div>

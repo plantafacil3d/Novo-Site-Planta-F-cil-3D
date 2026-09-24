@@ -17,8 +17,6 @@ type LightboxProps = {
 }
 
 /** Visualizador de fotos em tela cheia, com setas do teclado e contador. */
-const LIGHTBOX_SIZES = '(min-width: 1024px) 1024px, 100vw'
-
 export function Lightbox({ images, index, onIndexChange, onClose, label }: LightboxProps) {
   const total = images.length
   const current = index === null ? undefined : images[index]
@@ -44,7 +42,8 @@ export function Lightbox({ images, index, onIndexChange, onClose, label }: Light
               src={current.src}
               alt={current.alt}
               fill
-              sizes={LIGHTBOX_SIZES}
+              // Sem otimização: evita o proxy de resize do Next a cada troca de foto (ver MediaGallery).
+              unoptimized
               className="object-contain"
             />
           </div>
@@ -54,12 +53,12 @@ export function Lightbox({ images, index, onIndexChange, onClose, label }: Light
             <div aria-hidden className="pointer-events-none absolute size-px overflow-hidden opacity-0">
               {proxima && (
                 <div className="relative aspect-4/3">
-                  <Image src={proxima.src} alt="" fill sizes={LIGHTBOX_SIZES} />
+                  <Image src={proxima.src} alt="" fill unoptimized />
                 </div>
               )}
               {anterior && (
                 <div className="relative aspect-4/3">
-                  <Image src={anterior.src} alt="" fill sizes={LIGHTBOX_SIZES} />
+                  <Image src={anterior.src} alt="" fill unoptimized />
                 </div>
               )}
             </div>
