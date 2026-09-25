@@ -4,6 +4,7 @@ import { Breadcrumb } from '@/components/navigation/Breadcrumb'
 import { CollapsiblePanel } from '@/components/shared/CollapsiblePanel'
 import {
   FiltrosAplicados,
+  FiltrosSkeleton,
   FormularioDeFiltros,
   ProjetosSkeleton,
   contarFiltros,
@@ -15,9 +16,15 @@ import {
 
 import { ResultadosProjetos } from './projetos/ResultadosProjetos'
 
-/** Página pública `/projetos`: filtros à esquerda (recolhidos no celular) e a lista paginada. */
-export async function ProjetosView({ params }: { params: ParametrosListagem }) {
+/** Só renderiza o formulário depois que os limites (menor/maior preço e área) chegarem do banco;
+ *  numa `Suspense` própria, para buscar em paralelo com `ResultadosProjetos` em vez de antes dela. */
+async function FiltrosComLimites({ params }: { params: ParametrosListagem }) {
   const limites = await listarLimitesDeFiltro()
+  return <FormularioDeFiltros params={params} limites={limites} />
+}
+
+/** Página pública `/projetos`: filtros à esquerda (recolhidos no celular) e a lista paginada. */
+export function ProjetosView({ params }: { params: ParametrosListagem }) {
   const filtrosAplicados = listarFiltrosAplicados(params)
   // Muda a cada filtro, ordem ou página. Como `key`, faz o painel fechar e o formulário refletir
   // a URL depois de aplicar ou remover um filtro, e faz o esqueleto aparecer enquanto carrega.
@@ -39,7 +46,9 @@ export async function ProjetosView({ params }: { params: ParametrosListagem }) {
         <div className="mt-8 grid gap-8 lg:grid-cols-12">
           <aside aria-label="Filtros" className="lg:col-span-3">
             <CollapsiblePanel key={chave} label="Filtros" count={contarFiltros(params)}>
-              <FormularioDeFiltros params={params} limites={limites} />
+              <Suspense fallback={<FiltrosSkeleton />}>
+                <FiltrosComLimites params={params} />
+              </Suspense>
             </CollapsiblePanel>
           </aside>
 
