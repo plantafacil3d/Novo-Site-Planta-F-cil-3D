@@ -59,7 +59,7 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
           <h1 id={headingId} className="text-3xl">
             {projeto.titulo}
           </h1>
-          <TextoExpansivel texto={projeto.resumo} limite={140} className="font-medium" />
+          <TextoExpansivel texto={projeto.resumo} limite={140} className="text-fg-muted" />
 
           <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
             {specs.map((spec) => (
