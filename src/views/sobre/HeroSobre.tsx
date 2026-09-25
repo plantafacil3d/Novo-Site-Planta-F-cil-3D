@@ -29,18 +29,18 @@ export function HeroSobre() {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-sm">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-lg">
+        <div className="group relative mx-auto w-full max-w-sm">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-lg shadow-lg transition-shadow duration-250 ease-standard group-hover:shadow-xl">
             <Image
               src={foto.src}
               alt={foto.alt}
               fill
               priority
               sizes="(min-width: 768px) 384px, 100vw"
-              className="object-cover"
+              className="object-cover transition-transform duration-300 ease-standard group-hover:scale-105"
             />
           </div>
-          <div className="absolute inset-x-4 -bottom-6 flex items-center gap-3 rounded-lg bg-accent p-4 text-fg shadow-lg">
+          <div className="absolute inset-x-4 -bottom-6 flex items-center gap-3 rounded-lg bg-accent p-4 text-fg shadow-lg transition-transform duration-200 ease-standard group-hover:-translate-y-1">
             <Icon name="user" className="size-8 shrink-0" strokeWidth={1.5} />
             <div>
               <p className="text-sm font-semibold">Herkullys de Sousa Silva</p>

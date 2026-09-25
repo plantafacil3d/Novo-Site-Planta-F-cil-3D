@@ -28,16 +28,16 @@ export function Timeline() {
   return (
     <ol className="flex flex-col gap-8">
       {marcos.map((marco, index) => (
-        <li key={marco.title} className="flex gap-4">
+        <li key={marco.title} className="group flex gap-4">
           <div className="flex flex-col items-center">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-fg-inverse">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-fg-inverse transition-transform duration-200 ease-standard group-hover:scale-110">
               <Icon name={marco.icon} className="size-5" strokeWidth={1.5} />
             </span>
             {index < marcos.length - 1 && (
               <span className="mt-2 w-px flex-1 bg-border" aria-hidden="true" />
             )}
           </div>
-          <div className="pb-2">
+          <div className="pb-2 transition-transform duration-200 ease-standard group-hover:translate-x-1">
             <h3 className="font-body text-base font-semibold">{marco.title}</h3>
             <p className="mt-1 text-sm text-fg-muted">{marco.description}</p>
           </div>

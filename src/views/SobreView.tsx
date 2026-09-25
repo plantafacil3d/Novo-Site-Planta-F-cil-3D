@@ -42,12 +42,14 @@ export function SobreView() {
               titleAs="h3"
               title="Missão"
               description="Democratizar o acesso à arquitetura por meio da tecnologia, oferecendo soluções práticas, econômicas e de qualidade."
+              className="transition-transform duration-200 ease-standard hover:translate-x-1"
             />
             <FeatureItem
               icon="sparkles"
               titleAs="h3"
               title="Visão"
               description="Ser reconhecida como a maior plataforma de projetos arquitetônicos acessíveis do Brasil, expandindo também para o mercado internacional."
+              className="transition-transform duration-200 ease-standard hover:translate-x-1"
             />
           </div>
           <div>
