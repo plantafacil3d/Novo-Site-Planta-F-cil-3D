@@ -6,9 +6,8 @@ import { Eyebrow } from '@/components/ui/Eyebrow'
 import { Icon } from '@/components/ui/Icon'
 import { selosDeConfianca } from '@/features/site'
 
-// TEMPORÁRIO: foto de exemplo. Trocar por arquivo em public/.
 const imagemHero = {
-  src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=75',
+  src: '/images/home/imagem_01.png',
   alt: 'Casa moderna de dois pavimentos com vidros e madeira, iluminada ao entardecer',
 }
 
