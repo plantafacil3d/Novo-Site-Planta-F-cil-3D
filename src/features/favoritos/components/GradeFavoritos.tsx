@@ -29,6 +29,7 @@ export function GradeFavoritos({ cards }: { cards: CardFavorito[] }) {
                 href={card.href}
                 title={card.titulo}
                 code={card.code}
+                projectCode={card.projectCode}
                 image={card.image}
                 specs={card.specs}
                 price={card.price}

@@ -12,6 +12,8 @@ export type CardFavorito = {
   titulo: string
   href: string
   code?: string
+  /** Código real do projeto (`projeto.codigo`, ex.: "PF-05"), para o selo do card compacto. */
+  projectCode?: string
   image: { src: string; alt: string }
   specs: ProjectSpec[]
   price: string

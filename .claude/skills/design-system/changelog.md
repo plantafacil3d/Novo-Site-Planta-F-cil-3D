@@ -4,6 +4,17 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-25 (card de projeto compacto, em teste)
+
+- Nova prop `density` no `ProjectCard` (`compact`, padrão, em teste; `default`, card anterior mantido no código sem uso). Por quê: usuário trouxe uma referência visual de outro card, mais compacto, e pediu para testar sem apagar o atual — pode querer voltar. Variante nasceu dentro do próprio componente (regra da skill: variação vive no componente, não em duplicata) em vez de um `ProjectCard2` novo.
+- ~~No `compact`, o rodapé passou a usar o `PriceTag` de verdade~~ — **desatualizado, ver ajuste abaixo.**
+- Sem componente novo, sem ícone novo.
+- **Ajuste no mesmo dia:** usuário comparou com a foto de referência e apontou 3 diferenças, corrigidas no `compact`:
+  1. O canto superior esquerdo passou a mostrar `projectCode` (nova prop, código real do projeto, ex.: "PF-05", vem de `projeto.codigo`) em vez de `badge` (selo "Mais vendido"/"Lançamento"/"Similar") — que deixa de aparecer nessa densidade. A linha de texto do `code` (código manual/YouTube) acima do título também some no `compact`, só continua no `default`. `projectCode` precisou ser propagado até `ProjetosDestaque`, `ProjetosRelacionados` e, para os favoritos, um novo campo em `CardFavorito` (preenchido em `PainelFavoritosView`) — `GradeFavoritos` é client e não pode buscar `projeto.codigo` sozinho.
+  2. Especificações agora em duas listas (`divide-x divide-border`) em vez de um grid único, para dar a linha vertical entre as colunas que a foto mostra.
+  3. O bullet anterior estava errado: o rodapé do `compact` **não** usa o `PriceTag` — a foto pede o selo de desconto alinhado à direita na linha do riscado (`justify-between`) e o preço atual sozinho embaixo, layout que o `PriceTag` não produz (ele junta preço atual + selo). Voltou a montar o preço à mão, como o `default` já fazia (mesmo motivo de 2026-09-24: layout específico não cabe no componente compartilhado para um uso só). `PriceTag` deixou de ser importado em `ProjectCard.tsx`, mas continua em uso normal em `ProjetoHero`, `BarraCompraMobile` e `CTABanner`.
+  - Sem token novo nos 3 pontos: reaproveita `divide-border` (mesmo `--color-border` já usado na borda do card), `Badge discount` e a escala de espaçamento do Tailwind.
+
 ## 2026-09-25 (logotipo oficial)
 
 - Usuário está testando variantes do logotipo oficial em `public/images/logo/` (fundo transparente). `Logo` (`components/shared/`) usa a imagem no `tone="default"` (Header, Footer), no lugar do ícone de casa + nome + tagline. `logo_01.png` (mais quadrada, ícone + texto em 3 linhas) foi a primeira testada; trocada por `logo_02.png` (faixa horizontal, ícone + texto em 1 linha) no mesmo dia, a pedido do usuário.

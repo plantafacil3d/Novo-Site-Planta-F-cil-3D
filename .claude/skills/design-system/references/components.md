@@ -188,11 +188,17 @@ Prop `tone`: `default` (fundo claro, usado no Header e no Footer) mostra o logot
 - **Props:** `price`, `originalPrice?`, `discountLabel?`, `priceClassName?` (tamanho do preço atual, na escala tipográfica de onde aparece: `text-lg` no card, `text-3xl` no topo da página), `originalPriceClassName?` (cor do riscado; `text-fg-inverse/70` sobre fundo escuro, como no `CTABanner`).
 - **Tokens:** `--color-fg-muted` (riscado, padrão), `--color-badge-discount-bg`/`-fg` (selo, via `Badge` `discount`).
 - **Usado em:** `ProjetoHero`, `BarraCompraMobile` e `CTABanner` (`variant="card"`) — nos três, o preço tem a linha só para si (o botão de compra fica abaixo ou numa coluna separada). A montagem do desconto (regra: preço original só existe quando é realmente maior que o atual) fica em `features/projetos/rules.ts` (`exibirPreco`).
-- **Não usado no `ProjectCard`:** ali o preço divide a linha com o botão "Ver detalhes", sem largura para o riscado + selo do `PriceTag` (testado: quebra em 3 linhas). O card monta o preço à mão: riscado + selo numa linha cheia acima (sem disputar espaço com o botão), preço atual ao lado do botão embaixo — mesmos tokens do `PriceTag`, layout diferente.
+- **Não usado no `ProjectCard`** (nas duas densidades, `default` e `compact`): o layout do preço pedido para o card (desconto alinhado à direita na linha do riscado, preço atual sozinho embaixo) não é o que o `PriceTag` produz (ele junta preço atual + selo na mesma linha). O card monta o preço à mão nas duas densidades — mesmos tokens do `PriceTag` (`--color-fg-muted`, `Badge discount`), layout diferente. Se um layout igual ao do `PriceTag` for necessário aqui de novo, considerar uma prop nele em vez de duplicar mais uma vez.
 
 ### ProjectCard
 
-Card de projeto (ver `ux-rules.md`). Puramente visual: recebe textos e preço já formatados (a montagem fica em `features/projetos/components/ProjetosDestaque`). Compõe Badge, FavoriteButton, lista de especificações (ícone + texto) e Button; o preço (com ou sem desconto) é montado com os mesmos tokens do `PriceTag`, mas sem usá-lo — ver nota acima. O card inteiro é um único link (botão "Ver detalhes" esticado); o coração fica acima. **Se ganhar regra de domínio, mova para `features/projetos/components/`.**
+Card de projeto (ver `ux-rules.md`). Puramente visual: recebe textos e preço já formatados (a montagem fica em `features/projetos/components/ProjetosDestaque`). Compõe Badge, FavoriteButton, lista de especificações (ícone + texto) e Button. O card inteiro é um único link (botão "Ver detalhes" esticado); o coração fica acima. **Se ganhar regra de domínio, mova para `features/projetos/components/`.**
+
+- **Prop `density`:** `compact` (padrão, em teste, reproduz uma foto de referência) ou `default` (card anterior, mantido no código sem uso — passe a prop explicitamente para voltar a ele). Em `compact`:
+  - Corpo com menos espaçamento (`p-3`/`gap-3`, especificações em `text-xs`).
+  - Canto superior esquerdo mostra `projectCode` (código real do projeto, ex.: "PF-05") em vez de `badge`; o selo (`badge`, "Mais vendido"/"Lançamento"/"Similar") não aparece nessa densidade. A linha de texto do `code` (código manual/YouTube) acima do título também some — só existe no `default`.
+  - Especificações em duas listas lado a lado (pares/ímpares) dentro de `divide-x divide-border`, em vez do grid único do `default` — dá a linha vertical entre as colunas.
+  - Rodapé: riscado + selo de desconto numa linha (`justify-between`, selo encostado à direita), preço atual sozinho embaixo, uma borda (`border-t border-border`) e por último um botão "Ver detalhes" de largura total.
 
 ### MediaCard
 
