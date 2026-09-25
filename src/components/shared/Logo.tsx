@@ -1,6 +1,6 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
-import { cn } from '../ui/cn'
 import { Icon } from '../ui/Icon'
 
 type LogoProps = {
@@ -10,32 +10,39 @@ type LogoProps = {
   tone?: 'inverse' | 'default'
 }
 
-/** Marca do site. Provisória: trocar pelo arquivo oficial do logotipo. */
+/**
+ * Marca do site. `default` (cabeçalho, rodapé) usa o logotipo oficial.
+ * `inverse` (fundo escuro, só o painel admin) ainda é provisório: a arte oficial
+ * tem texto preto, ilegível em fundo escuro — falta uma versão clara.
+ */
 export function Logo({ nome, tagline, tone = 'inverse' }: LogoProps) {
   const inverse = tone === 'inverse'
+
+  if (!inverse) {
+    return (
+      <Link href="/" aria-label={`${nome}: página inicial`} className="inline-flex items-center">
+        <Image
+          src="/images/logo/logo_02.png"
+          alt={nome}
+          width={2508}
+          height={528}
+          className="h-8 w-auto sm:h-10"
+        />
+      </Link>
+    )
+  }
 
   return (
     <Link
       href="/"
       aria-label={`${nome}: página inicial`}
-      className={cn('inline-flex items-center gap-2', inverse ? 'text-fg-inverse' : 'text-fg')}
+      className="inline-flex items-center gap-2 text-fg-inverse"
     >
-      <Icon
-        name="house"
-        className={cn('size-8 sm:size-10', inverse ? 'text-accent' : 'text-primary')}
-        strokeWidth={1.5}
-      />
+      <Icon name="house" className="size-8 text-accent sm:size-10" strokeWidth={1.5} />
       <span className="flex flex-col leading-tight">
         <span className="font-heading text-lg font-bold whitespace-nowrap sm:text-xl">{nome}</span>
         {tagline && (
-          <span
-            className={cn(
-              'hidden text-xs sm:block',
-              inverse ? 'text-fg-inverse/80' : 'text-fg-muted',
-            )}
-          >
-            {tagline}
-          </span>
+          <span className="hidden text-xs text-fg-inverse/80 sm:block">{tagline}</span>
         )}
       </span>
     </Link>

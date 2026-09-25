@@ -176,7 +176,7 @@ Container de seção: título (h2), subtítulo, link "Ver todos" e conteúdo. Va
 
 ### Logo
 
-Ícone de casa + nome + tagline. Prop `tone`: `inverse` (padrão, para fundo escuro) ou `default` (fundo claro, usado no Header e no Footer). **Provisório** até existir o arquivo oficial do logotipo.
+Prop `tone`: `default` (fundo claro, usado no Header e no Footer) mostra o logotipo oficial (`public/images/logo/logo_02.png`, `next/image`, sem `tagline` — já vem no arquivo; testando variantes, ver `changelog.md`). `inverse` (padrão, fundo escuro, só o painel admin) continua **provisório**: ícone de casa + nome + tagline; falta uma versão clara do logotipo para fundo escuro.
 
 ### SearchBar
 

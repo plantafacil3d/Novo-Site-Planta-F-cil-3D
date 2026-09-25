@@ -4,6 +4,11 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-25 (logotipo oficial)
+
+- Usuário está testando variantes do logotipo oficial em `public/images/logo/` (fundo transparente). `Logo` (`components/shared/`) usa a imagem no `tone="default"` (Header, Footer), no lugar do ícone de casa + nome + tagline. `logo_01.png` (mais quadrada, ícone + texto em 3 linhas) foi a primeira testada; trocada por `logo_02.png` (faixa horizontal, ícone + texto em 1 linha) no mesmo dia, a pedido do usuário.
+- `tone="inverse"` (só o painel admin, fundo escuro) continua com o ícone provisório: as variantes enviadas têm texto preto, ilegível em fundo escuro. Falta uma versão clara para fechar essa parte.
+
 ## 2026-09-25 (hover na seção "Sobre o projeto")
 
 - Pedido do usuário: a foto e os três blocos (`Ambientes`, `Indicado para`, `Aplicações`) do `SobreProjeto` pareciam "estáticos" — sem nenhuma reação ao passar o mouse. Sem token nem componente novo: a foto ganhou o mesmo zoom leve (`group-hover:scale-105`) já usado em `ProjectCard`, `MediaGallery` e `VideoBanner`; cada bloco ganhou o mesmo destaque de fundo do hover do `Accordion` (FAQ) — `hover:bg-tint`, com `-m-3`/`p-3` para o fundo aparecer sem mexer no espaçamento entre os blocos.
