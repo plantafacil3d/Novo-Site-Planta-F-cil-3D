@@ -7,6 +7,7 @@ Formato: `AAAA-MM-DD · o quê · por quê`
 ## 2026-09-25 (logotipo oficial)
 
 - Usuário está testando variantes do logotipo oficial em `public/images/logo/` (fundo transparente). `Logo` (`components/shared/`) usa a imagem no `tone="default"` (Header, Footer), no lugar do ícone de casa + nome + tagline. `logo_01.png` (mais quadrada, ícone + texto em 3 linhas) foi a primeira testada; trocada por `logo_02.png` (faixa horizontal, ícone + texto em 1 linha) no mesmo dia, a pedido do usuário.
+- Ainda no mesmo dia: usuário pediu uma logo diferente para celular. `Logo_03.png` (ícone + texto em 2 linhas, mais compacta na largura que a `02`) entrou como teste só abaixo do breakpoint `sm`; `logo_02.png` continua de `sm` para cima.
 - `tone="inverse"` (só o painel admin, fundo escuro) continua com o ícone provisório: as variantes enviadas têm texto preto, ilegível em fundo escuro. Falta uma versão clara para fechar essa parte.
 
 ## 2026-09-25 (hover na seção "Sobre o projeto")

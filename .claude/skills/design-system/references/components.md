@@ -176,7 +176,7 @@ Container de seção: título (h2), subtítulo, link "Ver todos" e conteúdo. Va
 
 ### Logo
 
-Prop `tone`: `default` (fundo claro, usado no Header e no Footer) mostra o logotipo oficial (`public/images/logo/logo_02.png`, `next/image`, sem `tagline` — já vem no arquivo; testando variantes, ver `changelog.md`). `inverse` (padrão, fundo escuro, só o painel admin) continua **provisório**: ícone de casa + nome + tagline; falta uma versão clara do logotipo para fundo escuro.
+Prop `tone`: `default` (fundo claro, usado no Header e no Footer) mostra o logotipo oficial, sem `tagline` — já vem no arquivo. Duas imagens, trocadas por breakpoint (`sm`): `Logo_03.png` abaixo de `sm` (celular, mais compacta na largura) e `logo_02.png` a partir de `sm` (faixa horizontal). `next/image`; testando variantes, ver `changelog.md`. `inverse` (padrão, fundo escuro, só o painel admin) continua **provisório**: ícone de casa + nome + tagline; falta uma versão clara do logotipo para fundo escuro.
 
 ### SearchBar
 
