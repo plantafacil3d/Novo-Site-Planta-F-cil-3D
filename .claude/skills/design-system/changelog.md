@@ -4,6 +4,18 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-25 (hover na seção "Sobre o projeto")
+
+- Pedido do usuário: a foto e os três blocos (`Ambientes`, `Indicado para`, `Aplicações`) do `SobreProjeto` pareciam "estáticos" — sem nenhuma reação ao passar o mouse. Sem token nem componente novo: a foto ganhou o mesmo zoom leve (`group-hover:scale-105`) já usado em `ProjectCard`, `MediaGallery` e `VideoBanner`; cada bloco ganhou o mesmo destaque de fundo do hover do `Accordion` (FAQ) — `hover:bg-tint`, com `-m-3`/`p-3` para o fundo aparecer sem mexer no espaçamento entre os blocos.
+
+## 2026-09-25 (botão "Ver em tela cheia" + zoom por scroll na planta humanizada)
+
+- Corrigido/completado: `GaleriaPlantaHumanizada` abria o `VisualizadorPlantaFullscreen` (tela cheia com zoom) só por um botão invisível cobrindo a imagem inteira, e só no celular (`lg:hidden`) — no desktop não havia como ampliar. Trocado por um botão visível, em todos os breakpoints. Componente `VisualizadorPlantaFullscreen` também foi registrado agora em `components.md` (existia sem entrada no catálogo).
+- Ajuste no mesmo dia: a primeira versão usou o `Button` "Ver em tela cheia" do `MediaGallery` (preto sólido, com texto). O usuário achou que chamava atenção demais sobre a planta ("essa coisona preta"), poluindo a imagem — diferente de uma foto, a planta tem fundo claro e poucos elementos, então o preto sólido competia com o próprio conteúdo. Trocado por `IconButton` (ícone `maximize`, tom `surface` padrão), mesmo estilo discreto das setas que já ficam sobre essa imagem.
+- Ajuste no mesmo dia: o zoom por scroll do mouse crescia sempre a partir do centro da imagem, ignorando onde o mouse estava. Usuário pediu para o zoom seguir a direção do ponteiro (mesmo comportamento do Google Maps: o ponto sob o cursor fica fixo, e o resto da imagem "cresce" a partir dele). Ajustado o cálculo de `deslocamento` em `aoRolarMouse` para ancorar no ponteiro em vez do centro.
+- Novo: zoom por scroll do mouse no `VisualizadorPlantaFullscreen`, pedido pelo usuário ("um Lightbox com zoom no scroll do mouse") para a galeria de plantas humanizadas. Como o botão agora abre também no desktop, o giro de 90° (pensado só para a tela vertical do celular) passou a valer só até `lg`; a partir daí a planta aparece sem giro (`lg:aspect-video`) e o zoom já nasce pelo scroll, sem precisar de pinça.
+- Sem token novo.
+
 ## 2026-09-24 (alinhamento preço/botão no ProjectCard)
 
 - Corrigido: no `ProjectCard`, a linha "preço atual + botão Ver detalhes" usava `items-end` (base alinhada). Voltou para `items-center` (centralizado verticalmente), como era antes do desconto existir.

@@ -88,11 +88,11 @@ function PainelDoPavimento({
             unoptimized
             className="object-contain"
           />
-          <button
-            type="button"
-            aria-label={`Ampliar a planta: ${pavimento.nome}`}
+          <IconButton
+            icon="maximize"
+            label={`Ver em tela cheia: ${pavimento.nome}`}
             onClick={aoAmpliar}
-            className="absolute inset-0 lg:hidden"
+            className="absolute top-3 left-3"
           />
 
           {total > 1 && (

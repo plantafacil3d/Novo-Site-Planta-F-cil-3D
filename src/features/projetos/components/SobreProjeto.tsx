@@ -5,6 +5,9 @@ import { FeatureItem } from '@/components/shared/FeatureItem'
 
 import type { ConteudoSobre, ImagemRef } from '../types'
 
+// Mesmo destaque do hover do Accordion (FAQ): fundo `--color-tint` com raio e transição suaves.
+const ITEM_HOVER = 'rounded-md p-3 -m-3 transition-colors duration-150 ease-standard hover:bg-tint'
+
 /** "Sobre o projeto": descrição à esquerda, ambientes e público no meio, foto à direita. */
 export function SobreProjeto({ sobre, imagem }: { sobre: ConteudoSobre; imagem: ImagemRef }) {
   return (
@@ -18,28 +21,31 @@ export function SobreProjeto({ sobre, imagem }: { sobre: ConteudoSobre; imagem: 
             icon="layout-grid"
             title="Ambientes"
             description={sobre.ambientes}
+            className={ITEM_HOVER}
           />
           <FeatureItem
             titleAs="h3"
             icon="users"
             title="Indicado para"
             description={sobre.indicadoPara}
+            className={ITEM_HOVER}
           />
           <FeatureItem
             titleAs="h3"
             icon="building2"
             title="Aplicações"
             description={sobre.aplicacoes}
+            className={ITEM_HOVER}
           />
         </div>
 
-        <div className="relative aspect-4/3 overflow-hidden rounded-lg lg:aspect-auto">
+        <div className="group relative aspect-4/3 overflow-hidden rounded-lg lg:aspect-auto">
           <Image
             src={imagem.src}
             alt={imagem.alt}
             fill
             sizes="(min-width: 1024px) 33vw, 100vw"
-            className="object-cover"
+            className="object-cover transition-transform duration-250 ease-standard group-hover:scale-105"
           />
         </div>
       </div>

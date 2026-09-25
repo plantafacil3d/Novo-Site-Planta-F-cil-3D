@@ -267,6 +267,14 @@ Lista com marcador de check: círculo `--color-accent` (só preenchimento) com o
 
 `'use client'`. Galeria do topo da página: foto grande com setas, botão "Ver em tela cheia" (abre o `Lightbox`), botão "Assistir vídeo" (abre `Modal` com `<video>`, só se houver vídeo), até 6 miniaturas e um bloco "+N" que abre o visualizador na primeira foto escondida. A foto inicial carrega com `priority`.
 
+### VisualizadorPlantaFullscreen
+
+- **Propósito:** planta humanizada em tela cheia, dentro de um `Modal` (`tone="inverse"`, implícito): setas Anterior/Próxima e contador "X de Y" com 2+ pavimentos (mesmo padrão do `Lightbox`, mas plantas costumam ser paisagem — não cabem retas no `Lightbox`, que é feito para fotos). Até `lg`, gira 90° (`rotate-90`, sem depender da Screen Orientation API, inconsistente no Safari) para aproveitar a tela do celular na vertical; a partir de `lg`, sem giro (`lg:aspect-video`).
+- **Zoom:** pinça no celular (arraste sem zoom troca de pavimento); no desktop, scroll do mouse, ancorado no ponteiro (o ponto sob o cursor fica fixo, o zoom cresce na direção do mouse). Sempre entre 1x e 4x, reinicia ao trocar de pavimento.
+- **Props:** `images`, `index` (`null` = fechado), `onIndexChange`, `onClose`, `label`.
+- **Usado em:** `GaleriaPlantaHumanizada` (feature `projetos`), acionado por um `IconButton` (ícone `maximize`, canto superior esquerdo da imagem) — não o `Button` com texto do `MediaGallery`: sobre a planta (fundo claro, poucos elementos), o botão preto sólido chamava mais atenção que a própria planta; o círculo branco discreto, no mesmo estilo das setas que já ficam sobre essa imagem, resolveu.
+- **Tokens:** `--color-inverse-strong`, `--color-inverse`, `--color-fg-inverse`.
+
 ### VideoBanner
 
 `'use client'`. Bloco escuro arredondado com imagem ao fundo, título, texto e um grande play (`IconButton` `lg`) que abre o vídeo num `Modal`. Selo de duração opcional (`Badge`). Hover: imagem de fundo dá zoom leve (`scale-105`), mesmo padrão dos cards de projeto.

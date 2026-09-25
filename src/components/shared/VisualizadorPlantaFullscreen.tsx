@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useRef, useState, type Touch, type TouchEvent } from 'react'
+import { useRef, useState, type Touch, type TouchEvent, type WheelEvent } from 'react'
 
 import { IconButton } from '../ui/IconButton'
 import { Modal } from '../ui/Modal'
@@ -31,10 +31,16 @@ type Gesto = {
   deslocamentoInicial: { x: number; y: number }
 }
 
+/** Cada "clique" do scroll do mouse altera o zoom por esta fração. */
+const PASSO_DE_ZOOM = 0.0015
+
 /**
- * Planta em tela cheia para celular: fica girada na horizontal (`rotate(90deg)`, sem depender da
- * Screen Orientation API, inconsistente no Safari) e aceita zoom por pinça e arraste com o dedo.
- * Sem zoom, arrastar na horizontal troca de pavimento. Setas e "X de Y" só com 2+ pavimentos.
+ * Planta em tela cheia. No celular fica girada na horizontal (`rotate(90deg)`, sem depender da
+ * Screen Orientation API, inconsistente no Safari) e aceita zoom por pinça e arraste com o dedo;
+ * sem zoom, arrastar na horizontal troca de pavimento. No desktop (a partir de `lg`), sem giro, e
+ * o zoom vem do scroll do mouse, ancorado no ponteiro (o ponto sob o cursor fica fixo, então o
+ * zoom "cresce" na direção para onde o mouse aponta, não a partir do centro). Setas e "X de Y" só
+ * com 2+ pavimentos.
  */
 export function VisualizadorPlantaFullscreen({
   images,
@@ -109,28 +115,58 @@ export function VisualizadorPlantaFullscreen({
     gesto.current = null
   }
 
+  function aoRolarMouse(evento: WheelEvent<HTMLDivElement>) {
+    evento.preventDefault()
+    const novaEscala = Math.min(
+      ESCALA_MAX,
+      Math.max(ESCALA_MIN, escala - evento.deltaY * PASSO_DE_ZOOM),
+    )
+    if (novaEscala === escala) return
+
+    if (novaEscala === ESCALA_MIN) {
+      setEscala(novaEscala)
+      setDeslocamento({ x: 0, y: 0 })
+      return
+    }
+
+    // Mantém o ponto sob o cursor fixo na tela: o zoom "cresce" na direção do mouse, não do centro.
+    const retangulo = evento.currentTarget.getBoundingClientRect()
+    const mouseX = evento.clientX - retangulo.left - retangulo.width / 2
+    const mouseY = evento.clientY - retangulo.top - retangulo.height / 2
+    const fator = 1 / novaEscala - 1 / escala
+
+    setEscala(novaEscala)
+    setDeslocamento({
+      x: deslocamento.x + mouseX * fator,
+      y: deslocamento.y + mouseY * fator,
+    })
+  }
+
   return (
     <Modal open={index !== null} onClose={onClose} label={label}>
       {current && index !== null && (
         <div
-          className="relative aspect-square w-full touch-none overflow-hidden bg-inverse-strong"
+          className="relative aspect-square w-full touch-none overflow-hidden bg-inverse-strong lg:aspect-video"
           onTouchStart={aoTocarInicio}
           onTouchMove={aoMoverToque}
           onTouchEnd={aoSoltarToque}
+          onWheel={aoRolarMouse}
         >
-          <div
-            className="absolute inset-0"
-            style={{
-              transform: `rotate(90deg) scale(${escala}) translate(${deslocamento.x}px, ${deslocamento.y}px)`,
-            }}
-          >
-            <Image
-              src={current.src}
-              alt={current.alt}
-              fill
-              unoptimized
-              className="object-contain"
-            />
+          <div className="absolute inset-0 rotate-90 lg:rotate-0">
+            <div
+              className="absolute inset-0"
+              style={{
+                transform: `scale(${escala}) translate(${deslocamento.x}px, ${deslocamento.y}px)`,
+              }}
+            >
+              <Image
+                src={current.src}
+                alt={current.alt}
+                fill
+                unoptimized
+                className="object-contain"
+              />
+            </div>
           </div>
 
           {total > 1 && (
