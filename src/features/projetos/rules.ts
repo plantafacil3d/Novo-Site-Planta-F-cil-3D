@@ -273,6 +273,32 @@ export function montarConsulta(
   }
 }
 
+/**
+ * Opções de um select (Categoria, Estilo) restritas ao que existe em algum projeto publicado, na
+ * ordem do catálogo. A opção já selecionada sempre aparece, mesmo sem projeto: senão o select
+ * "perderia" visualmente o valor que ainda está na URL.
+ */
+export function filtrarCatalogoUsado<T extends { valor: string }>(
+  catalogo: readonly T[],
+  usados: readonly string[],
+  selecionado: string | undefined,
+): T[] {
+  const validos = new Set(selecionado === undefined ? usados : [...usados, selecionado])
+  return catalogo.filter((item) => validos.has(item.valor))
+}
+
+/**
+ * Opções "N ou mais" (Quartos, Suítes...) que algum projeto publicado alcança, sem passar do maior
+ * valor real. Mesma ressalva do valor selecionado da função acima.
+ */
+export function filtrarQuantidadesUsadas(
+  opcoes: readonly number[],
+  maximo: number,
+  selecionado: number | undefined,
+): number[] {
+  return opcoes.filter((opcao) => opcao <= maximo || opcao === selecionado)
+}
+
 export type FiltroAplicado = {
   campo: CampoDeFiltro
   rotulo: string

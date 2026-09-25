@@ -76,7 +76,23 @@ const COLUNAS_DETALHE =
   'projeto_arquivos (caminho, papel, ordem, pavimento_id), ' +
   'projeto_pavimentos (id, nome, ordem, pavimento_itens (id, nome, metragem_m2, numero_bolinha, ordem))'
 
-type LinhaLimite = { preco_efetivo_centavos: number; area_construida_m2: number | null }
+type LinhaLimite = {
+  preco_efetivo_centavos: number
+  area_construida_m2: number | null
+  quartos_total: number | null
+  suites: number | null
+  suite_master: number | null
+  banheiros: number | null
+  lavabo: number | null
+  vagas: number | null
+  pavimentos: number | null
+}
+
+type LinhaVocabulario = { categoria: string | null; estilo: string | null }
+
+const COLUNAS_LIMITE =
+  'preco_efetivo_centavos, area_construida_m2, quartos_total, suites, suite_master, banheiros, ' +
+  'lavabo, vagas, pavimentos, projeto_arquivos!inner(papel)'
 
 type LinhaArquivoDetalhe = LinhaArquivo & { pavimento_id: string | null }
 
@@ -365,52 +381,108 @@ export class SupabaseProjetoRepository implements ProjetoRepository {
   }
 
   /**
-   * Menor/maior valor de preço e área entre os projetos exibíveis (publicados, com foto
-   * principal) — quatro buscas de 1 linha cada, cada uma usando o índice da própria coluna
-   * ordenada, em vez de baixar o catálogo inteiro para calcular o mínimo/máximo no servidor.
+   * O que existe de verdade entre os projetos exibíveis (publicados, com foto principal): preço,
+   * área e as quantidades ("N ou mais") vêm de buscas de 1 linha cada, cada uma usando o índice da
+   * própria coluna ordenada; categoria e estilo usados vêm de uma busca só, com só essas duas
+   * colunas (o vocabulário de cada uma é pequeno e fixo, então não cresce com o catálogo — ver
+   * `listarSlugs`, que já faz o mesmo tipo de busca completa por uma coluna estreita). Nada disso
+   * baixa o catálogo inteiro nem calcula mínimo/máximo no servidor da aplicação.
    */
   async buscarLimites(): Promise<LimitesDeFiltro> {
     const supabase = criarClientePublico()
     const base = () =>
       supabase
         .from('projetos')
-        .select('preco_efetivo_centavos, area_construida_m2, projeto_arquivos!inner(papel)')
+        .select(COLUNAS_LIMITE)
         .eq('status', 'publicado')
         .eq('projeto_arquivos.papel', 'principal')
+    const maiorPor = (coluna: string) =>
+      base()
+        .order(coluna, { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .overrideTypes<LinhaLimite, { merge: false }>()
 
-    const [precoMin, precoMax, areaMin, areaMax] = await Promise.all([
+    const [
+      precoMin,
+      precoMax,
+      areaMin,
+      areaMax,
+      quartosMax,
+      suitesMax,
+      suiteMasterMax,
+      banheirosMax,
+      lavaboMax,
+      vagasMax,
+      pavimentosMax,
+      vocabulario,
+    ] = await Promise.all([
       base()
         .order('preco_efetivo_centavos', { ascending: true })
         .limit(1)
         .maybeSingle()
         .overrideTypes<LinhaLimite, { merge: false }>(),
-      base()
-        .order('preco_efetivo_centavos', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-        .overrideTypes<LinhaLimite, { merge: false }>(),
+      maiorPor('preco_efetivo_centavos'),
       base()
         .order('area_construida_m2', { ascending: true })
         .limit(1)
         .maybeSingle()
         .overrideTypes<LinhaLimite, { merge: false }>(),
-      base()
-        .order('area_construida_m2', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-        .overrideTypes<LinhaLimite, { merge: false }>(),
+      maiorPor('area_construida_m2'),
+      maiorPor('quartos_total'),
+      maiorPor('suites'),
+      maiorPor('suite_master'),
+      maiorPor('banheiros'),
+      maiorPor('lavabo'),
+      maiorPor('vagas'),
+      maiorPor('pavimentos'),
+      supabase
+        .from('projetos')
+        .select('categoria, estilo, projeto_arquivos!inner(papel)')
+        .eq('status', 'publicado')
+        .eq('projeto_arquivos.papel', 'principal')
+        .overrideTypes<LinhaVocabulario[], { merge: false }>(),
     ])
 
-    const erro = precoMin.error ?? precoMax.error ?? areaMin.error ?? areaMax.error
+    const erro =
+      precoMin.error ??
+      precoMax.error ??
+      areaMin.error ??
+      areaMax.error ??
+      quartosMax.error ??
+      suitesMax.error ??
+      suiteMasterMax.error ??
+      banheirosMax.error ??
+      lavaboMax.error ??
+      vagasMax.error ??
+      pavimentosMax.error ??
+      vocabulario.error
     if (erro) {
       throw new AppError('falha_inesperada', 'Não foi possível carregar os limites de filtro.')
     }
+
+    const valoresUsados = (chave: keyof LinhaVocabulario) => [
+      ...new Set(
+        (vocabulario.data ?? [])
+          .map((linha) => linha[chave])
+          .filter((valor): valor is string => Boolean(valor)),
+      ),
+    ]
 
     return {
       precoMinCentavos: precoMin.data?.preco_efetivo_centavos ?? 0,
       precoMaxCentavos: precoMax.data?.preco_efetivo_centavos ?? 0,
       areaMinM2: areaMin.data?.area_construida_m2 ?? 0,
       areaMaxM2: areaMax.data?.area_construida_m2 ?? 0,
+      categorias: valoresUsados('categoria'),
+      estilos: valoresUsados('estilo'),
+      quartosMax: quartosMax.data?.quartos_total ?? 0,
+      suitesMax: suitesMax.data?.suites ?? 0,
+      suiteMasterMax: suiteMasterMax.data?.suite_master ?? 0,
+      banheirosMax: banheirosMax.data?.banheiros ?? 0,
+      lavaboMax: lavaboMax.data?.lavabo ?? 0,
+      vagasMax: vagasMax.data?.vagas ?? 0,
+      pavimentosMax: pavimentosMax.data?.pavimentos ?? 0,
     }
   }
 

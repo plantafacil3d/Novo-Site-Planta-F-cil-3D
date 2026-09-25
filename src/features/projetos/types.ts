@@ -211,13 +211,25 @@ export type ConsultaProjetos = {
 }
 
 /**
- * Menor/maior preço e área entre os projetos publicados: baliza os campos "De/Até" do filtro,
- * pra ninguém digitar um valor que não existe em nenhum projeto. Zero quando não há nenhum
- * publicado ainda.
+ * O que existe de verdade entre os projetos publicados, pra nenhum filtro oferecer uma opção que
+ * não leva a lugar nenhum: menor/maior preço e área (balizam os campos "De/Até"), quais categorias
+ * e estilos foram usados por algum projeto, e o maior valor de cada "N ou mais" (quem tem só uma
+ * casa de 2 quartos não vê a opção "5 ou mais"). Zero/lista vazia quando não há projeto publicado.
  */
 export type LimitesDeFiltro = {
   precoMinCentavos: number
   precoMaxCentavos: number
   areaMinM2: number
   areaMaxM2: number
+  /** Mesmo vocabulário do cadastro (`categoriasDoCadastro`/`estilosDoCadastro`). */
+  categorias: string[]
+  estilos: string[]
+  /** Soma quartos + suítes, como o filtro "Quartos" (`quartos_total` no banco). */
+  quartosMax: number
+  suitesMax: number
+  suiteMasterMax: number
+  banheirosMax: number
+  lavaboMax: number
+  vagasMax: number
+  pavimentosMax: number
 }

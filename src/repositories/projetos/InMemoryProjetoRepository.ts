@@ -18,7 +18,21 @@ export class InMemoryProjetoRepository implements ProjetoRepository {
   }
 
   async buscarLimites() {
-    return { precoMinCentavos: 0, precoMaxCentavos: 0, areaMinM2: 0, areaMaxM2: 0 }
+    return {
+      precoMinCentavos: 0,
+      precoMaxCentavos: 0,
+      areaMinM2: 0,
+      areaMaxM2: 0,
+      categorias: [],
+      estilos: [],
+      quartosMax: 0,
+      suitesMax: 0,
+      suiteMasterMax: 0,
+      banheirosMax: 0,
+      lavaboMax: 0,
+      vagasMax: 0,
+      pavimentosMax: 0,
+    }
   }
 
   async buscarPorSlug() {
