@@ -5,10 +5,11 @@ import { CheckList } from '@/components/shared/CheckList'
 export function IncluidoNoProjeto({ itens }: { itens: string[] }) {
   return (
     <Section
+      tone="tint"
       title="O que está incluso"
       subtitle="Tudo o que você precisa para começar seu projeto."
     >
-      <CheckList items={itens} />
+      <CheckList items={itens} columns={2} />
     </Section>
   )
 }

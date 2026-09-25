@@ -259,7 +259,9 @@ Faixa de chamada para ação. Variantes: `inverse` (imagem à esquerda + painel 
 
 ### CheckList
 
-Lista com marcador de check: círculo `--color-accent` (só preenchimento) com o check em `--color-fg`. Usada em "Sobre o projeto", "Importante saber" e no resumo do que está incluso.
+Lista com marcador de check: círculo `--color-accent` (só preenchimento) com o check em `--color-fg`. Usada em "Valores" (`/sobre`) e em "O que está incluso" (página do projeto).
+
+- **Prop `columns`:** `1` (padrão, coluna única) ou `2` (grade `sm:grid-cols-2`) — nasceu em "O que está incluso": a lista é cadastrada pelo admin com tamanho variável e, em coluna única, sobrava muito vazio à direita numa tela larga.
 
 ### Carousel
 
