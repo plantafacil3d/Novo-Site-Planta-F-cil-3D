@@ -1,8 +1,12 @@
 import { BotaoGoogle } from '@/components/shared/BotaoGoogle'
-import { FormularioLogin } from '@/components/shared/FormularioLogin'
 import { Logo } from '@/components/shared/Logo'
-import { entrarComGoogle, entrarNaConta } from '@/features/conta'
+import { entrarComGoogle } from '@/features/conta'
 import { siteConfig } from '@/features/site'
+
+// Login com e-mail e senha desativado por enquanto (só Google, por decisão do time).
+// `FormularioLogin` e `entrarNaConta` (@/components/shared/FormularioLogin, @/features/conta)
+// continuam prontos: para reativar, reimporte os dois e coloque de volta o divisor "ou" + o form
+// entre o `BotaoGoogle` e o parágrafo de instrução abaixo.
 
 /** Tela de entrada do painel do administrador. */
 export function LoginAdminView({ erro }: { erro?: string }) {
@@ -17,12 +21,9 @@ export function LoginAdminView({ erro }: { erro?: string }) {
           </p>
         )}
         <BotaoGoogle action={entrarComGoogle} />
-        <div className="my-4 flex items-center gap-3 text-sm text-fg-muted" aria-hidden="true">
-          <span className="h-px flex-1 bg-border" />
-          ou
-          <span className="h-px flex-1 bg-border" />
-        </div>
-        <FormularioLogin action={entrarNaConta} />
+        <p className="mt-4 text-center text-sm text-fg-muted">
+          Use a conta Google autorizada para acessar o painel.
+        </p>
       </main>
     </div>
   )

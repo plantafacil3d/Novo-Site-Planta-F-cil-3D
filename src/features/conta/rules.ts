@@ -21,9 +21,9 @@ export function mensagemErroLogin(chave: string | undefined): string | undefined
 export function acaoDaConta(ehAdmin: boolean): {
   label: string
   href: string
-  icone: 'dashboard' | 'heart'
+  icone: 'dashboard' | 'user'
 } {
   return ehAdmin
     ? { label: 'Painel', href: destinoAposEntrar(true), icone: 'dashboard' }
-    : { label: 'Favoritos', href: '/favoritos', icone: 'heart' }
+    : { label: 'Favoritos', href: '/favoritos', icone: 'user' }
 }
