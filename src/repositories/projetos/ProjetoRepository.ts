@@ -23,6 +23,9 @@ export interface ProjetoRepository {
   /** `null` quando não existe projeto com esse slug. */
   buscarPorSlug(slug: string): Promise<ProjetoDetalhe | null>
   listarSlugs(): Promise<string[]>
-  /** Projetos parecidos com o do slug informado (nunca inclui o próprio). */
-  listarRelacionados(slug: string): Promise<Projeto[]>
+  /**
+   * Projetos parecidos com o informado (nunca inclui o próprio). Recebe `id`/`categoria` do
+   * projeto já carregado pela página, em vez do slug, para não repetir a busca que os obteve.
+   */
+  listarRelacionados(id: string, categoria: string): Promise<Projeto[]>
 }

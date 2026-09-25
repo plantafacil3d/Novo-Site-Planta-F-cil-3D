@@ -447,27 +447,16 @@ export class SupabaseProjetoRepository implements ProjetoRepository {
     return data.map((linha) => linha.slug)
   }
 
-  async listarRelacionados(slug: string): Promise<Projeto[]> {
+  async listarRelacionados(id: string, categoria: string): Promise<Projeto[]> {
     const supabase = criarClientePublico()
-    const { data: atual, error: erroAtual } = await supabase
-      .from('projetos')
-      .select('id, categoria')
-      .eq('slug', slug)
-      .eq('status', 'publicado')
-      .maybeSingle()
-      .overrideTypes<{ id: string; categoria: string | null }, { merge: false }>()
-    if (erroAtual) {
-      throw new AppError('falha_inesperada', 'Não foi possível carregar projetos relacionados.')
-    }
-    if (!atual) return []
 
     let consulta = supabase
       .from('projetos')
       .select(COLUNAS_RESUMO)
       .eq('status', 'publicado')
       .eq('projeto_arquivos.papel', 'principal')
-      .neq('id', atual.id)
-    if (atual.categoria) consulta = consulta.eq('categoria', atual.categoria)
+      .neq('id', id)
+    if (categoria) consulta = consulta.eq('categoria', categoria)
 
     const { data, error } = await consulta
       .order('criado_em', { ascending: false })

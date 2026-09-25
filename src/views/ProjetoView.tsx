@@ -1,3 +1,5 @@
+import { Suspense } from 'react'
+
 import { CTABanner } from '@/components/shared/CTABanner'
 import { JsonLd } from '@/components/shared/JsonLd'
 import { VideoBanner } from '@/components/shared/VideoBanner'
@@ -22,9 +24,14 @@ import {
 } from '@/features/projetos'
 import { siteConfig, siteUrl } from '@/features/site'
 
+/** Seção à parte: carrega depois do resto da página, sem travar o carregamento principal nela. */
+async function SecaoRelacionados({ projeto }: { projeto: ProjetoDetalhe }) {
+  const relacionados = await listarProjetosRelacionados(projeto)
+  return <ProjetosRelacionados projetos={relacionados} />
+}
+
 /** Página pública de um projeto. A ordem das seções segue a referência visual aprovada. */
 export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
-  const relacionados = await listarProjetosRelacionados(projeto.slug)
   const preco = exibirPreco(projeto)
   const checkoutUrl = checkoutSeguro(projeto.checkoutUrl)
 
@@ -96,7 +103,9 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
         />
       )}
 
-      <ProjetosRelacionados projetos={relacionados} />
+      <Suspense fallback={null}>
+        <SecaoRelacionados projeto={projeto} />
+      </Suspense>
 
       {/* Precisa ser o último item: `sticky` para no fim da página e não cobre o rodapé. */}
       <BarraCompraMobile preco={preco} checkoutUrl={checkoutUrl} />

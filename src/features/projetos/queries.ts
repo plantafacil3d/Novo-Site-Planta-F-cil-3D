@@ -5,7 +5,7 @@ import { cache } from 'react'
 import { projetoRepository } from '@/repositories/projetos'
 
 import { montarConsulta } from './rules'
-import type { ParametrosListagem } from './types'
+import type { ParametrosListagem, ProjetoDetalhe } from './types'
 
 // Loaders para Server Components: o conteúdo público é renderizado no servidor (SEO).
 
@@ -41,6 +41,7 @@ export function listarSlugsProjetos() {
   return projetoRepository.listarSlugs()
 }
 
-export function listarProjetosRelacionados(slug: string) {
-  return projetoRepository.listarRelacionados(slug)
+/** Recebe o projeto já carregado (não busca de novo id/categoria, que a página já tem). */
+export function listarProjetosRelacionados(projeto: ProjetoDetalhe) {
+  return projetoRepository.listarRelacionados(projeto.id, projeto.categoriaRotulo)
 }
