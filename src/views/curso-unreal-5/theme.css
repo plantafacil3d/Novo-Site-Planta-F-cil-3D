@@ -1,0 +1,40 @@
+/*
+ * Tema visual local desta página, escopado à classe `.tema-curso-ue5` (aplicada no wrapper
+ * raiz de `CursoUnreal5View`). Exceção combinada com o usuário (2026-09-25): a landing do curso
+ * precisa da identidade visual da página de vendas original, diferente da paleta preto+verde do
+ * resto do site — ver `.claude/skills/design-system/changelog.md`. Não altera `src/styles/tokens.css`;
+ * os componentes desta página usam só estas variáveis (via classes arbitrárias do Tailwind,
+ * ex.: `bg-[var(--course-bg)]`), nunca hex solto.
+ */
+.tema-curso-ue5 {
+  --course-bg: #05070d;
+  --course-bg-elevated: #0d1424;
+  --course-surface: #131b2e;
+  --course-border: #26314a;
+  --course-accent: #3b82f6;
+  --course-accent-hover: #2563eb;
+  --course-accent-soft: #17233d;
+  --course-fg: #f8fafc;
+  --course-fg-muted: #94a3b8;
+}
+
+/*
+ * Faixa infinita dos logos de software compatível (hero). A trilha tem os logos duplicados lado a
+ * lado (mesmo conteúdo 2x) e anima de 0 a -50%: como as duas metades são idênticas, o fim de uma
+ * encaixa exatamente no início da outra, sem "salto" visível no loop. `prefers-reduced-motion` já
+ * é tratado globalmente em `globals.css` (zera a duração de toda animação do site).
+ */
+@keyframes course-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.tema-curso-ue5 .curso-marquee-trilho {
+  animation: course-marquee 20s linear infinite;
+}
+
+.tema-curso-ue5 .curso-marquee-mascara {
+  mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+}

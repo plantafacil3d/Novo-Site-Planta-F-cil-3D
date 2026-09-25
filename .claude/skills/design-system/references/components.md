@@ -345,6 +345,17 @@ Grava e envia de verdade (Supabase + Storage). A tela de criar é montada em `vi
 - Ícones novos no registro: `upload`, `trash`, `circle-check`, `circle-alert`.
 - Em "Informações Gerais", depois de "Descrição detalhada": três campos opcionais que espelham a seção "Sobre o projeto" da página pública (`SobreProjeto.tsx`, ainda mockada) — Ambientes (ícone `layout-grid`), Indicado para (`users`) e Aplicações (`building2`), usando a prop `icon` do `Field`.
 
+## Landing page de curso (`views/curso-unreal-5/components/`)
+
+Página de vendas isolada, servida em `/3d-unreal` (a aba "3D / Unreal" do menu principal). Tema visual próprio, escopado (ver `theme.css` e `../changelog.md`, 2026-09-25) — não usar como referência de padrão visual para o resto do site. Reaproveita `Section`, `Accordion`, `Carousel`, `MediaGallery`, `FeatureItem`, `CheckList`, `PriceTag`, `Button` e `Icon`; `CourseHero`, `BenefitBadgesStrip` e `CoursePricingSection` sobrescrevem cor via `className`/`priceClassName` para usar o azul do tema local.
+
+- `TestimonialCard`: foto, nome e texto de depoimento. Sem equivalente genérico no catálogo — se outra tela precisar de depoimento, promover para `components/shared/`.
+- `InstructorBio`: foto, nome e biografia curta de um perfil. Mais simples que `PerfilProjeto` (que é específico de projeto); promover para `shared/` se reaproveitado.
+- `CourseHero` também traz: um vídeo do YouTube embutido direto na tela (não em modal, ao contrário do `VideoBanner`/`MediaGallery`), num player "limpo" (`youtube-nocookie.com`, `modestbranding`, `rel=0`, `iv_load_policy=3` — sem marca d'água grande nem sugestões de outros canais); e a faixa "Compatível com" virou um carrossel infinito dos logos (`curso-marquee-trilho`, animação em `theme.css`), com fallback de texto para quem usa leitor de tela (`sr-only`) já que a faixa é `aria-hidden`.
+- Demais componentes da pasta (`CourseCurriculum`, `CourseHighlightSection`, `BonusScenesSection`, `WhatYoullLearnGrid`, `TestimonialsSection`, `ProjectsGallerySection`, `AudienceSection`, `CoursePricingSection`, `CourseFaqSection`, `StickyMobileCta`) só compõem os primitivos acima com o conteúdo do curso (`data.ts`); nenhum tem estilo próprio fora do tema local ou dos tokens globais.
+- Ícones novos no registro: `award`, `flame`, `gift`, `globe`, `graduation-cap`, `languages`, `lock-open`, `monitor-play`, `quote`, `rocket`, `video`.
+- **Logos de software** (`ui/icons/software.tsx`: `blender`, `cinema-4d`, `sketchup`, `revit`): marcas reais de terceiros, nas cores oficiais fixas (ex.: laranja `#E87D0D` do Blender), não em `currentColor` — mesmo caso do `Google` em `brand.tsx`, onde a cor é da marca, não do tema. Formas e cores vêm da biblioteca `simple-icons` (licença CC0). Sem logo dedicado para "3ds Max" (só existe o genérico da Autodesk, que já é usado no Revit); aparece como texto na faixa até o usuário fornecer o logo oficial.
+
 ## Registro
 
 Ao criar ou alterar um componente, adicione/atualize a entrada acima e anote em `../changelog.md`.

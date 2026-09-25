@@ -4,6 +4,22 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-25 (vídeo, logos de software e carrossel infinito no hero do curso)
+
+- Pedido do usuário: vídeo de apresentação (YouTube) em destaque no hero, e os 5 logos de "Compatível com" virarem imagens reais das marcas (não só texto), passando em looping infinito.
+- Vídeo: `<iframe>` embutido direto na tela (não atrás de um botão de play como `VideoBanner`), formato vertical (9:16, o vídeo enviado é assim) — limitado pela **altura** da tela (`h-[min(80vh,640px)]`), não pela largura, senão a proporção vertical dispara a altura e corta em notebooks mais baixos. Endereço "limpo": domínio `youtube-nocookie.com`, `modestbranding=1`, `rel=0`, `iv_load_policy=3` — tira marca d'água grande e sugestões de outros canais.
+- Logos: 4 dos 5 (`blender`, `cinema4d`, `sketchup`, `autodeskrevit`) existem na biblioteca `simple-icons` (CC0); **3ds Max não tem logo próprio** ali, só o genérico da Autodesk — usar o genérico ali confundiria com o Revit (que já usa o dedicado), então "3ds Max" ficou como texto na faixa por enquanto. Novo arquivo `ui/icons/software.tsx` (mesmo padrão de `brand.tsx`), registrado no `Icon.tsx` central (`blender`, `cinema-4d`, `sketchup`, `revit`).
+- **Ajuste no mesmo dia**: usuário pediu as cores oficiais de cada marca em vez de monocromático. Trocado de `fill="currentColor"` (herdava a cor do texto ao redor, como os ícones de rede social) para `fill` fixo por marca (`#E87D0D` Blender, `#011A6A` Cinema 4D, `#005F9E` SketchUp, `#186BFF` Revit) — mesma exceção já usada no `Google` de `brand.tsx`, onde a cor pertence à marca, não ao tema.
+- Faixa: texto vira carrossel (logos + "3ds Max" em texto, lista duplicada lado a lado, anima de 0 a -50% para o loop não "saltar"). Decorativo (`aria-hidden`), com os nomes por extenso escondidos visualmente (`sr-only`) para quem usa leitor de tela. Anima em `theme.css` (`@keyframes course-marquee`), não nos tokens globais — `prefers-reduced-motion` já é tratado globalmente em `globals.css`.
+
+## 2026-09-25 (tema local da landing do curso Unreal Engine 5.6)
+
+- **Exceção combinada com o usuário** à regra "só tokens semânticos globais": a nova página `/3d-unreal` (pasta interna `views/curso-unreal-5/`, mesmo nome da aba "3D / Unreal" já existente no menu) precisa replicar a identidade visual da página de vendas original do curso (fora do site, feita em WordPress), diferente da paleta preto+verde do resto do Planta Fácil 3D. Por quê: é uma landing page de vendas isolada, com marca própria (DVIZ/curso), não uma tela do produto principal.
+- Solução: variáveis CSS próprias (`--course-*`: fundo escuro azulado, azul de destaque) escopadas à classe `.tema-curso-ue5` em `views/curso-unreal-5/theme.css`, aplicada só no wrapper raiz da `CursoUnreal5View`. **Nenhuma mudança em `src/styles/tokens.css`**: o resto do site continua com a paleta aprovada em 2026-09-20. Os novos componentes da página usam essas variáveis via classes arbitrárias do Tailwind (`bg-[var(--course-bg)]`), nunca hex direto no meio do JSX.
+- `Button` e `PriceTag` foram reaproveitados normalmente, com a cor do CTA/preço sobrescrita por `className`/`priceClassName` apontando para as variáveis locais — os componentes em si não ganharam variante nova, porque essa cor não se repete fora desta página.
+- Componentes novos (sem equivalente no catálogo): `TestimonialCard` (depoimento com foto, nome e texto) e `InstructorBio` (perfil simples do instrutor). Registrados abaixo, em "Landing page de curso".
+- Seções de conteúdo mais neutras (currículo, FAQ, depoimentos, galerias, "o que vai aprender") continuam usando `Section`, `Accordion`, `Carousel`, `MediaGallery`, `FeatureItem` e `CheckList` com os tokens globais normais — a exceção fica restrita ao hero, à faixa de selos e à seção de preço/matrícula, onde a identidade da marca do curso realmente precisa aparecer.
+
 ## 2026-09-25 (card de projeto compacto, em teste)
 
 - Nova prop `density` no `ProjectCard` (`compact`, padrão, em teste; `default`, card anterior mantido no código sem uso). Por quê: usuário trouxe uma referência visual de outro card, mais compacto, e pediu para testar sem apagar o atual — pode querer voltar. Variante nasceu dentro do próprio componente (regra da skill: variação vive no componente, não em duplicata) em vez de um `ProjectCard2` novo.
