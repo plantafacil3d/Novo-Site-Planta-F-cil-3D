@@ -22,6 +22,8 @@ export interface ProjetoRepository {
   buscarLimites(): Promise<LimitesDeFiltro>
   /** `null` quando não existe projeto com esse slug. */
   buscarPorSlug(slug: string): Promise<ProjetoDetalhe | null>
+  /** Resumo dos projetos publicados entre os ids informados (ex.: favoritos). Ordem não garantida. */
+  buscarPorIds(ids: string[]): Promise<Projeto[]>
   listarSlugs(): Promise<string[]>
   /**
    * Projetos parecidos com o informado (nunca inclui o próprio). Recebe `id`/`categoria` do

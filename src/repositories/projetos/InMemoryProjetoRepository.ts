@@ -39,6 +39,10 @@ export class InMemoryProjetoRepository implements ProjetoRepository {
     return null
   }
 
+  async buscarPorIds() {
+    return []
+  }
+
   async listarSlugs() {
     return []
   }

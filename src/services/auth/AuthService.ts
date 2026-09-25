@@ -1,6 +1,8 @@
 export type UsuarioLogado = {
   id: string
   email: string
+  /** Nome da conta Google (`user_metadata`); cai pro e-mail quando a conta não tem nome. */
+  nome: string
   /** Vem do servidor (tabela `administradores`), nunca de dado que o usuário possa alterar. */
   ehAdmin: boolean
 }

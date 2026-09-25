@@ -5,7 +5,6 @@ export function destinoAposEntrar(ehAdmin: boolean): string {
 
 /** Mensagens do login com Google, escolhidas por uma chave fixa da URL (nunca texto vindo dela). */
 const mensagensErroLogin = {
-  acesso_negado: 'Esta conta não tem acesso ao painel.',
   falha_login: 'Não foi possível entrar com o Google. Tente novamente.',
 } as const
 
@@ -15,13 +14,16 @@ export function mensagemErroLogin(chave: string | undefined): string | undefined
     : undefined
 }
 
-/** Botão de conta do cabeçalho: `null` = ainda não sabemos (ou sem sessão) → "Minha conta". */
-export function acaoDaConta(ehAdmin: boolean | null): {
+/**
+ * Botão de conta do cabeçalho para quem já está logado: administrador vai ao painel, cliente aos
+ * favoritos. Sem sessão, o cabeçalho mostra o menu "Entrar"/"Cadastro" em vez disto (ver `BotaoConta`).
+ */
+export function acaoDaConta(ehAdmin: boolean): {
   label: string
   href: string
-  icone: 'user' | 'dashboard'
+  icone: 'dashboard' | 'heart'
 } {
   return ehAdmin
     ? { label: 'Painel', href: destinoAposEntrar(true), icone: 'dashboard' }
-    : { label: 'Minha conta', href: '/admin/entrar', icone: 'user' }
+    : { label: 'Favoritos', href: '/favoritos', icone: 'heart' }
 }

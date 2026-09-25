@@ -16,7 +16,13 @@ async function paraUsuarioLogado(supabase: SupabaseClient, usuario: User): Promi
     .maybeSingle()
   if (error) throw new AppError('falha_inesperada', 'Não foi possível verificar o acesso.')
 
-  return { id: usuario.id, email: usuario.email ?? '', ehAdmin: data !== null }
+  const nome = usuario.user_metadata?.full_name ?? usuario.user_metadata?.name
+  return {
+    id: usuario.id,
+    email: usuario.email ?? '',
+    nome: typeof nome === 'string' && nome.length > 0 ? nome : (usuario.email ?? ''),
+    ehAdmin: data !== null,
+  }
 }
 
 export class SupabaseAuthService implements AuthService {

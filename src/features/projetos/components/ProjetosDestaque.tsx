@@ -1,5 +1,7 @@
 import { ProjectCard } from '@/components/shared/ProjectCard'
 import { cn } from '@/components/ui/cn'
+import { entrarComGoogle } from '@/features/conta'
+import { FavoriteToggle } from '@/features/favoritos'
 
 import { exibirPreco, hrefProjeto } from '../rules'
 import type { Projeto } from '../types'
@@ -29,7 +31,13 @@ export function ProjetosDestaque({ projetos, className }: ProjetosDestaqueProps)
               price={preco.atual}
               priceOriginal={preco.original}
               priceDiscount={preco.desconto}
-              favoriteLabel={`Favoritar ${projeto.titulo}`}
+              favorite={
+                <FavoriteToggle
+                  projetoId={projeto.id}
+                  label={`Favoritar ${projeto.titulo}`}
+                  entrarComGoogleAction={entrarComGoogle.bind(null, projeto.id)}
+                />
+              }
             />
           </li>
         )

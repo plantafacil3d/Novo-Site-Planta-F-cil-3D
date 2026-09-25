@@ -2,29 +2,43 @@ import 'server-only'
 
 import { z } from 'zod'
 
+import { favoritoRepository } from '@/repositories/favoritos'
 import { authService } from '@/services/auth'
 
 import { destinoAposEntrar } from './rules'
 
-// O `code` vem da URL (não confiável): é validado aqui. O destino é sempre escolhido pelo servidor.
+// O `code` e o `favoritar` vêm da URL (não confiáveis): validados aqui. O destino é sempre
+// escolhido pelo servidor, nunca uma URL vinda do cliente (sem redirecionamento aberto).
 const schemaCode = z.string().min(1).max(512)
+const schemaFavoritar = z.uuid()
 
-/** Termina o login com Google. Devolve para onde levar o navegador (endereço interno fixo). */
-export async function concluirLoginGoogle(code: string | null): Promise<string> {
+/**
+ * Termina o login com Google. Devolve para onde levar o navegador (só endereços internos fixos:
+ * `/admin/projetos`, `/` ou `/favoritos`). Qualquer conta Google pode entrar e manter sessão;
+ * autorização de `/admin` continua garantida à parte, no servidor, por `exigirAdmin()`.
+ */
+export async function concluirLoginGoogle(
+  code: string | null,
+  favoritarBruto: string | null,
+): Promise<string> {
   const dados = schemaCode.safeParse(code)
   if (!dados.success) return '/admin/entrar?erro=falha_login'
 
-  let ehAdmin: boolean
+  let usuario: { ehAdmin: boolean }
   try {
-    ehAdmin = (await authService.concluirLoginGoogle(dados.data)).ehAdmin
+    usuario = await authService.concluirLoginGoogle(dados.data)
   } catch {
     return '/admin/entrar?erro=falha_login'
   }
 
-  if (!ehAdmin) {
-    // Qualquer conta Google consegue logar; só quem está em `administradores` entra no painel.
-    await authService.sair()
-    return '/admin/entrar?erro=acesso_negado'
+  const favoritar = schemaFavoritar.safeParse(favoritarBruto)
+  if (favoritar.success) {
+    // Melhor esforço: um id inválido/já excluído não pode derrubar um login que já deu certo.
+    try {
+      await favoritoRepository.adicionar(favoritar.data)
+    } catch {}
+    return '/favoritos'
   }
-  return destinoAposEntrar(true)
+
+  return destinoAposEntrar(usuario.ehAdmin)
 }

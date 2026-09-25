@@ -508,6 +508,23 @@ export class SupabaseProjetoRepository implements ProjetoRepository {
     return montarDetalhe(data)
   }
 
+  /** Resumo dos projetos publicados entre os ids informados (ex.: favoritos). Ordem não garantida. */
+  async buscarPorIds(ids: string[]): Promise<Projeto[]> {
+    if (ids.length === 0) return []
+    const supabase = criarClientePublico()
+    const { data, error } = await supabase
+      .from('projetos')
+      .select(COLUNAS_RESUMO)
+      .eq('status', 'publicado')
+      .eq('projeto_arquivos.papel', 'principal')
+      .in('id', ids)
+      .overrideTypes<LinhaResumo[], { merge: false }>()
+    if (error) throw new AppError('falha_inesperada', 'Não foi possível carregar os projetos.')
+
+    const projetos = await Promise.all(data.map(montarResumo))
+    return projetos.filter((projeto): projeto is Projeto => projeto !== null)
+  }
+
   async listarSlugs(): Promise<string[]> {
     const supabase = criarClientePublico()
     const { data, error } = await supabase

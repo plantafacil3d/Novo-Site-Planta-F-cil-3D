@@ -245,11 +245,11 @@ Faixa de chamada para ação. Variantes: `inverse` (imagem à esquerda + painel 
 
 ### FormularioLogin
 
-`'use client'`. E-mail e senha com botão Entrar. Recebe `action` (a ação do servidor que faz o login, passada por quem usa), e hoje serve à única tela de login, `/admin/entrar` (o botão "Minha conta" do cabeçalho também leva a ela; `/entrar` só redireciona). Erro único e genérico, ligado por `aria-describedby`.
+`'use client'`. E-mail e senha com botão Entrar. Recebe `action` (a ação do servidor que faz o login, passada por quem usa). Usado só em `/admin/entrar` — o login de cliente (`/entrar`, `/cadastro`) é exclusivamente Google, sem e-mail/senha. Erro único e genérico, ligado por `aria-describedby`.
 
 ### BotaoGoogle
 
-`'use client'`. Botão "Entrar com Google" (`Button` `secondary` com ícone `google`, largura total). Recebe `action` (ação do servidor que inicia o login, passada por quem usa) e vira um formulário; mostra `loading` enquanto vai ao Google. Usado no `/admin/entrar`, acima do formulário de e-mail e senha.
+`'use client'`. Botão "Entrar com Google" (`Button` `secondary` com ícone `google`, largura total). Recebe `action` (ação do servidor que inicia o login, passada por quem usa) e vira um formulário; mostra `loading` enquanto vai ao Google. Usado em `/admin/entrar` (acima do formulário de e-mail e senha) e sozinho em `/entrar`/`/cadastro` (`ContaEntradaView`), o login/cadastro de cliente.
 
 ### CheckList
 

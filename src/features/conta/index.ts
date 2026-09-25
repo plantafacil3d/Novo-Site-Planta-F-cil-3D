@@ -1,5 +1,5 @@
 export { entrarComGoogle, entrarNaConta } from './actions'
 export { concluirLoginGoogle } from './callback'
-export { levarLogadoParaDestino, sessaoResumida } from './queries'
+export { levarLogadoParaDestino, sessaoResumida, usuarioLogado } from './queries'
 export { acaoDaConta, destinoAposEntrar, mensagemErroLogin } from './rules'
 export { BotaoConta } from './components/BotaoConta'

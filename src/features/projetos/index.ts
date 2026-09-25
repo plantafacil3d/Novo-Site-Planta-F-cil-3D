@@ -12,6 +12,7 @@ export { FiltrosAplicados } from './components/FiltrosAplicados'
 export { FiltrosSkeleton } from './components/FiltrosSkeleton'
 export { FormularioDeFiltros } from './components/FormularioDeFiltros'
 export { ProjetoDetalheSkeleton } from './components/ProjetoDetalheSkeleton'
+export { especificacoesDoCard } from './components/especificacoes'
 export { ProjetoHero } from './components/ProjetoHero'
 export { ProjetosDestaque } from './components/ProjetosDestaque'
 export { ProjetosRelacionados } from './components/ProjetosRelacionados'
@@ -35,6 +36,7 @@ export {
   contarFiltros,
   descreverResultados,
   exibirPreco,
+  formatarArea,
   formatarFamiliaIndicada,
   formatarPreco,
   hrefCategoria,
@@ -42,6 +44,7 @@ export {
   listarFiltrosAplicados,
   montarHrefListagem,
   resumirParaBusca,
+  simNao,
   temFiltros,
   totalDePaginas,
 } from './rules'

@@ -4,11 +4,12 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/components/ui/cn'
 import { Icon, type IconName } from '@/components/ui/Icon'
-import { FavoriteButton } from '@/components/shared/FavoriteButton'
 import { FeatureItem } from '@/components/shared/FeatureItem'
 import { MediaGallery } from '@/components/shared/MediaGallery'
 import { PriceTag } from '@/components/shared/PriceTag'
 import { TextoExpansivel } from '@/components/shared/TextoExpansivel'
+import { entrarComGoogle } from '@/features/conta'
+import { FavoriteToggle } from '@/features/favoritos'
 import { selosDeConfianca } from '@/features/site'
 
 import { descreverProjeto, type PrecoExibido } from '../rules'
@@ -96,7 +97,12 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
                 Compra indisponível no momento
               </Button>
             )}
-            <FavoriteButton variant="button" label="Adicionar aos favoritos" />
+            <FavoriteToggle
+              projetoId={projeto.id}
+              variant="button"
+              label="Adicionar aos favoritos"
+              entrarComGoogleAction={entrarComGoogle.bind(null, projeto.id)}
+            />
           </div>
         </div>
 

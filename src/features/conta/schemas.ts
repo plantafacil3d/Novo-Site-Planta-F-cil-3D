@@ -6,3 +6,6 @@ export const schemaLogin = z.object({
   email: z.email().max(254),
   senha: z.string().min(1).max(200),
 })
+
+/** Projeto a favoritar assim que o login com Google terminar (vem do coração de favoritar). */
+export const schemaProjetoIdOpcional = z.uuid()

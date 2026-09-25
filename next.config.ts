@@ -37,10 +37,6 @@ const nextConfig: NextConfig = {
         : []),
     ],
   },
-  async redirects() {
-    // Só existe uma tela de login; links antigos para /entrar levam a ela.
-    return [{ source: '/entrar', destination: '/admin/entrar', permanent: true }]
-  },
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }]
   },

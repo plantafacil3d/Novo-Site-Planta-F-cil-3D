@@ -8,7 +8,7 @@ import { authService } from '@/services/auth'
 import { AppError } from '@/types/erro'
 
 import { destinoAposEntrar } from './rules'
-import { schemaLogin } from './schemas'
+import { schemaLogin, schemaProjetoIdOpcional } from './schemas'
 
 // Server Actions são endpoints públicos (skill `seguranca` §9.1): a entrada é validada aqui.
 // O destino é escolhido pelo servidor, nunca por um endereço vindo do navegador (sem redirecionamento aberto).
@@ -36,10 +36,18 @@ export async function entrarNaConta(
   redirect(destinoAposEntrar(ehAdmin))
 }
 
-export async function entrarComGoogle(): Promise<void> {
+/**
+ * Começa o login com Google. Quando vem de um coração de favoritar (`projetoId`, validado como
+ * uuid), o projeto é favoritado assim que o login terminar — ver `concluirLoginGoogle`.
+ */
+export async function entrarComGoogle(projetoId?: string): Promise<void> {
+  const favoritar = projetoId ? schemaProjetoIdOpcional.safeParse(projetoId) : undefined
+  const base = `${siteUrl}/auth/callback`
+  const retornoUrl = favoritar?.success ? `${base}?favoritar=${favoritar.data}` : base
+
   let urlGoogle: string
   try {
-    urlGoogle = await authService.iniciarLoginGoogle(`${siteUrl}/auth/callback`)
+    urlGoogle = await authService.iniciarLoginGoogle(retornoUrl)
   } catch {
     redirect('/admin/entrar?erro=falha_login')
   }

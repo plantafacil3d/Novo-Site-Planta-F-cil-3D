@@ -1,9 +1,9 @@
 import Image from 'next/image'
+import type { ReactNode } from 'react'
 
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { Icon, type IconName } from '../ui/Icon'
-import { FavoriteButton } from './FavoriteButton'
 
 export type ProjectSpec = { icon: IconName; label: string }
 
@@ -21,7 +21,8 @@ type ProjectCardProps = {
   priceOriginal?: string
   /** Selo verde do desconto (ex.: "60% OFF"); omitido junto de `priceOriginal`. */
   priceDiscount?: string
-  favoriteLabel: string
+  /** Coração de favoritar, pronto; quem monta o card decide de onde ele vem. */
+  favorite: ReactNode
 }
 
 /**
@@ -38,7 +39,7 @@ export function ProjectCard({
   price,
   priceOriginal,
   priceDiscount,
-  favoriteLabel,
+  favorite,
 }: ProjectCardProps) {
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm transition-shadow duration-250 ease-standard hover:shadow-md">
@@ -51,9 +52,7 @@ export function ProjectCard({
           className="object-cover transition-transform duration-250 ease-standard group-hover:scale-105"
         />
         {badge && <Badge className="absolute top-3 left-3">{badge}</Badge>}
-        <div className="absolute top-1 right-1 z-10">
-          <FavoriteButton label={favoriteLabel} />
-        </div>
+        <div className="absolute top-1 right-1 z-10">{favorite}</div>
       </div>
 
       <div className="flex flex-1 flex-col gap-4 p-4">
