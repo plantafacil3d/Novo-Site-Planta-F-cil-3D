@@ -4,6 +4,30 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-27 (hero do curso Unreal: vídeo responsivo e brilho decorativo)
+
+- Pedido do usuário: no celular, o vídeo vertical do hero (`CourseHero`) transbordava a largura da tela (não responsivo); e pediu o mesmo brilho azul/lilás que acabou de ver na seção do currículo (`--course-glow-purple`/`--course-glow-magenta`, ver entrada acima) também no hero.
+- Causa do bug: o contêiner do vídeo só definia altura (`h-[min(80vh,640px)]`), deixando a largura sair do `aspect-9/16` sem teto — em telas estreitas e mais altas (celular), a largura calculada a partir da altura passava da largura disponível.
+- Correção: abaixo de `lg` (hero em coluna única), o contêiner passou a ser limitado pela **largura** (`w-full max-w-xs`, altura sai do `aspect-9/16`); a partir de `lg` (duas colunas), volta a ser limitado pela altura como antes (`lg:h-[min(80vh,640px)] lg:w-auto lg:max-w-none`) — o motivo original da altura-limitada (não cortar em notebooks baixos) só se aplica no layout de duas colunas.
+- Brilhos: mesmos dois `div` decorativos `absolute` com `blur-3xl` do `CourseCurriculum`, atrás do conteúdo do hero.
+
+## 2026-09-27 (fundo escuro no currículo do curso Unreal)
+
+- Pedido do usuário: a seção do currículo ("+60 horas de conteúdo, dinâmico e prático", 19 módulos), logo depois do mosaico de fotos, precisa de fundo escuro para chamar mais atenção. **Correção no mesmo dia:** primeira tentativa mexeu na seção errada (`AudienceSection`, que tem um texto parecido — "+60 horas de aulas" — mas é outra seção, mais abaixo na página); revertida, e a mudança certa aplicada aqui no `CourseCurriculum`.
+- `CourseCurriculum` deixou de usar o `Section` global (só tem tons dos tokens claros do site) e passou a montar a mesma estrutura à mão, com `bg-[var(--course-bg)]` — mesma exceção combinada de 2026-09-25 (`CourseHero`/`CoursePricingSection`).
+- **Ajuste no mesmo dia:** usuário mandou print da página de vendas original — lá o currículo é uma grade de cartões escuros (não lista vertical clara) com o número do módulo em destaque, mais brilhos decorativos roxo/magenta desfocados no fundo. Confirmado com o usuário: mantém a sanfona ao clicar (só muda a aparência) e adiciona o brilho decorativo. `CourseCurriculum` trocou o `Accordion` global (lista vertical, cartões claros `bg-surface`) por marcação própria (`<details>`/`<summary>`, mesma técnica sem JS) em grade (`sm:grid-cols-2 lg:grid-cols-3`), cartões em `--course-surface` (já existia no tema local). Dois `div` decorativos `absolute` com `blur-3xl` e opacidade baixa, cor de `--course-glow-purple`/`--course-glow-magenta` (novos tokens locais em `theme.css`, só usados aqui).
+- Sem mudança em `src/styles/tokens.css`: os brilhos são tokens locais do tema do curso (`.tema-curso-ue5`), mesma regra dos demais `--course-*`.
+- **Ajuste no mesmo dia:** usuário reparou que a numeração estava "andando" pela linha (01, 08, 15 na mesma fileira) — `grid` preenche por linha. O print de referência lê por coluna (01 a ~07 descendo a primeira coluna, 08 no topo da segunda...). Trocado `grid` por `columns` (`columns-1 sm:columns-2 lg:columns-3` + `break-inside-avoid` em cada cartão) — mesma técnica já usada no `ProjectsMosaicSection` (mosaico de fotos), que naturalmente preenche coluna a coluna.
+
+## 2026-09-27 (mosaico de fotos na landing do curso Unreal)
+
+- Pedido do usuário: nova seção na página `/3d-unreal` mostrando vários projetos em mosaico de fotos ("Projetos que você vai aprender em nosso treinamento!"). O `MediaGallery` existente (foto grande + miniaturas) não resolve — é feito para navegar uma foto por vez, não para mostrar várias soltas ao mesmo tempo.
+- Componente novo `ProjectsMosaicSection` (`views/curso-unreal-5/components/`), clique abre o `Lightbox` já existente — sem componente novo para o visualizador. Registrado em `components.md`.
+- Fotos reais entram em `public/images/curso-unreal/projetos-mosaico/` (pasta nova, criada para o usuário subir os arquivos). Usuário subiu as 9 fotos (`1.webp`…`9.webp`) no mesmo dia; `data.ts` (`projetosParaAprender`) aponta direto para elas.
+- **Ajuste no mesmo dia:** primeira versão usava grid de células quadradas iguais (`grid-flow-dense`, uma foto maior a cada 5). Usuário pediu estilo "alvenaria/tijolos encaixados": fotos de tamanhos diferentes (quadrada, retangular) lado a lado sem cortar e sem buraco. Trocado para colunas CSS (`columns-2 sm:columns-3 lg:columns-4` + `break-inside-avoid` em cada foto) — cada imagem usa `width`/`height` reais (lidas do arquivo com `sharp`, guardadas em `data.ts`) em vez de `fill`, para manter a proporção original e empilhar sem espaço sobrando, como fileiras de tijolo.
+- **Segundo ajuste no mesmo dia:** usuário pediu no máximo 3 colunas mesmo em tela grande, para a foto não ficar pequena — removido o `lg:columns-4` (fica `columns-2 sm:columns-3` sem teto maior).
+- Sem token novo.
+
 ## 2026-09-25 (vídeo, logos de software e carrossel infinito no hero do curso)
 
 - Pedido do usuário: vídeo de apresentação (YouTube) em destaque no hero, e os 5 logos de "Compatível com" virarem imagens reais das marcas (não só texto), passando em looping infinito.

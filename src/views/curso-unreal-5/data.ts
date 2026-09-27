@@ -185,6 +185,29 @@ export const depoimentos: Testimonial[] = [
   },
 ]
 
+// Dimensões reais de cada foto (lidas do arquivo): o mosaico usa o tamanho natural de cada uma
+// para encaixar quadradas e retangulares lado a lado, como alvenaria, sem cortar nem deixar buraco.
+const dimensoesMosaico: Record<number, { width: number; height: number }> = {
+  1: { width: 624, height: 694 },
+  2: { width: 625, height: 426 },
+  3: { width: 625, height: 907 },
+  4: { width: 624, height: 980 },
+  5: { width: 625, height: 943 },
+  6: { width: 625, height: 575 },
+  7: { width: 624, height: 363 },
+  8: { width: 625, height: 668 },
+  9: { width: 625, height: 554 },
+}
+
+export const projetosParaAprender = Array.from({ length: 9 }, (_, indice) => {
+  const numero = indice + 1
+  return {
+    src: `/images/curso-unreal/projetos-mosaico/${numero}.webp`,
+    alt: `Projeto que você vai aprender a criar no curso, exemplo ${numero}`,
+    ...dimensoesMosaico[numero],
+  }
+})
+
 export const projetosDeAlunos = Array.from({ length: 9 }, (_, indice) => ({
   src: indice % 2 === 0 ? fotoAmbiente.src : fotoTela.src,
   alt: `Projeto de aluno renderizado em Unreal Engine, exemplo ${indice + 1}`,

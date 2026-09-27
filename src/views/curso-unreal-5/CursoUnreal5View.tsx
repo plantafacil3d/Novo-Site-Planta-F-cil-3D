@@ -11,6 +11,7 @@ import { CourseHighlightSection } from './components/CourseHighlightSection'
 import { CoursePricingSection } from './components/CoursePricingSection'
 import { InstructorBio } from './components/InstructorBio'
 import { ProjectsGallerySection } from './components/ProjectsGallerySection'
+import { ProjectsMosaicSection } from './components/ProjectsMosaicSection'
 import { StickyMobileCta } from './components/StickyMobileCta'
 import { TestimonialsSection } from './components/TestimonialsSection'
 import { WhatYoullLearnGrid } from './components/WhatYoullLearnGrid'
@@ -44,6 +45,7 @@ export function CursoUnreal5View() {
       <CourseHero />
       <BenefitBadgesStrip />
       <CourseHighlightSection />
+      <ProjectsMosaicSection />
       <CourseCurriculum />
       <BonusScenesSection />
       <WhatYoullLearnGrid />

@@ -29,9 +29,18 @@ function embedLimpo(url: string): string {
 /** Topo da landing: headline e CTA à esquerda, vídeo de apresentação em destaque à direita. */
 export function CourseHero() {
   return (
-    <section className="bg-[var(--course-bg)] text-[var(--course-fg)]">
-      <div className="mx-auto grid max-w-content items-center gap-12 px-4 py-16 lg:grid-cols-2 lg:py-20">
-        <div className="flex flex-col items-center gap-6 text-center lg:items-start lg:text-left">
+    <section className="relative overflow-hidden bg-[var(--course-bg)] text-[var(--course-fg)]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-[var(--course-glow-purple)] opacity-30 blur-3xl md:size-96"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full bg-[var(--course-glow-magenta)] opacity-30 blur-3xl md:size-96"
+      />
+
+      <div className="relative mx-auto grid max-w-content items-center gap-12 px-4 py-16 lg:grid-cols-2 lg:py-20">
+        <div className="flex w-full min-w-0 flex-col items-center gap-6 text-center lg:items-start lg:text-left">
           <p className="text-xs font-semibold tracking-[0.12em] text-[var(--course-accent)] uppercase">
             Curso Unreal Engine 5.6
           </p>
@@ -82,11 +91,14 @@ export function CourseHero() {
         </div>
 
         {/*
-          Vídeo vertical (formato Shorts/Reels): limitado pela ALTURA da tela (`h-[...]`), não pela
+          Vídeo vertical (formato Shorts/Reels). Abaixo de `lg` (coluna única), largura total da
+          tela até um teto (`max-w-xs`) — a altura sai sozinha do `aspect-9/16`; sem isso, a largura
+          do vídeo passava da largura da tela no celular (transbordava, cortava a lateral). A partir
+          de `lg` (duas colunas), inverte: limitado pela ALTURA da tela (`lg:h-[...]`), não pela
           largura da coluna — numa proporção 9:16, limitar só a largura deixava a altura disparar e
-          cortava em telas de notebook mais baixas. A largura sai sozinha do `aspect-9/16`.
+          cortava em telas de notebook mais baixas.
         */}
-        <div className="relative mx-auto aspect-9/16 h-[min(80vh,640px)] justify-self-center overflow-hidden rounded-xl border border-[var(--course-border)] shadow-[0_0_60px_-20px_var(--course-accent)] lg:justify-self-end">
+        <div className="relative mx-auto aspect-9/16 w-full max-w-xs justify-self-center overflow-hidden rounded-xl border border-[var(--course-border)] shadow-[0_0_60px_-20px_var(--course-accent)] lg:h-[min(80vh,640px)] lg:w-auto lg:max-w-none lg:justify-self-end">
           <iframe
             src={embedLimpo(videoDeApresentacao)}
             title="Vídeo de apresentação do curso Unreal Engine 5.6"

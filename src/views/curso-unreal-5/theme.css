@@ -16,6 +16,9 @@
   --course-accent-soft: #17233d;
   --course-fg: #f8fafc;
   --course-fg-muted: #94a3b8;
+  /* Brilhos decorativos do currículo (referência visual da página de vendas original, 2026-09-27). */
+  --course-glow-purple: #7c3aed;
+  --course-glow-magenta: #db2777;
 }
 
 /*
