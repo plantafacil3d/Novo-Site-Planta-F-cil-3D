@@ -17,7 +17,8 @@ const valores = [
   'Qualidade técnica e estética',
 ]
 
-const mensagemWhatsapp = 'Olá! Vi a página Sobre e quero saber mais sobre os projetos da Planta Fácil 3D.'
+const mensagemWhatsapp =
+  'Olá! Vi a página Sobre e quero saber mais sobre os projetos da Planta Fácil 3D.'
 
 export function SobreView() {
   return (
@@ -74,8 +75,8 @@ export function SobreView() {
           <div className="flex flex-col gap-4 text-fg-inverse/90">
             <p>
               Hoje, a Planta Fácil 3D atende clientes de todo o Brasil e também do exterior. Seja
-              para construir no litoral, no interior ou em outro país, nossos projetos digitais
-              são entregues com acesso instantâneo e suporte humano, sempre que necessário.
+              para construir no litoral, no interior ou em outro país, nossos projetos digitais são
+              entregues com acesso instantâneo e suporte humano, sempre que necessário.
             </p>
             <p>
               Com milhares de projetos vendidos, seguimos firmes com a proposta de tornar a

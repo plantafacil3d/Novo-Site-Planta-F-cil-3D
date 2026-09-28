@@ -48,9 +48,7 @@ export function Logo({ nome, tagline, tone = 'inverse' }: LogoProps) {
       <Icon name="house" className="size-8 text-accent sm:size-10" strokeWidth={1.5} />
       <span className="flex flex-col leading-tight">
         <span className="font-heading text-lg font-bold whitespace-nowrap sm:text-xl">{nome}</span>
-        {tagline && (
-          <span className="hidden text-xs text-fg-inverse/80 sm:block">{tagline}</span>
-        )}
+        {tagline && <span className="hidden text-xs text-fg-inverse/80 sm:block">{tagline}</span>}
       </span>
     </Link>
   )

@@ -5,7 +5,11 @@ import type { CardFavorito } from '../types'
  * (`CardFavorito.comparacao`, montado em `PainelFavoritosView`) — nunca importa `features/projetos`
  * aqui, para este componente continuar seguro de usar dentro de `GradeFavoritos` (client).
  */
-export function TabelaComparacao({ itens }: { itens: Pick<CardFavorito, 'id' | 'titulo' | 'comparacao'>[] }) {
+export function TabelaComparacao({
+  itens,
+}: {
+  itens: Pick<CardFavorito, 'id' | 'titulo' | 'comparacao'>[]
+}) {
   const rotulos = itens[0]?.comparacao.map((item) => item.rotulo) ?? []
 
   return (

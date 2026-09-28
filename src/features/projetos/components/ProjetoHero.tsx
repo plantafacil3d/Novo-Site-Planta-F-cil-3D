@@ -54,7 +54,9 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
             {projeto.codigoYoutube && (
               <p className="text-sm font-medium text-fg-muted">Cód. {projeto.codigoYoutube}</p>
             )}
-            {projeto.perfil.categoria && <Badge variant="neutral">{projeto.perfil.categoria}</Badge>}
+            {projeto.perfil.categoria && (
+              <Badge variant="neutral">{projeto.perfil.categoria}</Badge>
+            )}
             {projeto.perfil.estilo && <Badge variant="neutral">{projeto.perfil.estilo}</Badge>}
           </div>
           <h1 id={headingId} className="text-3xl">

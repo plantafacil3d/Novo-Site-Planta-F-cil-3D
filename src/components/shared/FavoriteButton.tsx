@@ -20,7 +20,13 @@ type FavoriteButtonProps = {
  * Coração de favoritar, controlado: só sabe mostrar o estado e avisar o clique. Quem decide o que
  * "favoritar" significa (login, backend) é quem usa este componente (`features/favoritos`).
  */
-export function FavoriteButton({ label, variant = 'icon', active, pending, onToggle }: FavoriteButtonProps) {
+export function FavoriteButton({
+  label,
+  variant = 'icon',
+  active,
+  pending,
+  onToggle,
+}: FavoriteButtonProps) {
   if (variant === 'button') {
     return (
       <Button
@@ -48,7 +54,11 @@ export function FavoriteButton({ label, variant = 'icon', active, pending, onTog
       <span className="flex size-8 items-center justify-center rounded-full bg-surface/90 text-fg shadow-sm transition-colors duration-150 ease-standard group-hover/favorite:text-primary">
         <Icon
           name={pending ? 'loader' : 'heart'}
-          className={cn('size-4', pending && 'animate-spin', active && !pending && 'fill-primary text-primary')}
+          className={cn(
+            'size-4',
+            pending && 'animate-spin',
+            active && !pending && 'fill-primary text-primary',
+          )}
         />
       </span>
     </button>

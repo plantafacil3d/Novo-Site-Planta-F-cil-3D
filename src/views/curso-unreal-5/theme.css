@@ -1,0 +1,62 @@
+/*
+ * Tema visual local desta página, escopado à classe `.tema-curso-ue5` (aplicada no wrapper raiz
+ * de `CursoUnreal5View`). Exceção combinada com o usuário: a landing do curso do parceiro (DVIZ)
+ * precisa da identidade visual da página de vendas original (preto + magenta/roxo), diferente da
+ * paleta preto+verde do resto do site — ver `.claude/skills/design-system/changelog.md`. Não altera
+ * `src/styles/tokens.css`; os componentes desta página usam só estas variáveis (via classes
+ * arbitrárias do Tailwind, ex.: `bg-[var(--course-bg)]`), nunca hex solto.
+ *
+ * Valores extraídos por amostragem de pixel direta na imagem de referência do parceiro.
+ * O verde do preço/CTA de oferta reaproveita o token global `--green-500` (já bate com a imagem).
+ */
+.tema-curso-ue5 {
+  --course-bg: #000000;
+  --course-bg-elevated: #0d0812;
+  /* Fundo do módulo do currículo (sanfona "01 - Bem Vindo"...): precisa de mais luz que
+     `--course-bg-elevated`, quase preto demais para destacar sobre o `--course-bg` puro nessa
+     seção — a referência do parceiro mostra um cinza bem mais claro por trás de cada módulo. */
+  --course-module-bg: #1c1c22;
+  --course-border: #2a1c28;
+  --course-accent: #ff4fa8;
+  --course-accent-hover: #e0428e;
+  /* Gradiente rosa dos botões de destaque (ex.: "Garantir Minha Vaga Agora"), com o brilho
+     (`box-shadow`) que a referência do parceiro mostra atrás deles — ver `.curso-btn-brilho`. */
+  --course-accent-from: #ff4fa8;
+  --course-accent-to: #b3116d;
+  --course-accent-deep: #3a0430;
+  --course-accent-strong: #841463;
+  --course-card-bg: #e9ecfb;
+  --course-fg: #f8fafc;
+  --course-fg-muted: #a1a1aa;
+  /* Selo "Unreal Engine 5.6" (gradiente mais escuro que o dos botões, para contrastar com fundo
+     claro) e o fundo do accordion "Destaque-se no mercado", ambos amostrados dessa seção. */
+  --course-badge-from: #d61d83;
+  --course-badge-to: #8121a0;
+  --course-accordion-bg: #484952;
+  /* Texto pequeno acima de "Para quem é o curso?" (referência do parceiro): dourado apagado,
+     única ocorrência dessa cor na página — não é o rosa de destaque. */
+  --course-eyebrow: #c9a26a;
+}
+
+.tema-curso-ue5 .curso-btn-brilho {
+  background: linear-gradient(135deg, var(--course-accent-from), var(--course-accent-to));
+  box-shadow: 0 14px 32px -8px rgb(255 79 168 / 55%);
+}
+
+.tema-curso-ue5 .curso-btn-brilho:hover {
+  box-shadow: 0 16px 36px -6px rgb(255 79 168 / 70%);
+}
+
+/* Brilho ambiente atrás do vídeo do banner (mesmo rosa do `curso-btn-brilho`, halo mais largo e
+   suave em vez de sombra encostada, para destacar o vídeo sobre o fundo preto). */
+.tema-curso-ue5 .curso-video-brilho {
+  box-shadow: 0 0 70px 12px rgb(255 79 168 / 45%);
+}
+
+/* Faixa de logos dos softwares compatíveis (Hero, `SoftwareLogosMarquee`): rolagem horizontal
+   contínua e arrastável, pedida pelo usuário. O movimento é feito em JS (`requestAnimationFrame`
+   + arraste por ponteiro); aqui só o fade nas bordas, para a faixa não cortar os logos de forma
+   abrupta. */
+.tema-curso-ue5 .curso-logos-faixa {
+  mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+}

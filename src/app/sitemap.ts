@@ -21,6 +21,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.5,
     },
+    {
+      url: `${siteUrl}/3d-unreal`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
     ...slugs.map((slug) => ({
       url: `${siteUrl}${hrefProjeto({ slug })}`,
       lastModified: new Date(),

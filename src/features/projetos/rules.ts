@@ -27,7 +27,9 @@ export type PrecoExibido = {
 }
 
 /** Preço pronto para exibir: com `precoOriginalCentavos`, monta o riscado e o "% OFF"; sem ele, só o atual. */
-export function exibirPreco(projeto: Pick<Projeto, 'precoCentavos' | 'precoOriginalCentavos'>): PrecoExibido {
+export function exibirPreco(
+  projeto: Pick<Projeto, 'precoCentavos' | 'precoOriginalCentavos'>,
+): PrecoExibido {
   const atual = formatarPreco(projeto.precoCentavos)
   const original = projeto.precoOriginalCentavos
   if (!original) return { atual }

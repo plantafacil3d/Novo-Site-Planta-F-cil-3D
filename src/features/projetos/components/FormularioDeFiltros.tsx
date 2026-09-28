@@ -72,7 +72,11 @@ export function FormularioDeFiltros({
   const precoMin = Math.floor(limites.precoMinCentavos / 100)
   const precoMax = Math.ceil(limites.precoMaxCentavos / 100)
 
-  const categorias = filtrarCatalogoUsado(categoriasDoCadastro, limites.categorias, params.categoria)
+  const categorias = filtrarCatalogoUsado(
+    categoriasDoCadastro,
+    limites.categorias,
+    params.categoria,
+  )
   const estilos = filtrarCatalogoUsado(estilosDoCadastro, limites.estilos, params.estilo)
 
   return (
@@ -174,13 +178,21 @@ export function FormularioDeFiltros({
       <SelectDeMinimo
         rotulo="Quartos"
         name="quartos"
-        opcoes={filtrarQuantidadesUsadas(opcoesDeQuantidade.quartos, limites.quartosMax, params.quartos)}
+        opcoes={filtrarQuantidadesUsadas(
+          opcoesDeQuantidade.quartos,
+          limites.quartosMax,
+          params.quartos,
+        )}
         valor={params.quartos}
       />
       <SelectDeMinimo
         rotulo="Suítes"
         name="suites"
-        opcoes={filtrarQuantidadesUsadas(opcoesDeQuantidade.suites, limites.suitesMax, params.suites)}
+        opcoes={filtrarQuantidadesUsadas(
+          opcoesDeQuantidade.suites,
+          limites.suitesMax,
+          params.suites,
+        )}
         valor={params.suites}
       />
       <SelectDeMinimo
@@ -206,7 +218,11 @@ export function FormularioDeFiltros({
       <SelectDeMinimo
         rotulo="Lavabo"
         name="lavabo"
-        opcoes={filtrarQuantidadesUsadas(opcoesDeQuantidade.lavabo, limites.lavaboMax, params.lavabo)}
+        opcoes={filtrarQuantidadesUsadas(
+          opcoesDeQuantidade.lavabo,
+          limites.lavaboMax,
+          params.lavabo,
+        )}
         valor={params.lavabo}
       />
       <SelectDeMinimo

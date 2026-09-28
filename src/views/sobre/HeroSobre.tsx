@@ -18,10 +18,10 @@ export function HeroSobre() {
             O Planta Fácil 3D é uma <span className="text-accent">empresa de Arquitetura</span>
           </h1>
           <p className="max-w-md text-fg-inverse/90">
-            Somos uma empresa digital de arquitetura fundada por Herkullys de Sousa Silva,
-            arquiteto e urbanista, com sede em Caxias, Maranhão. Nosso propósito é oferecer
-            projetos arquitetônicos acessíveis, funcionais e de alta qualidade, para pessoas do
-            Brasil e de diversas partes do mundo.
+            Somos uma empresa digital de arquitetura fundada por Herkullys de Sousa Silva, arquiteto
+            e urbanista, com sede em Caxias, Maranhão. Nosso propósito é oferecer projetos
+            arquitetônicos acessíveis, funcionais e de alta qualidade, para pessoas do Brasil e de
+            diversas partes do mundo.
           </p>
           <div className="flex items-center gap-2 text-sm text-fg-inverse/80">
             <Icon name="map-pin" className="size-4 text-accent" />

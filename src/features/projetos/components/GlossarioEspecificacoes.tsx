@@ -25,7 +25,10 @@ export function GlossarioEspecificacoes({ projeto }: { projeto: ProjetoDetalhe }
   )
 
   return (
-    <section aria-label="O que significa cada especificação" className="mx-auto max-w-content px-4 pb-6">
+    <section
+      aria-label="O que significa cada especificação"
+      className="mx-auto max-w-content px-4 pb-6"
+    >
       <Accordion items={[{ title: 'O que significa cada especificação?', content: conteudo }]} />
     </section>
   )

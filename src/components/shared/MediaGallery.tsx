@@ -126,7 +126,9 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
               onClick={() => setIndex(thumbIndex)}
               className={cn(
                 'group relative block aspect-4/3 w-full overflow-hidden rounded-md border-2 transition-colors duration-150 ease-standard',
-                thumbIndex === index ? 'border-primary' : 'border-transparent hover:border-border-strong',
+                thumbIndex === index
+                  ? 'border-primary'
+                  : 'border-transparent hover:border-border-strong',
               )}
             >
               <Image

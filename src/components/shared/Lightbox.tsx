@@ -50,7 +50,10 @@ export function Lightbox({ images, index, onIndexChange, onClose, label }: Light
 
           {/* Pré-carrega a foto anterior e a próxima para as setas trocarem sem espera. */}
           {(proxima || anterior) && (
-            <div aria-hidden className="pointer-events-none absolute size-px overflow-hidden opacity-0">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute size-px overflow-hidden opacity-0"
+            >
               {proxima && (
                 <div className="relative aspect-4/3">
                   <Image src={proxima.src} alt="" fill unoptimized />

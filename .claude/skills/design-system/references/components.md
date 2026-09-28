@@ -41,9 +41,12 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 
 ### Accordion
 
-- **Propósito:** perguntas que abrem e fecham (FAQ). `<details>` nativo: funciona sem JavaScript, teclado de graça e o texto já vem no HTML (SEO). Recebe `items: { title, content }[]`.
-- **Estados:** fechado (ícone `+`), aberto (ícone `−`), hover (`bg-tint`, mesmo verdinho do botão `ghost`), foco.
-- **Tokens:** `--color-border`, `--color-surface`, `--color-fg-muted`, `--color-tint`, `--radius-md`.
+- **Propósito:** perguntas que abrem e fecham (FAQ). `<details>` nativo: funciona sem JavaScript, teclado de graça e o texto já vem no HTML (SEO). Recebe `items: { title, content, defaultOpen? }[]` — `defaultOpen` deixa aquele item já expandido ao carregar (`open` nativo do `<details>`).
+- **Variante `tone`:** `default` (padrão, claro) e `inverse` (fundo `bg-inverse`, texto `fg-inverse`, para landing com tema escuro próprio, ex.: FAQ e "Destaque-se no mercado" do curso Unreal 5.6).
+- **Prop `icon`:** `plus-minus` (padrão) ou `chevron` (uma seta que gira 90° ao abrir) — nasceu no curso Unreal 5.6, cuja referência visual usa seta em vez de +/−.
+- **Prop `className`:** aplicada na lista (`<ul>`); junto de seletores `[&_details]:`, sobrescreve cor/borda de cada item quando `tone` não é específico o bastante (ex.: o cinza-chumbo do accordion "Destaque-se no mercado", diferente do `bg-inverse` padrão).
+- **Estados:** fechado (ícone `+` ou seta parada), aberto (ícone `−` ou seta girada), hover (`bg-tint`, mesmo verdinho do botão `ghost`; no `inverse`, `fg-inverse/10`), foco.
+- **Tokens:** `--color-border`, `--color-surface`, `--color-fg-muted`, `--color-tint`, `--color-inverse`, `--color-fg-inverse`, `--radius-md`.
 
 ### Icon
 
@@ -262,6 +265,7 @@ Faixa de chamada para ação. Variantes: `inverse` (imagem à esquerda + painel 
 Lista com marcador de check: círculo `--color-accent` (só preenchimento) com o check em `--color-fg`. Usada em "Valores" (`/sobre`) e em "O que está incluso" (página do projeto).
 
 - **Prop `columns`:** `1` (padrão, coluna única) ou `2` (grade `sm:grid-cols-2`) — nasceu em "O que está incluso": a lista é cadastrada pelo admin com tamanho variável e, em coluna única, sobrava muito vazio à direita numa tela larga.
+- **Prop `markerClassName`:** sobrescreve a cor do círculo (padrão `bg-accent`) — nasceu na landing do curso Unreal 5.6, cujo tema próprio usa magenta em vez do verde do site.
 
 ### Carousel
 

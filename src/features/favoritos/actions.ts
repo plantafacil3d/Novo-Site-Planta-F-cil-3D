@@ -9,8 +9,7 @@ import { authService } from '@/services/auth'
 import { schemaProjetoId } from './schemas'
 
 export type ResultadoAlternarFavorito =
-  | { ok: true }
-  | { ok: false; motivo: 'nao_autenticado' | 'invalido' | 'erro' }
+  { ok: true } | { ok: false; motivo: 'nao_autenticado' | 'invalido' | 'erro' }
 
 // Server Action é endpoint público (skill `seguranca` §9.1): id e sessão são validados aqui, nunca
 // confiando no que o botão do cliente já "sabia" sobre estar logado.

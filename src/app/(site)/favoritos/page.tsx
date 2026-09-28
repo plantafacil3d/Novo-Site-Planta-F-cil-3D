@@ -5,7 +5,10 @@ import { listarFavoritosPagina, listarSugestoes } from '@/features/favoritos'
 import { PainelFavoritosView } from '@/views/favoritos/PainelFavoritosView'
 
 // Página privada, por usuário: fora do índice do Google (skill `seguranca` §9.1).
-export const metadata: Metadata = { title: 'Meus favoritos', robots: { index: false, follow: false } }
+export const metadata: Metadata = {
+  title: 'Meus favoritos',
+  robots: { index: false, follow: false },
+}
 
 type FavoritosPageProps = {
   searchParams: Promise<{ pagina?: string }>

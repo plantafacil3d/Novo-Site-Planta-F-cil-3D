@@ -22,7 +22,11 @@ export function useAlternarFavorito() {
       await queryClient.cancelQueries({ queryKey: CHAVE_IDS })
       const anterior = queryClient.getQueryData<string[] | null>(CHAVE_IDS)
       queryClient.setQueryData<string[] | null>(CHAVE_IDS, (atual) =>
-        !atual ? atual : proximoEstado ? [...atual, projetoId] : atual.filter((id) => id !== projetoId),
+        !atual
+          ? atual
+          : proximoEstado
+            ? [...atual, projetoId]
+            : atual.filter((id) => id !== projetoId),
       )
       return { anterior }
     },

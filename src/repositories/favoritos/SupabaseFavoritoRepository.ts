@@ -52,10 +52,12 @@ export class SupabaseFavoritoRepository implements FavoritoRepository {
     // (existe ou não, sem coluna própria pra atualizar) e só `insert`/`select`/`delete` foram
     // concedidos a `authenticated` (migration `favoritos`) — um upsert comum exige `update` também
     // e falha com "permission denied for table favoritos".
-    const { error } = await supabase.from('favoritos').upsert(
-      { user_id: usuario.user.id, projeto_id: projetoId },
-      { onConflict: 'user_id,projeto_id', ignoreDuplicates: true },
-    )
+    const { error } = await supabase
+      .from('favoritos')
+      .upsert(
+        { user_id: usuario.user.id, projeto_id: projetoId },
+        { onConflict: 'user_id,projeto_id', ignoreDuplicates: true },
+      )
     if (error) throw new AppError('falha_inesperada', 'Não foi possível favoritar o projeto.')
   }
 

@@ -12,7 +12,11 @@ type ModalEntrarParaFavoritarProps = {
 }
 
 /** Aberto quando alguém deslogado clica no coração: explica o motivo e já leva o favorito junto. */
-export function ModalEntrarParaFavoritar({ aberto, onClose, action }: ModalEntrarParaFavoritarProps) {
+export function ModalEntrarParaFavoritar({
+  aberto,
+  onClose,
+  action,
+}: ModalEntrarParaFavoritarProps) {
   return (
     <Modal
       open={aberto}

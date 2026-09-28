@@ -17,22 +17,22 @@ A marca é preto e branco, minimalista; o verde vivo é a única cor de destaque
 
 ### Primitivos
 
-| Token                                             | Uso de referência                                                                             |
-| ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `--black-900`                                     | botão principal, hero, ícones e preços sobre fundo claro                                      |
-| `--black-800`                                     | faixas escuras (banners): preto com leve tom azul-petróleo (`#141d20`)                        |
+| Token                                             | Uso de referência                                                                                                        |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `--black-900`                                     | botão principal, hero, ícones e preços sobre fundo claro                                                                 |
+| `--black-800`                                     | faixas escuras (banners): preto com leve tom azul-petróleo (`#141d20`)                                                   |
 | `--green-700`                                     | só o selo de desconto (`Badge discount`): fundo sólido para texto branco, onde o verde vivo não tem contraste suficiente |
-| `--green-600`                                     | hover do verde vivo e anel de foco                                                            |
-| `--green-500`                                     | verde vivo: destaques sobre fundo escuro, botão sobre fundo escuro, selos, sublinhado do menu |
-| `--green-100`                                     | fundo de seções claras e chips                                                                |
-| `--white`                                         | fundo de página e cards                                                                       |
-| `--gray-50`                                       | fundo alternado                                                                               |
-| `--gray-200`                                      | bordas                                                                                        |
-| `--gray-500`                                      | texto secundário                                                                              |
-| `--gray-700`                                      | hover do botão preto                                                                          |
-| `--gray-900`                                      | texto principal                                                                               |
-| `--gray-100` / `--gray-300` / `--gray-400`        | fundo desabilitado / borda de campo / texto desabilitado                                      |
-| `--success-*`, `--red-*`, `--amber-*`, `--blue-*` | escalas de estado: 50 (fundo), 200 (borda), 500/600 (cor viva), 800/900 (texto)               |
+| `--green-600`                                     | hover do verde vivo e anel de foco                                                                                       |
+| `--green-500`                                     | verde vivo: destaques sobre fundo escuro, botão sobre fundo escuro, selos, sublinhado do menu                            |
+| `--green-100`                                     | fundo de seções claras e chips                                                                                           |
+| `--white`                                         | fundo de página e cards                                                                                                  |
+| `--gray-50`                                       | fundo alternado                                                                                                          |
+| `--gray-200`                                      | bordas                                                                                                                   |
+| `--gray-500`                                      | texto secundário                                                                                                         |
+| `--gray-700`                                      | hover do botão preto                                                                                                     |
+| `--gray-900`                                      | texto principal                                                                                                          |
+| `--gray-100` / `--gray-300` / `--gray-400`        | fundo desabilitado / borda de campo / texto desabilitado                                                                 |
+| `--success-*`, `--red-*`, `--amber-*`, `--blue-*` | escalas de estado: 50 (fundo), 200 (borda), 500/600 (cor viva), 800/900 (texto)                                          |
 
 Cinzas e pretos com leve tom esverdeado, para combinar com a marca. Exceção intencional: `--black-800`, que puxa para azul-petróleo (escolha do usuário, 2026-09-20).
 
@@ -72,15 +72,15 @@ Quatro tokens por família: `-solid` (ícone, borda de campo, botão), `-subtle`
 
 #### Tokens de componente (feedback)
 
-| Token (classe: `bg-…`, `text-…`, `border-…`)              | Aponta para                                      |
-| --------------------------------------------------------- | ------------------------------------------------ |
-| `--color-notification-{success\|error\|warning\|info}-bg` | `-subtle` do estado (`error` usa `danger`)       |
-| `--color-notification-{…}-border`                         | `-border` do estado                              |
-| `--color-notification-{…}-fg`                             | `-fg` do estado                                  |
-| `--color-notification-{…}-icon`                           | `-solid` do estado                               |
-| `--color-badge-{draft\|success\|error\|warning\|info}-bg` | `-subtle` do estado (`draft` usa `draft-subtle`) |
-| `--color-badge-{…}-fg`                                    | `-fg` do estado                                  |
-| `--color-badge-discount-bg` / `-fg`                        | `--green-700` / `--white` — foge do padrão acima: fundo sólido (não `-subtle`) e texto branco (não `-fg` escuro), porque o verde vivo (`--green-500`) não dá contraste (2,3:1) para texto branco |
+| Token (classe: `bg-…`, `text-…`, `border-…`)              | Aponta para                                                                                                                                                                                      |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--color-notification-{success\|error\|warning\|info}-bg` | `-subtle` do estado (`error` usa `danger`)                                                                                                                                                       |
+| `--color-notification-{…}-border`                         | `-border` do estado                                                                                                                                                                              |
+| `--color-notification-{…}-fg`                             | `-fg` do estado                                                                                                                                                                                  |
+| `--color-notification-{…}-icon`                           | `-solid` do estado                                                                                                                                                                               |
+| `--color-badge-{draft\|success\|error\|warning\|info}-bg` | `-subtle` do estado (`draft` usa `draft-subtle`)                                                                                                                                                 |
+| `--color-badge-{…}-fg`                                    | `-fg` do estado                                                                                                                                                                                  |
+| `--color-badge-discount-bg` / `-fg`                       | `--green-700` / `--white` — foge do padrão acima: fundo sólido (não `-subtle`) e texto branco (não `-fg` escuro), porque o verde vivo (`--green-500`) não dá contraste (2,3:1) para texto branco |
 
 Ex.: `bg-notification-error-bg text-notification-error-fg border-notification-error-border`. Para trocar só a cor da notificação de erro, mude `--color-notification-error-*`; `danger-*` e o erro de formulário não mudam.
 

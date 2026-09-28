@@ -16,15 +16,22 @@ const checkListStyles = cva('gap-3', {
 type CheckListProps = VariantProps<typeof checkListStyles> & {
   items: readonly string[]
   className?: string
+  /** Cor do círculo do marcador; sobrescreve `bg-accent` (ex.: para o tema de uma landing própria). */
+  markerClassName?: string
 }
 
 /** Lista com marcador de check. O verde vivo é só o preenchimento do círculo; o check é preto. */
-export function CheckList({ items, columns, className }: CheckListProps) {
+export function CheckList({ items, columns, className, markerClassName }: CheckListProps) {
   return (
     <ul className={cn(checkListStyles({ columns }), className)}>
       {items.map((item) => (
         <li key={item} className="flex items-start gap-3 text-sm">
-          <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-accent text-fg">
+          <span
+            className={cn(
+              'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-accent text-fg',
+              markerClassName,
+            )}
+          >
             <Icon name="check" className="size-3" strokeWidth={3} />
           </span>
           {item}
