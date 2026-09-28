@@ -36,12 +36,8 @@ export function WhatYoullLearnSection() {
                 />
               </div>
               <div>
-                <span className="mb-3 inline-flex size-10 items-center justify-center rounded-md bg-[var(--course-accent-deep)]">
-                  <Icon
-                    name={bloco.icon}
-                    className="size-5 text-[var(--course-accent)]"
-                    strokeWidth={1.5}
-                  />
+                <span className="curso-btn-brilho mb-3 inline-flex size-10 items-center justify-center rounded-xl">
+                  <Icon name={bloco.icon} className="size-5 text-white" strokeWidth={1.5} />
                 </span>
                 <h3 className="font-heading text-xl font-bold">{bloco.title}</h3>
                 <p className="mt-3 text-sm text-[var(--course-fg-muted)]">{bloco.description}</p>

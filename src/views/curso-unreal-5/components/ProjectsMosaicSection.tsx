@@ -54,8 +54,8 @@ export function ProjectsMosaicSection() {
         </div>
 
         <div className="absolute top-4 left-4 max-w-64 rounded-lg bg-[var(--course-bg-elevated)] p-5 text-[var(--course-fg)] shadow-lg">
-          <span className="-mt-8 mb-3 inline-flex size-9 items-center justify-center rounded-md bg-[var(--course-accent-deep)] shadow-lg">
-            <Icon name="box" className="size-4 text-[var(--course-accent)]" strokeWidth={1.5} />
+          <span className="curso-btn-brilho -mt-8 mb-3 inline-flex size-9 items-center justify-center rounded-xl">
+            <Icon name="box" className="size-4 text-white" strokeWidth={1.5} />
           </span>
           <p className="font-heading font-bold">{secaoProjetosAprender.overlay.title}</p>
           <p className="mt-1 text-sm text-[var(--course-fg-muted)]">

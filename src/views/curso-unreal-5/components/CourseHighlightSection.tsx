@@ -44,7 +44,7 @@ export function CourseHighlightSection() {
         </div>
 
         <div className="mt-10 max-w-sm rounded-lg bg-[var(--course-card-bg)] p-6">
-          <span className="mb-4 inline-flex size-10 items-center justify-center rounded-md bg-[var(--course-accent-deep)] font-serif text-xl text-[var(--course-accent)] italic">
+          <span className="curso-btn-brilho mb-4 inline-flex size-10 items-center justify-center rounded-xl font-serif text-xl text-white italic">
             u
           </span>
           <h3 className="font-heading text-lg font-bold">{destaqueMercado.cardTitle}</h3>

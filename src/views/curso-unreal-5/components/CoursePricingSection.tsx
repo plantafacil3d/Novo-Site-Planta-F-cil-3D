@@ -9,8 +9,8 @@ export function CoursePricingSection() {
     <section className="bg-[var(--course-bg)] py-12 md:py-16">
       <div className="mx-auto max-w-2xl px-4">
         <div className="rounded-lg bg-[var(--course-card-bg)] p-8 text-center text-fg">
-          <span className="mx-auto inline-flex size-12 items-center justify-center rounded-md bg-[var(--course-accent-deep)]">
-            <Icon name="box" className="size-6 text-[var(--course-accent)]" strokeWidth={1.5} />
+          <span className="curso-btn-brilho mx-auto inline-flex size-12 items-center justify-center rounded-xl">
+            <Icon name="box" className="size-6 text-white" strokeWidth={1.5} />
           </span>
           <h2 className="mt-4 font-heading text-xl font-bold uppercase">
             {precoDoCurso.badgeTitle}

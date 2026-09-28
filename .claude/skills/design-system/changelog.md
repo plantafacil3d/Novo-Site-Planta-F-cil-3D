@@ -4,6 +4,18 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-28 (unificação dos selos de ícone, landing do curso Unreal Engine 5.6)
+
+- Usuário pediu que **todos** os selos quadrados de ícone da página seguissem o mesmo padrão: fundo em gradiente rosa vivo (`.curso-btn-brilho`) + ícone branco por dentro — o padrão que já estava em `AudienceSection`, `CourseBenefitsGrid`, `WhatYoullLearnSection` (selo do topo) e `CourseHighlightCards` (que já usava esse gradiente, só que com `Icon` diretamente, sem a classe). Os que ainda usavam o padrão antigo (fundo escuro `--course-accent-deep` + ícone rosa) foram convertidos:
+  - `WhatYoullLearnSection`: selo de cada bloco de aprendizado (Introdução, Iluminação...).
+  - `ProjectsMosaicSection`: selo do cartão sobreposto ao mosaico.
+  - `CoursePricingSection`: selo no topo do card de preço (sobre o `--course-card-bg` claro — o gradiente rosa também funciona bem em fundo claro).
+  - `CourseHighlightSection`: o quadrado com o "u" itálico do cartão "Unreal Engine" (fundo lilás) — mesma cor do resto agora, só o "u" continua branco em vez de rosa.
+  - Raio da borda também padronizado para `rounded-xl` nesses quatro (estavam em `rounded-md`).
+- Fora do escopo (não são selos quadrados, não mudaram): o pill `UnrealEngineBadge` ("Unreal Engine 5.6" no topo da seção de destaque) já é branco sobre gradiente, só que num pill largo com texto ao lado, não um quadrado — mantém seu próprio gradiente (`--course-badge-from/to`), decisão já registrada em 2026-09-27. Ícones soltos sem fundo (selos de confiança do Hero, marcadores da lista "Conteúdo do curso", selos do rodapé do preço) não são "selos quadrados" e não entraram na mudança. O círculo de play sobre o vídeo (`VideoEmbed`) é branco sólido com ícone escuro — elemento de player, não um selo de conteúdo.
+- Sem token novo: reaproveita `.curso-btn-brilho`, já existente desde 2026-09-27.
+- **Ajuste no mesmo dia:** tentei levar os dois cartões logo abaixo do Hero (`CourseHighlightCards`: "Crie interações nos seus projetos" e "Um curso 100% aprimorado") para o `.curso-btn-brilho` também — eles alternavam entre o gradiente rosa do botão e o roxo do selo "Unreal Engine 5.6" (`--course-badge-from/to`), sem o brilho da classe. **Revertido**: usuário só queria o desenho do ícone branco (que já estava branco nos dois, `text-white`, sem mudar) — as duas cores de fundo diferentes (rosa num cartão, roxo no outro) eram propositais e deviam continuar. Voltou ao gradiente condicional por `index % 2`, como era antes desta rodada.
+
 ## 2026-09-28 (seção "O que está incluso no curso?", landing do curso Unreal Engine 5.6)
 
 - Mesmo pedido do item anterior (recorte de referência pronto, feito pelo próprio usuário, pedindo aparência idêntica) aplicado à `CourseBenefitsGrid`:
