@@ -4,8 +4,11 @@ import { cartoesDeDestaque } from '../data'
 
 export function CourseHighlightCards() {
   return (
-    <div className="bg-[var(--course-bg)] px-4 pb-12 md:pb-16">
-      <div className="mx-auto grid max-w-content gap-4 sm:grid-cols-2">
+    <div className="relative overflow-hidden bg-[var(--course-bg)] px-4 pb-12 md:pb-16">
+      {/* Continuação da luz magenta do Hero (mesma seção visual, sem borda entre elas) */}
+      <div className="pointer-events-none absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-[var(--course-accent)] opacity-20 blur-[120px] md:-top-20 md:-right-20 md:h-[700px] md:w-[700px] md:opacity-15 md:blur-[150px]" />
+
+      <div className="relative mx-auto grid max-w-content gap-4 sm:grid-cols-2">
         {cartoesDeDestaque.map((card, index) => (
           <div
             key={card.title}

@@ -36,6 +36,8 @@
   /* Texto pequeno acima de "Para quem é o curso?" (referência do parceiro): dourado apagado,
      única ocorrência dessa cor na página — não é o rosa de destaque. */
   --course-eyebrow: #c9a26a;
+  /* Luz azul do canto superior do Hero (`CourseHero`), única ocorrência de azul na página. */
+  --course-glow-blue: #3b82f6;
 }
 
 .tema-curso-ue5 .curso-btn-brilho {
@@ -51,6 +53,15 @@
    suave em vez de sombra encostada, para destacar o vídeo sobre o fundo preto). */
 .tema-curso-ue5 .curso-video-brilho {
   box-shadow: 0 0 70px 12px rgb(255 79 168 / 45%);
+}
+
+/* Brilho que surge atrás de cada foto da seção "O que você vai aprender" (`WhatYoullLearnSection`)
+   conforme a pessoa rola a página (`whileInView` do `motion`, dispara igual no toque do celular).
+   Camada separada atrás da imagem (não box-shadow direto) para permitir o fade suave de opacidade;
+   mesmo rosa do `curso-btn-brilho`/`curso-video-brilho`. */
+.tema-curso-ue5 .curso-imagem-brilho {
+  background: radial-gradient(circle, var(--course-accent-from) 0%, transparent 70%);
+  filter: blur(40px);
 }
 
 /* Faixa de logos dos softwares compatíveis (Hero, `SoftwareLogosMarquee`): rolagem horizontal

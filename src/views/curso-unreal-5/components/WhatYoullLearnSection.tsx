@@ -1,4 +1,7 @@
+'use client'
+
 import Image from 'next/image'
+import { motion } from 'motion/react'
 
 import { Icon } from '@/components/ui/Icon'
 
@@ -26,14 +29,23 @@ export function WhatYoullLearnSection() {
               key={bloco.title}
               className={`grid items-center gap-8 md:grid-cols-2 ${index % 2 === 1 ? 'md:[&>*:first-child]:order-2' : ''}`}
             >
-              <div className="relative aspect-video overflow-hidden rounded-lg bg-[var(--course-bg-elevated)]">
-                <Image
-                  src={bloco.image}
-                  alt={bloco.title}
-                  fill
-                  sizes="(min-width: 768px) 560px, 100vw"
-                  className="object-cover"
+              <div className="relative">
+                <motion.div
+                  className="curso-imagem-brilho absolute -inset-6 rounded-lg"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true, margin: '-100px' }}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
                 />
+                <div className="relative aspect-video overflow-hidden rounded-lg bg-[var(--course-bg-elevated)]">
+                  <Image
+                    src={bloco.image}
+                    alt={bloco.title}
+                    fill
+                    sizes="(min-width: 768px) 560px, 100vw"
+                    className="object-cover"
+                  />
+                </div>
               </div>
               <div>
                 <span className="curso-btn-brilho mb-3 inline-flex size-10 items-center justify-center rounded-xl">

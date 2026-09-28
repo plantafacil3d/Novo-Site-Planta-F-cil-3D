@@ -7,8 +7,8 @@ import type { IconName } from '@/components/ui/Icon'
  * outra parte da página, o texto fica sinalizado com TODO para confirmação com o parceiro.
  */
 
-// TODO: link de checkout real do parceiro (Hotmart ou similar).
-export const linkDeCompra = '#'
+// Link de checkout Hotmart do curso de Unreal Engine 5.6 (parceiro DVIZ).
+export const linkDeCompra = 'https://pay.hotmart.com/X70575954S?off=zyoif61m&ref=L97295592K&bid=1790609860755'
 
 // TODO: colar o link do YouTube do vídeo "NOVO Curso de Unreal Engine 5.6".
 export const linkVideoHero = 'https://www.youtube.com/watch?v=AhjhjsUPkVU'
@@ -35,7 +35,7 @@ export const softwaresCompativeis: SoftwareCompativel[] = [
   { nome: 'Autodesk', logo: '/images/curso-unreal-5/logos/autodesk.svg' },
   { nome: 'Revit', logo: '/images/curso-unreal-5/logos/revit.svg' },
   { nome: 'Blender', logo: '/images/curso-unreal-5/logos/blender.svg' },
-  { nome: 'Cinema 4D', logo: '/images/curso-unreal-5/logos/cinema-4d.svg' },
+  { nome: 'Cinema 4D', logo: '/images/curso-unreal-5/logos/cinema-4d.webp' },
 ]
 
 export const selosDeConfiancaHero: { icon: IconName; label: string }[] = [

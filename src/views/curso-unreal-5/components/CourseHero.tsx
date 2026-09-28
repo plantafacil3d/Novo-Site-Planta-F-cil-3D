@@ -8,11 +8,11 @@ import { VideoEmbed } from './VideoEmbed'
 export function CourseHero() {
   return (
     <section className="relative overflow-hidden bg-[var(--course-bg)] py-12 text-[var(--course-fg)] md:py-16">
-      {/* Luz magenta na esquerda inferior */}
-      <div className="pointer-events-none absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-[var(--course-accent)] opacity-20 blur-[120px] md:-bottom-20 md:-left-20 md:h-[700px] md:w-[700px] md:opacity-15 md:blur-[150px]" />
-      
+      {/* Luz magenta na direita inferior */}
+      <div className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[var(--course-accent)] opacity-20 blur-[120px] md:-bottom-20 md:-right-20 md:h-[700px] md:w-[700px] md:opacity-15 md:blur-[150px]" />
+
       {/* Luz azul na esquerda superior */}
-      <div className="pointer-events-none absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-blue-500 opacity-40 blur-[100px] md:-left-20 md:-top-20 md:h-[700px] md:w-[700px] md:opacity-30 md:blur-[130px]" />
+      <div className="pointer-events-none absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-[var(--course-glow-blue)] opacity-40 blur-[100px] md:-left-20 md:-top-20 md:h-[700px] md:w-[700px] md:opacity-30 md:blur-[130px]" />
 
       <div className="relative mx-auto grid max-w-content items-center gap-10 px-4 md:grid-cols-2">
         <div className="min-w-0">
