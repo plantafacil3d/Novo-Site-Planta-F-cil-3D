@@ -527,6 +527,14 @@ export const areaDeMembros = {
   mockupImage: '/images/curso-unreal-5/membros/mockup.png',
 }
 
+type BeneficioDoCurso = {
+  icon: IconName
+  title: string
+  description: string
+  /** Bandeirinhas ao lado do título (ex.: idiomas disponíveis). */
+  flags?: IconName[]
+}
+
 export const beneficiosDoCurso = {
   badge: 'Benefícios do curso 🚀',
   titleBefore: 'O que está ',
@@ -550,7 +558,8 @@ export const beneficiosDoCurso = {
     },
     {
       icon: 'languages' as IconName,
-      title: 'Inglês • Português • Espanhol US BR ES',
+      title: 'Inglês • Português • Espanhol',
+      flags: ['flag-us', 'flag-br', 'flag-es'],
       description:
         'Áudios em inglês, português e espanhol disponíveis para todas as aulas (legendas com tradução automática para outros idiomas).',
     },
@@ -572,7 +581,7 @@ export const beneficiosDoCurso = {
       description:
         'Além do curso, você garante bônus exclusivos: Duas cenas Realistas: Piano House e House G2 + Studio Car/Produtos com + Assets Exclusivos prontos para uso.',
     },
-  ] satisfies { icon: IconName; title: string; description: string }[],
+  ] satisfies BeneficioDoCurso[],
 }
 
 export const instrutor = {

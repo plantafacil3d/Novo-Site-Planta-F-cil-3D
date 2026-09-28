@@ -78,6 +78,7 @@ import type { ComponentType, SVGProps } from 'react'
 
 import { cn } from './cn'
 import { Facebook, Google, Instagram, WhatsApp, YouTube } from './icons/brand'
+import { FlagBR, FlagES, FlagUS } from './icons/flags'
 
 // Único ponto que conhece a biblioteca de ícones: trocar de biblioteca muda só este arquivo.
 const icons = {
@@ -160,6 +161,9 @@ const icons = {
   instagram: Instagram,
   whatsapp: WhatsApp,
   youtube: YouTube,
+  'flag-us': FlagUS,
+  'flag-br': FlagBR,
+  'flag-es': FlagES,
 } satisfies Record<string, ComponentType<SVGProps<SVGSVGElement>>>
 
 export type IconName = keyof typeof icons

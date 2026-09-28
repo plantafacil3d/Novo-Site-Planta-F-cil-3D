@@ -22,7 +22,16 @@ export function CourseBenefitsGrid() {
               <Icon name={item.icon} className="size-6 text-white" strokeWidth={1.5} />
             </span>
             <div>
-              <h3 className="font-heading font-bold">{item.title}</h3>
+              <h3 className="flex flex-wrap items-center gap-2 font-heading font-bold">
+                {item.title}
+                {item.flags && (
+                  <span className="flex items-center gap-1">
+                    {item.flags.map((flag) => (
+                      <Icon key={flag} name={flag} className="size-4 rounded-xs" />
+                    ))}
+                  </span>
+                )}
+              </h3>
               <p className="mt-1 text-sm text-[var(--course-fg-muted)]">{item.description}</p>
             </div>
           </div>

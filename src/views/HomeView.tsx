@@ -8,7 +8,6 @@ import {
   listarCategorias,
   listarProjetosEmDestaque,
 } from '@/features/projetos'
-import { urlWhatsapp } from '@/features/site'
 
 import { HeroSection } from './home/HeroSection'
 
@@ -40,9 +39,6 @@ const vantagens: { icon: IconName; title: string; description: string }[] = [
     description: 'Equipe pronta para te atender e garantir sua compra.',
   },
 ]
-
-const mensagemWhatsapp =
-  'Olá! Não encontrei o projeto que procuro e gostaria de um projeto personalizado.'
 
 export async function HomeView() {
   const [categorias, destaques] = await Promise.all([
@@ -88,22 +84,15 @@ export async function HomeView() {
 
       <CTABanner
         variant="inverse"
-        eyebrow="3D / Unreal Engine"
-        title="Visualize seu projeto em outro nível"
-        description="Imagens e vídeos em alta qualidade com Unreal Engine, para uma experiência ainda mais realista e imersiva."
+        eyebrow="Curso de Unreal Engine"
+        title="Aprenda a criar renderizações realistas como as nossas"
+        description="Quer dominar o Unreal Engine e produzir vídeos e imagens ultrarrealistas dos seus projetos? Conheça o nosso curso."
         image={imagemUnreal}
         action={{
-          label: 'Conheça nossos projetos 3D',
+          label: 'Conheça nosso curso',
           href: '/3d-unreal',
           variant: 'secondary-inverse',
         }}
-      />
-
-      <CTABanner
-        variant="brand"
-        title="Não encontrou seu projeto?"
-        description="Fale com a gente! Podemos desenvolver um projeto personalizado para você."
-        action={{ label: 'Falar no WhatsApp', href: urlWhatsapp(mensagemWhatsapp) }}
       />
     </>
   )

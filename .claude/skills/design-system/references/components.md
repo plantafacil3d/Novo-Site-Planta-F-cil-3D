@@ -52,6 +52,7 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 
 - **Propósito:** único ponto que conhece a biblioteca de ícones (`lucide-react`). `<Icon name="search" />`, decorativo (`aria-hidden`), 20px por padrão (`className="size-6"` para mudar).
 - **Marcas** (WhatsApp, Instagram, YouTube, Facebook) não existem no Lucide: SVG próprio em `ui/icons/brand.tsx`, mesmo formato de traço.
+- **Bandeiras** (`flag-us`, `flag-br`, `flag-es`) também são SVG próprio, em `ui/icons/flags.tsx`: cor própria (não `currentColor`), como o "G" do Google — emoji de bandeira não renderiza como cor no Chrome/Windows, some e vira sigla (ex.: "US").
 - **Novo ícone:** adicione ao registro em `Icon.tsx`; o tipo `IconName` se atualiza sozinho.
 
 ### Badge
