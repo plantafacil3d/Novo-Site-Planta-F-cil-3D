@@ -6,7 +6,7 @@ import { linkDeCompra, precoDoCurso } from '../data'
 
 export function CoursePricingSection() {
   return (
-    <section className="bg-[var(--course-bg)] py-12 md:py-16">
+    <section className="bg-white pb-12 md:pb-16">
       <div className="mx-auto max-w-2xl px-4">
         <div className="rounded-lg bg-[var(--course-card-bg)] p-8 text-center text-fg">
           <span className="curso-btn-brilho mx-auto inline-flex size-12 items-center justify-center rounded-xl">

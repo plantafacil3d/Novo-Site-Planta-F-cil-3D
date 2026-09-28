@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
+import { motion } from 'motion/react'
 
 import { Icon } from '@/components/ui/Icon'
 import { Lightbox } from '@/components/shared/Lightbox'
@@ -33,11 +34,15 @@ export function ProjectsMosaicSection() {
       </div>
 
       <div className="relative mt-10">
-        <div className="columns-3 gap-2 px-2">
+        <div className="columns-1 gap-2 px-2 md:columns-3">
           {fotos.map((foto, index) => (
-            <button
+            <motion.button
               key={foto.src}
               type="button"
+              initial={{ opacity: 0, scale: 0.85, y: 20 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
               onClick={() => setIndiceAberto(index)}
               className="mb-2 block w-full break-inside-avoid overflow-hidden rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--course-accent)]"
             >
@@ -47,13 +52,13 @@ export function ProjectsMosaicSection() {
                 width={600}
                 height={600}
                 sizes="33vw"
-                className="h-auto w-full"
+                className="h-auto w-full transition-transform duration-500 hover:scale-105"
               />
-            </button>
+            </motion.button>
           ))}
         </div>
 
-        <div className="absolute top-4 left-4 max-w-64 rounded-lg bg-[var(--course-bg-elevated)] p-5 text-[var(--course-fg)] shadow-lg">
+        <div className="absolute top-4 left-4 hidden max-w-64 rounded-lg bg-[var(--course-bg-elevated)] p-5 text-[var(--course-fg)] shadow-lg md:block">
           <span className="curso-btn-brilho -mt-8 mb-3 inline-flex size-9 items-center justify-center rounded-xl">
             <Icon name="box" className="size-4 text-white" strokeWidth={1.5} />
           </span>

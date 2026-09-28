@@ -18,7 +18,7 @@ export function CourseHighlightCards() {
                   : 'mb-5 inline-flex size-12 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--course-badge-from)] to-[var(--course-badge-to)]'
               }
             >
-              <Icon name={card.icon} className="size-6 text-white" strokeWidth={1.75} />
+              <Icon name={card.icon} className="size-6" color="white" strokeWidth={1.75} />
             </span>
             <h3 className="font-heading text-xl font-bold text-[var(--course-fg)]">{card.title}</h3>
             <p className="mt-3 text-sm text-[var(--course-fg-muted)]">{card.description}</p>

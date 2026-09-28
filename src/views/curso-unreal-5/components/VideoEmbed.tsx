@@ -12,6 +12,8 @@ type VideoEmbedProps = {
   title: string
   /** Proporção da miniatura e do player: `horizontal` (16:9, padrão) ou `vertical` (9:16). */
   orientation?: 'horizontal' | 'vertical'
+  /** Se `true`, oculta os controles do player (ex.: barra de tempo e botões do YouTube). */
+  hideControls?: boolean
   className?: string
 }
 
@@ -26,6 +28,7 @@ export function VideoEmbed({
   thumbnail,
   title,
   orientation = 'horizontal',
+  hideControls = false,
   className,
 }: VideoEmbedProps) {
   const [tocando, setTocando] = useState(false)
@@ -34,7 +37,7 @@ export function VideoEmbed({
   if (tocando) {
     return (
       <iframe
-        src={embedDeVideo(href)}
+        src={embedDeVideo(href, { hideControls })}
         title={title}
         allow="autoplay; encrypted-media; picture-in-picture"
         allowFullScreen

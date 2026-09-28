@@ -16,6 +16,8 @@ export function StudentProjectsVideoSection() {
           href={linkVideoAlunos}
           thumbnail="/images/curso-unreal-5/alunos-video-thumb.jpg"
           title="Projetos feitos por alunos do curso Unreal Engine 5"
+          hideControls
+          className="curso-video-brilho"
         />
       </div>
     </section>

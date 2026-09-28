@@ -12,8 +12,7 @@ export const linkDeCompra = '#'
 
 // TODO: colar o link do YouTube do vídeo "NOVO Curso de Unreal Engine 5.6".
 export const linkVideoHero = 'https://www.youtube.com/watch?v=AhjhjsUPkVU'
-// TODO: colar o link do YouTube do vídeo "Projetos feitos por alunos".
-export const linkVideoAlunos = '#'
+export const linkVideoAlunos = 'https://www.youtube.com/watch?v=vKhaK1cpPpo'
 
 export const heroCopy = {
   quote: 'O mercado já mudou. A pergunta é: você vai mudar junto ou ficar pra trás?',
@@ -388,56 +387,56 @@ export const blocosDeAprendizado: BlocoAprendizado[] = [
     title: 'Introdução',
     description:
       'Vamos Começar?! E é exatamente aqui que vamos dar o pontapé inicial. Nesta etapa, você vai aprender onde baixar, como instalar o software, plugins que iremos utilizar, configurar... Além disso, vai compreender como criar um projeto dentro do Unreal, importar projetos em 3dsmax, em Revit, Sketchup, explorando sua interface, comandos de navegação, estrutura de arquivos e muito mais!!! Nesse módulo, vou te mostrar como é fácil, intuitivo e incrível usar a Unreal.',
-    image: '/images/curso-unreal-5/aprender/introducao.jpg',
+    image: '/images/curso-unreal-5/aprender/introducao.webp',
   },
   {
     icon: 'sparkles',
     title: 'Iluminação',
     description:
       '"A luz é o caminho"! É crucial dominar a arte de criar, configurar e ajustar a iluminação corretamente em nossas cenas 3D. Ajustar a Luz natural, luz artificial, rebatimentos... Vamos aprender juntos a como dominar O Lumen, que desenvolvida pela Epic Games e presente no Unreal Engine, essa tecnologia está revolucionando como fazemos 3d para arquitetura. O lumen irá surpreender você com resultados incríveis, realista e em tempo real, sem render! Sabe o mais legal? Vou te mostrar como fazer e dominar essa tecnologia!',
-    image: '/images/curso-unreal-5/aprender/iluminacao.jpg',
+    image: '/images/curso-unreal-5/aprender/iluminacao.webp',
   },
   {
     icon: 'layout-grid',
     title: 'Materiais',
     description:
       'Descubra o segredo da renderização realista no Unreal! Aprenda a representar texturas da vida real em tempo real, sem renderização, com resultados incrivelmente realistas. Domine a criação de materiais do zero. Esse novo projeto é baseado na icônica House 02, totalmente regravado com as funcionalidades atuais.',
-    image: '/images/curso-unreal-5/aprender/materiais.jpg',
+    image: '/images/curso-unreal-5/aprender/materiais.webp',
   },
   {
     icon: 'house',
     title: 'Cena Interna e externa',
     description:
       'Você irá aprender na prática a iluminar e configurar a luz em uma cena que abrange tanto o ambiente externo com luz natural (Clear Day, Morning, Golden Hour, Blue Hour), quanto o interno com luzes artificiais, tudo em um único projeto. Esteja preparado para criar uma atmosfera magnífica e envolvente em qualquer projeto, independentemente da luz e ambiente.',
-    image: '/images/curso-unreal-5/aprender/cena-interna-externa.jpg',
+    image: '/images/curso-unreal-5/aprender/cena-interna-externa.webp',
   },
   {
     icon: 'video',
     title: 'Animações',
     description:
       'Prepare-se para uma experiência realmente disruptiva com a Unreal Engine 5.6, muito além das renderizações estáticas. Aqui, você vai dominar animações completas em tempo real, aproveitando os novos recursos do Movie Render Graph, que agora está ainda mais poderoso e personalizável. Você aprenderá a criar movimentos de câmera, transições fluidas, elementos animados, efeitos de luz dinâmicos e muito mais, tudo com qualidade cinematográfica e sem precisar perder horas renderizando.',
-    image: '/images/curso-unreal-5/aprender/animacoes.jpg',
+    image: '/images/curso-unreal-5/aprender/animacoes.webp',
   },
   {
     icon: 'chart',
     title: 'Otimização',
     description:
       'Você também vai descobrir como otimizar suas cenas para que rodem com o máximo de desempenho, sem travar ou comprometer a qualidade visual. Com as técnicas certas, como: LODs, Nanite aprimorado, PCG para elementos procedurais e texturas otimizadas, você garantirá cenas rápidas, estáveis e impressionantes, mesmo nos projetos mais exigentes.',
-    image: '/images/curso-unreal-5/aprender/otimizacao.jpg',
+    image: '/images/curso-unreal-5/aprender/otimizacao.webp',
   },
   {
     icon: 'layers',
     title: 'Tour Virtual',
     description:
       'Transporte seus clientes para ambientes imersivos e interativos, onde eles podem controlar a iluminação, alterar móveis e revestimentos, tudo em tempo real! No curso Unreal Engine for Archviz, você aprenderá a criar Tours Virtuais Interativos, realistas e envolventes. Encante seus clientes, impulsione seus lucros e destaque-se no mercado como referência em Tours Virtuais. Ensinaremos a criar menus interativos, trocar revestimentos, controlar luzes, alterar cores, abrir portas, interagir com objetos e muito mais!',
-    image: '/images/curso-unreal-5/aprender/tour-virtual.jpg',
+    image: '/images/curso-unreal-5/aprender/tour-virtual.webp',
   },
   {
     icon: 'rocket',
     title: '100% Atualizado para a versão 5.6 em diante',
     description:
       'Tenha acesso a tudo o que há de mais novo no Unreal Engine: Mega Lights (iluminação avançada para cenas hiper-realistas), United Sofisticado (mais performance e otimização), Patrick Melhorado (render com qualidade ainda maior) e Interface Renovada (já adaptada às mudanças da versão 5.6).',
-    image: '/images/curso-unreal-5/aprender/atualizado-5-6.jpg',
+    image: '/images/curso-unreal-5/aprender/atualizado-5-6.webp',
   },
 ]
 
@@ -525,7 +524,7 @@ export const areaDeMembros = {
   description:
     'Seu acesso será feito por uma nova e incrível área de membros. Criada para que você tenha uma experiencia de aprendizado completa e imersiva.',
   ctaLabel: 'Entrar agora na turma UE5',
-  mockupImage: '/images/curso-unreal-5/membros-mockup.png',
+  mockupImage: '/images/curso-unreal-5/membros/mockup.png',
 }
 
 export const beneficiosDoCurso = {
@@ -590,7 +589,7 @@ export const instrutor = {
   name: 'Denis Gandra',
   role: 'Fundador da DVIZ',
   badge: '20 anos de conhecimento 🧠',
-  photo: '/images/curso-unreal-5/instrutor-denis-gandra.jpg',
+  photo: '/images/curso-unreal-5/instrutor/denis-gandra.webp',
 }
 
 export const ctaFinal = {

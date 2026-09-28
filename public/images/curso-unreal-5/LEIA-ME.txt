@@ -3,20 +3,21 @@ em /3d-unreal. Suba os arquivos com exatamente estes nomes:
 
   hero-video-thumb.jpg        -> miniatura do vídeo "NOVO Curso de Unreal Engine 5.6" (topo da página)
   alunos-video-thumb.jpg      -> miniatura do vídeo "Projetos feitos por alunos"
-  instrutor-denis-gandra.jpg  -> foto do Denis Gandra (cartão de perfil na seção "Sobre o instrutor")
-  membros-mockup.png          -> mockup de notebook + celular da seção "Nova área de membros"
+
+  instrutor/denis-gandra.webp -> foto do Denis Gandra (cartão de perfil na seção "Sobre o instrutor")
+  membros/mockup.png          -> mockup de notebook + celular da seção "Nova área de membros"
 
   mosaico/1.jpg até mosaico/9.jpg   -> 9 fotos da grade da seção "Projetos que você vai aprender"
   tira/1.jpg até tira/10.jpg        -> 10 fotos da tira horizontal "referência no mercado"
 
-  aprender/introducao.jpg
-  aprender/iluminacao.jpg
-  aprender/materiais.jpg
-  aprender/cena-interna-externa.jpg
-  aprender/animacoes.jpg
-  aprender/otimizacao.jpg
-  aprender/tour-virtual.jpg
-  aprender/atualizado-5-6.jpg
+  aprender/introducao.webp
+  aprender/iluminacao.webp
+  aprender/materiais.webp
+  aprender/cena-interna-externa.webp
+  aprender/animacoes.webp
+  aprender/otimizacao.webp
+  aprender/tour-virtual.webp
+  aprender/atualizado-5-6.webp
   (as 8 fotos da seção "O que você vai aprender no novo curso")
 
 Os dois links de vídeo do YouTube e o link de checkout ficam em
