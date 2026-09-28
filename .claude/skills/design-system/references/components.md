@@ -131,7 +131,7 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 
 ### Header (`layout/`)
 
-Logo, navegação principal, ícones de busca/favoritos/carrinho (links com `aria-label`; carrinho com contador), botão "Entrar / Cadastrar". Fundo `--color-page` com borda inferior `--color-border`. Recebe tudo por props. Abaixo de `lg` a navegação e o botão vão para o `MobileMenu`; o botão some abaixo de `sm`.
+Logo, navegação principal, ícones de busca/favoritos (links com `aria-label`), botão "Entrar / Cadastrar". Fundo `--color-page` com borda inferior `--color-border`. Recebe tudo por props. Abaixo de `lg` a navegação e o botão vão para o `MobileMenu`; o botão some abaixo de `sm`.
 
 ### MainNav e MobileMenu (`navigation/`)
 
@@ -179,7 +179,7 @@ Container de seção: título (h2), subtítulo, link "Ver todos" e conteúdo. Va
 
 ### Logo
 
-Prop `tone`: `default` (fundo claro, usado no Header e no Footer) mostra o logotipo oficial, sem `tagline` — já vem no arquivo. Duas imagens, trocadas por breakpoint (`sm`): `Logo_03.png` abaixo de `sm` (celular, mais compacta na largura) e `logo_02.png` a partir de `sm` (faixa horizontal). `next/image`; testando variantes, ver `changelog.md`. `inverse` (padrão, fundo escuro, só o painel admin) continua **provisório**: ícone de casa + nome + tagline; falta uma versão clara do logotipo para fundo escuro.
+Prop `tone`: `default` (fundo claro, usado no Header e no Footer) mostra o logotipo oficial, sem `tagline` — já vem no arquivo. Duas imagens, trocadas por breakpoint (`sm`): `Logo_03.png` abaixo de `sm` (celular, mais compacta na largura) e `logo_02.png` a partir de `sm` (faixa horizontal). `inverse` (padrão, fundo escuro, só o painel admin) usa a versão clara do logotipo oficial (`images/sobre/logo-fundo-escuro.png`), com `tagline` como linha extra abaixo (some abaixo de `sm`). `next/image` nos dois casos; testando variantes, ver `changelog.md`.
 
 ### SearchBar
 

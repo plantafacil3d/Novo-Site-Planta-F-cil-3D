@@ -1,8 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { Icon } from '../ui/Icon'
-
 type LogoProps = {
   nome: string
   tagline?: string
@@ -10,11 +8,7 @@ type LogoProps = {
   tone?: 'inverse' | 'default'
 }
 
-/**
- * Marca do site. `default` (cabeçalho, rodapé) usa o logotipo oficial.
- * `inverse` (fundo escuro, só o painel admin) ainda é provisório: a arte oficial
- * tem texto preto, ilegível em fundo escuro — falta uma versão clara.
- */
+/** Marca do site: logotipo oficial, com uma versão para cada fundo. */
 export function Logo({ nome, tagline, tone = 'inverse' }: LogoProps) {
   const inverse = tone === 'inverse'
 
@@ -43,13 +37,16 @@ export function Logo({ nome, tagline, tone = 'inverse' }: LogoProps) {
     <Link
       href="/"
       aria-label={`${nome}: página inicial`}
-      className="inline-flex items-center gap-2 text-fg-inverse"
+      className="inline-flex flex-col items-start gap-1"
     >
-      <Icon name="house" className="size-8 text-accent sm:size-10" strokeWidth={1.5} />
-      <span className="flex flex-col leading-tight">
-        <span className="font-heading text-lg font-bold whitespace-nowrap sm:text-xl">{nome}</span>
-        {tagline && <span className="hidden text-xs text-fg-inverse/80 sm:block">{tagline}</span>}
-      </span>
+      <Image
+        src="/images/sobre/logo-fundo-escuro.png"
+        alt={nome}
+        width={2685}
+        height={662}
+        className="h-8 w-auto sm:h-10"
+      />
+      {tagline && <span className="hidden text-xs text-fg-inverse/80 sm:block">{tagline}</span>}
     </Link>
   )
 }

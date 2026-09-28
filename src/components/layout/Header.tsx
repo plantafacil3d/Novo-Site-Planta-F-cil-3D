@@ -12,14 +12,12 @@ type HeaderProps = {
   items: NavItem[]
   /** Botão de conta (Minha conta/Painel). Vem pronto de quem monta o cabeçalho; aqui só é posicionado. */
   conta: (variante: 'icone' | 'texto', className?: string) => ReactNode
-  /** Quantidade no carrinho; o carrinho ainda não existe, então o padrão é 0. */
-  carrinhoQuantidade?: number
 }
 
 const actionLink =
   'relative inline-flex size-11 items-center justify-center rounded-md text-fg transition-colors duration-150 ease-standard hover:bg-subtle'
 
-export function Header({ nome, tagline, items, conta, carrinhoQuantidade = 0 }: HeaderProps) {
+export function Header({ nome, tagline, items, conta }: HeaderProps) {
   const actions: { href: string; label: string; icon: IconName }[] = [
     { href: '/projetos', label: 'Buscar projetos', icon: 'search' },
     { href: '/favoritos', label: 'Lista de desejos', icon: 'heart' },
@@ -45,19 +43,6 @@ export function Header({ nome, tagline, items, conta, carrinhoQuantidade = 0 }: 
               <Icon name={action.icon} />
             </Link>
           ))}
-          <Link
-            href="/carrinho"
-            aria-label={`Carrinho, ${carrinhoQuantidade} ${carrinhoQuantidade === 1 ? 'item' : 'itens'}`}
-            className={actionLink}
-          >
-            <Icon name="cart" />
-            <span
-              aria-hidden="true"
-              className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-accent text-xs font-semibold text-fg"
-            >
-              {carrinhoQuantidade}
-            </span>
-          </Link>
           {conta('icone', actionLink)}
           <MobileMenu items={items} cta={conta('texto')} />
         </div>

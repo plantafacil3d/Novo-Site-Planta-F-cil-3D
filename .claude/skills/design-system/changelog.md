@@ -4,6 +4,20 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-28 (ícone de carrinho e abas Complementares/Interiores ocultados)
+
+- `Header` perdeu o ícone/link de carrinho (`/carrinho`) — rota que nem existia; o contador (`carrinhoQuantidade`) nunca era usado por quem monta o header. Motivo: o site não vai trabalhar com checkout interno por enquanto.
+- `navegacaoPrincipal` (`features/site/config.ts`) perdeu "Complementares" e "Interiores" — some do menu do cabeçalho e do rodapé (`navegacaoRodape` reaproveita a mesma lista). Motivo: essas frentes não estão em uso no momento.
+- `HomeView` também perdeu a seção "Projetos Complementares" e o banner "Interiores" (usuário confirmou que queria as duas coisas fora, não só o menu).
+- Só ocultado, não apagado: as páginas `/complementares` e `/interiores` continuam existindo, só não tem mais nenhum link pra elas no site.
+- Sem token novo.
+
+## 2026-09-28 (logo do painel admin deixa de ser provisório)
+
+- `Logo` (`tone="inverse"`, só o painel admin) trocou o ícone de casa + nome em texto pelo logotipo oficial de verdade, usando `images/sobre/logo-fundo-escuro.png` (versão clara já existia no repo, só não estava ligada a nenhum componente). `tagline` ("Painel do administrador") virou uma linha abaixo do logo, em vez de ao lado do nome.
+- Resolve a limitação registrada desde a criação do componente: a arte oficial padrão tinha texto preto, ilegível no fundo escuro do painel; a versão clara fecha essa lacuna.
+- Sem token novo.
+
 ## 2026-09-28 (unificação dos selos de ícone, landing do curso Unreal Engine 5.6)
 
 - Usuário pediu que **todos** os selos quadrados de ícone da página seguissem o mesmo padrão: fundo em gradiente rosa vivo (`.curso-btn-brilho`) + ícone branco por dentro — o padrão que já estava em `AudienceSection`, `CourseBenefitsGrid`, `WhatYoullLearnSection` (selo do topo) e `CourseHighlightCards` (que já usava esse gradiente, só que com `Icon` diretamente, sem a classe). Os que ainda usavam o padrão antigo (fundo escuro `--course-accent-deep` + ícone rosa) foram convertidos:

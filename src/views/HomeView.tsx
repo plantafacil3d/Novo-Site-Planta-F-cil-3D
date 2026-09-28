@@ -4,21 +4,15 @@ import { Section } from '@/components/layout/Section'
 import type { IconName } from '@/components/ui/Icon'
 import {
   CategoriasGrid,
-  ComplementaresGrid,
   ProjetosDestaque,
   listarCategorias,
-  listarComplementares,
   listarProjetosEmDestaque,
 } from '@/features/projetos'
 import { urlWhatsapp } from '@/features/site'
 
 import { HeroSection } from './home/HeroSection'
 
-// TEMPORÁRIO: fotos de exemplo. Trocar por arquivos em public/.
-const imagemInteriores = {
-  src: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=75',
-  alt: 'Sala de estar moderna com sofá, painel de madeira e cozinha integrada ao fundo',
-}
+// TEMPORÁRIO: foto de exemplo. Trocar por arquivo em public/.
 const imagemUnreal = {
   src: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=75',
   alt: 'Pessoa de costas diante de um monitor exibindo um ambiente em 3D',
@@ -51,10 +45,9 @@ const mensagemWhatsapp =
   'Olá! Não encontrei o projeto que procuro e gostaria de um projeto personalizado.'
 
 export async function HomeView() {
-  const [categorias, destaques, complementares] = await Promise.all([
+  const [categorias, destaques] = await Promise.all([
     listarCategorias(),
     listarProjetosEmDestaque(),
-    listarComplementares(),
   ])
 
   return (
@@ -92,23 +85,6 @@ export async function HomeView() {
           ))}
         </ul>
       </Section>
-
-      <Section
-        title="Projetos Complementares"
-        subtitle="Itens que completam seu projeto e deixam sua obra ainda mais completa."
-        action={{ label: 'Ver todos os complementares', href: '/complementares' }}
-      >
-        <ComplementaresGrid complementares={complementares} />
-      </Section>
-
-      <CTABanner
-        variant="inverse"
-        eyebrow="Interiores"
-        title="Deixe seu projeto ainda mais completo"
-        description="Adquira também os projetos de interiores e transforme cada ambiente em um espaço único e acolhedor."
-        image={imagemInteriores}
-        action={{ label: 'Ver projetos de interiores', href: '/interiores' }}
-      />
 
       <CTABanner
         variant="inverse"
