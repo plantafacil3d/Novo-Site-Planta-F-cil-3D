@@ -11,9 +11,9 @@ import {
 
 import { HeroSection } from './home/HeroSection'
 
-// TEMPORÁRIO: foto de exemplo. Trocar por arquivo em public/.
+// Imagem do banner do curso Unreal. Coloque o arquivo com este nome na pasta public/images/home/
 const imagemUnreal = {
-  src: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=75',
+  src: '/images/home/banner-unreal.jpg.png',
   alt: 'Pessoa de costas diante de um monitor exibindo um ambiente em 3D',
 }
 
