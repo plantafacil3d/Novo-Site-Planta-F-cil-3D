@@ -20,6 +20,7 @@ const icones: Record<ChaveEspecificacao, IconName> = {
   quartos: 'bed-single',
   suites: 'bed-double',
   banheiros: 'bath',
+  lavabo: 'toilet',
   vagas: 'car',
   pavimentos: 'layers',
   piscina: 'waves',
@@ -40,6 +41,8 @@ function valorDe(chave: ChaveEspecificacao, projeto: ProjetoDetalhe): string {
       return String(projeto.suites)
     case 'banheiros':
       return String(projeto.banheiros)
+    case 'lavabo':
+      return String(projeto.lavabo)
     case 'vagas':
       return String(projeto.vagas)
     case 'pavimentos':

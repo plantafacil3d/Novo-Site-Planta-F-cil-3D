@@ -20,6 +20,10 @@ export const metadata: Metadata = {
   },
 }
 
+// Sem isto a home é gerada uma única vez no build e a vitrine nunca mostra projetos novos.
+// 600 s = mesma rede de segurança do catálogo (queries.ts); o painel também invalida na hora.
+export const revalidate = 600
+
 export default function HomePage() {
   return <HomeView />
 }

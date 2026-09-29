@@ -22,6 +22,7 @@ export { opcoesDeQuantidade, ordenacoesDeProjetos } from './catalogo'
 export type { OrdenacaoProjetos } from './catalogo'
 export {
   buscarProjeto,
+  invalidarCatalogo,
   listarCategorias,
   listarComplementares,
   listarLimitesDeFiltro,

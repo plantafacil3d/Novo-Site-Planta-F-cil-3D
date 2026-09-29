@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
+import { invalidarCatalogo } from '@/features/projetos'
 import { executarComLimite } from '@/lib/executarComLimite'
 import { projetoAdminRepository } from '@/repositories/projetos-admin'
 import { authService } from '@/services/auth'
@@ -271,6 +272,7 @@ export async function salvarProjeto(
     await projetoAdminRepository.sincronizarArquivosExemplo(id, payload.arquivosExemplo)
 
     revalidatePath('/admin/projetos')
+    invalidarCatalogo()
     return { ok: true, mensagem: 'Informações salvas.', projetoId: id }
   })
 }
@@ -414,6 +416,7 @@ export async function publicarProjeto(projetoId: unknown): Promise<ResultadoCada
 
     await projetoAdminRepository.definirStatus([id], 'publicado')
     revalidatePath('/admin/projetos')
+    invalidarCatalogo()
     return { ok: true, mensagem: 'Projeto publicado.' }
   })
 }

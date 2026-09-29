@@ -2,18 +2,26 @@ import Image from 'next/image'
 
 import { Section } from '@/components/layout/Section'
 import { FeatureItem } from '@/components/shared/FeatureItem'
+import { TextoExpansivel } from '@/components/shared/TextoExpansivel'
 
 import type { ConteudoSobre, ImagemRef } from '../types'
 
 // Mesmo destaque do hover do Accordion (FAQ): fundo `--color-tint` com raio e transição suaves.
 const ITEM_HOVER = 'rounded-md p-3 -m-3 transition-colors duration-150 ease-standard hover:bg-tint'
 
+// Acima disto a descrição vira "Ver mais", para a seção não crescer sem limite.
+const LIMITE_DESCRICAO = 500
+
 /** "Sobre o projeto": descrição à esquerda, ambientes e público no meio, foto à direita. */
 export function SobreProjeto({ sobre, imagem }: { sobre: ConteudoSobre; imagem: ImagemRef }) {
   return (
     <Section title="Sobre o projeto">
       <div className="grid gap-8 lg:grid-cols-3">
-        <p className="text-sm text-fg-muted">{sobre.descricao}</p>
+        <TextoExpansivel
+          texto={sobre.descricao}
+          limite={LIMITE_DESCRICAO}
+          className="text-sm text-fg-muted"
+        />
 
         <div className="flex flex-col gap-6 lg:border-x lg:border-border lg:px-8">
           <FeatureItem
@@ -39,7 +47,8 @@ export function SobreProjeto({ sobre, imagem }: { sobre: ConteudoSobre; imagem: 
           />
         </div>
 
-        <div className="group relative aspect-4/3 overflow-hidden rounded-lg lg:aspect-auto">
+        {/* Proporção fixa e `self-start`: a foto não estica junto com o texto ao lado. */}
+        <div className="group relative aspect-4/3 overflow-hidden rounded-lg lg:self-start">
           <Image
             src={imagem.src}
             alt={imagem.alt}

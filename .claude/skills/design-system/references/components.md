@@ -228,6 +228,10 @@ Card compacto: imagem, título e preço. O card inteiro é um único link, pelo 
 
 `'use client'`. Texto longo cortado em `limite` caracteres (padrão 280, corta na última palavra inteira, sem quebrar no meio); abaixo, um botão "Ver mais"/"Ver menos" com `aria-expanded`/`aria-controls` alterna o texto completo. Some sozinho (renderiza só o `<p>`) quando o texto já cabe no limite. Usado no resumo curto do `ProjetoHero`. **Tokens:** `text-primary` no botão.
 
+### TextoFormatado
+
+Server Component. Exibe texto digitado num campo de várias linhas respeitando as quebras de linha e os parágrafos (linha em branco), e aceita negrito com `*texto*` (como no WhatsApp). Só texto puro, sem HTML. Usado na descrição de "Sobre o projeto". **Tokens:** herda a cor de quem usa (`className`).
+
 ### EmptyState
 
 Lista sem resultado: ícone, título, texto e uma ação opcional (`action: { label, href }`, botão `secondary`). Fundo `--color-subtle`, borda `--color-border`, `--radius-lg`. Sempre oferece um caminho ("Limpar filtros"), nunca uma tela vazia.

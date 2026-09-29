@@ -27,22 +27,24 @@ export const navegacaoPrincipal: LinkNavegacao[] = [
   { label: 'Sobre', href: '/sobre' },
 ]
 
-export const navegacaoRodape: LinkNavegacao[] = [
-  ...navegacaoPrincipal,
-  { label: 'Contato', href: '/contato' },
-]
+export const navegacaoRodape: LinkNavegacao[] = [...navegacaoPrincipal]
 
-// PROVISÓRIO: URLs genéricas das redes. Trocar pelos perfis reais.
 export const redesSociais = [
-  { icone: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/' },
-  { icone: 'youtube', label: 'YouTube', href: 'https://www.youtube.com/' },
-  { icone: 'facebook', label: 'Facebook', href: 'https://www.facebook.com/' },
+  { icone: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/plantafacil3d/' },
+  { icone: 'youtube', label: 'YouTube', href: 'https://www.youtube.com/@plantafacil3d' },
+  {
+    icone: 'facebook',
+    label: 'Facebook',
+    href: 'https://www.facebook.com/people/Planta-F%C3%A1cil-3D/100063632335156/?locale=pt_BR',
+  },
 ] as const
 
-/** Link do WhatsApp com mensagem pronta. Sem número configurado, cai para a página de contato. */
+/** WhatsApp oficial, só dígitos com DDI e DDD. A variável de ambiente, se existir, tem prioridade. */
+const whatsappPadrao = '559992076875'
+
+/** Link do WhatsApp com mensagem pronta. */
 export function urlWhatsapp(mensagem: string): string {
-  const numero = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, '')
-  if (!numero) return '/contato'
+  const numero = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, '') || whatsappPadrao
   return `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`
 }
 

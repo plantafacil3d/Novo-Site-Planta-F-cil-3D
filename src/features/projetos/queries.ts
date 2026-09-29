@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache'
 import { cache } from 'react'
 
 import { projetoRepository } from '@/repositories/projetos'
@@ -9,9 +10,34 @@ import type { ParametrosListagem, ProjetoDetalhe } from './types'
 
 // Loaders para Server Components: o conteúdo público é renderizado no servidor (SEO).
 
+const TAG_CATALOGO = 'catalogo-projetos'
+// Rede de segurança: se alguém mexer no banco direto (fora do painel), o site se atualiza sozinho.
+const SEGUNDOS_DE_CACHE = 600
+
+// A listagem lê `searchParams`, então a página é sempre montada na hora; sem cache, cada clique
+// refazia as consultas ao banco. Aqui o resultado fica guardado por combinação de filtros.
+const listarProjetosEmCache = unstable_cache(
+  (consulta: ReturnType<typeof montarConsulta>) => projetoRepository.buscarProjetos(consulta),
+  ['listar-projetos'],
+  { tags: [TAG_CATALOGO], revalidate: SEGUNDOS_DE_CACHE },
+)
+
+const buscarLimitesEmCache = unstable_cache(
+  () => projetoRepository.buscarLimites(),
+  ['limites-de-filtro'],
+  { tags: [TAG_CATALOGO], revalidate: SEGUNDOS_DE_CACHE },
+)
+
+/** Chamar depois de criar, editar, publicar, despublicar ou excluir projetos (Server Actions). */
+export function invalidarCatalogo() {
+  revalidateTag(TAG_CATALOGO, { expire: 0 })
+  // A vitrine da home é uma página estática; sem isto ela só atualizaria no prazo do `revalidate`.
+  revalidatePath('/')
+}
+
 /** Uma página do catálogo para os parâmetros da URL (já validados por `lerParametrosListagem`). */
 export function listarProjetos(params: ParametrosListagem) {
-  return projetoRepository.buscarProjetos(montarConsulta(params))
+  return listarProjetosEmCache(montarConsulta(params))
 }
 
 export function listarProjetosEmDestaque() {
@@ -28,7 +54,7 @@ export function listarCategorias() {
 
 /** Menor/maior preço e área entre os projetos publicados, para balizar o filtro "De/Até". */
 export function listarLimitesDeFiltro() {
-  return projetoRepository.buscarLimites()
+  return buscarLimitesEmCache()
 }
 
 /**

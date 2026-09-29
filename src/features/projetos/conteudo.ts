@@ -38,6 +38,10 @@ export const textosDeEspecificacao: Record<ChaveEspecificacao, EspecificacaoText
     label: 'Banheiros',
     explicacao: 'Banheiro de uso comum, fora dos quartos.',
   },
+  lavabo: {
+    label: 'Lavabo',
+    explicacao: 'Banheiro pequeno, só com vaso e pia (sem chuveiro), para as visitas.',
+  },
   vagas: {
     label: 'Vagas de garagem',
     explicacao: 'Quantos carros cabem na garagem ou na área coberta para veículos.',

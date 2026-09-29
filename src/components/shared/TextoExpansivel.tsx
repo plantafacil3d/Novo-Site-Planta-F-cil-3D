@@ -2,6 +2,8 @@
 
 import { useId, useState } from 'react'
 
+import { TextoFormatado } from './TextoFormatado'
+
 type TextoExpansivelProps = {
   texto: string
   /** Quantos caracteres aparecem antes do "Ver mais" (corta na última palavra inteira). */
@@ -15,16 +17,23 @@ export function TextoExpansivel({ texto, limite = 280, className }: TextoExpansi
   const conteudoId = useId()
 
   if (texto.length <= limite) {
-    return <p className={className}>{texto}</p>
+    return <TextoFormatado texto={texto} className={className} />
   }
 
-  const cortado = texto.slice(0, limite).replace(/\s+\S*$/, '')
+  let cortado = texto.slice(0, limite).replace(/\s+\S*$/, '')
+  // Cortar no meio de um `*negrito*` deixaria um asterisco solto aparecendo na tela.
+  if ((cortado.match(/\*/g) ?? []).length % 2 === 1) {
+    cortado =
+      cortado.slice(0, cortado.lastIndexOf('*')) + cortado.slice(cortado.lastIndexOf('*') + 1)
+  }
 
   return (
     <div>
-      <p id={conteudoId} className={className}>
-        {aberto ? texto : `${cortado}…`}
-      </p>
+      <TextoFormatado
+        id={conteudoId}
+        texto={aberto ? texto : `${cortado}…`}
+        className={className}
+      />
       <button
         type="button"
         aria-expanded={aberto}

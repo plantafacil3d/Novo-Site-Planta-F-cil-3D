@@ -42,7 +42,7 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
           '@context': 'https://schema.org',
           '@type': 'Product',
           name: projeto.titulo,
-          description: `${projeto.resumo} ${projeto.sobre.descricao}`,
+          description: `${projeto.resumo} ${projeto.sobre.descricao.replace(/\*/g, '')}`,
           image: projeto.galeria.slice(0, 5).map((item) => item.imagem.src),
           sku: projeto.id,
           category: 'Projeto arquitetônico',

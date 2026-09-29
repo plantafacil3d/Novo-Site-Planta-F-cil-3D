@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { acessoDoPapel, publicarProjeto } from '@/features/cadastro-projeto'
+import { invalidarCatalogo } from '@/features/projetos'
 import { projetoAdminRepository } from '@/repositories/projetos-admin'
 import { authService } from '@/services/auth'
 import { fileStorage } from '@/services/storage'
@@ -34,6 +35,7 @@ async function rodarComoAdmin(
   try {
     const mensagem = await agir(validos.data)
     revalidatePath('/admin/projetos')
+    invalidarCatalogo()
     return { ok: true, mensagem }
   } catch (erro) {
     const mensagem =

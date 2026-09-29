@@ -107,6 +107,7 @@ export type ChaveEspecificacao =
   | 'quartos'
   | 'suites'
   | 'banheiros'
+  | 'lavabo'
   | 'vagas'
   | 'pavimentos'
   | 'piscina'
@@ -114,7 +115,7 @@ export type ChaveEspecificacao =
 
 type CamposDeEspecificacao = Pick<
   Projeto,
-  'suites' | 'quartos' | 'banheiros' | 'vagas' | 'areaGourmet'
+  'suites' | 'quartos' | 'banheiros' | 'lavabo' | 'vagas' | 'areaGourmet'
 >
 
 /**
@@ -131,6 +132,7 @@ export function listarChavesDeEspecificacao(projeto: CamposDeEspecificacao): Cha
     totalDeQuartos(projeto) > 0 && 'quartos',
     projeto.suites > 0 && 'suites',
     projeto.banheiros > 0 && 'banheiros',
+    projeto.lavabo > 0 && 'lavabo',
     projeto.vagas > 0 && 'vagas',
     'pavimentos',
     'piscina',
