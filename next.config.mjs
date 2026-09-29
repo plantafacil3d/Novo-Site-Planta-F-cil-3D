@@ -1,6 +1,4 @@
-import type { NextConfig } from 'next'
-
-/** Host do Storage do Supabase, para liberar as imagens já gravadas (bucket público) no `next/image`. */
+/** @type {import('next').NextConfig} */
 const hostDoStorage = (() => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   if (!url) return null
@@ -19,7 +17,7 @@ const securityHeaders = [
   // CSP: definir liberando só o que o app usa (Supabase, analytics...).
 ]
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   poweredByHeader: false,
   images: {
     remotePatterns: [
@@ -29,7 +27,7 @@ const nextConfig: NextConfig = {
       ...(hostDoStorage
         ? [
             {
-              protocol: 'https' as const,
+              protocol: 'https',
               hostname: hostDoStorage,
               pathname: '/storage/v1/object/public/**',
             },
