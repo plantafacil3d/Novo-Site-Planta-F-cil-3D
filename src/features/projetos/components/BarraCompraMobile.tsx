@@ -11,11 +11,14 @@ type BarraCompraMobileProps = {
 
 /**
  * Preço e botão de compra fixos na base da tela, só no celular. Precisa ser o último item da
- * página: `sticky` faz a barra parar no fim do conteúdo e nunca cobrir o rodapé.
+ * página. O atributo `data-barra-compra-mobile` faz o `globals.css` esconder o rodapé do site no
+ * celular, e assim a barra fica na base da tela até o fim da rolagem.
  */
 export function BarraCompraMobile({ preco, checkoutUrl }: BarraCompraMobileProps) {
   return (
-    <div className="sticky bottom-0 z-30 flex items-center justify-between gap-4 border-t border-border bg-page p-3 shadow-lg md:hidden">
+    <div
+      data-barra-compra-mobile
+      className="sticky bottom-0 z-30 flex items-center justify-between gap-4 border-t border-border bg-page p-3 shadow-lg md:hidden">
       <PriceTag
         price={preco.atual}
         originalPrice={preco.original}

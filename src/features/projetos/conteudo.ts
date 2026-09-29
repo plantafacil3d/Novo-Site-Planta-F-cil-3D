@@ -3,7 +3,7 @@
 
 import type { ChaveEspecificacao } from './rules'
 
-export type PerguntaFrequente = { pergunta: string; resposta: string }
+export type PerguntaFrequente = { pergunta: string; resposta: string | string[] }
 
 export type EspecificacaoTexto = { label: string; explicacao: string }
 
@@ -60,12 +60,15 @@ export const textosDeEspecificacao: Record<ChaveEspecificacao, EspecificacaoText
   },
 }
 
+/** Pergunta cuja resposta vem do cadastro do projeto (itens inclusos), não de texto fixo. */
+export const perguntaItensInclusos = 'O que eu recebo ao comprar este projeto?'
+
+/** Resposta de reserva, usada só quando o projeto não tem itens inclusos cadastrados. */
+export const respostaItensInclusosPadrao =
+  'Você recebe plantas baixas, fachadas, cortes, implantação, arquivos técnicos em PDF e DWG e imagens 3D do projeto.'
+
+/** Demais perguntas: fixas. Um item do array vira um parágrafo na resposta. */
 export const perguntasFrequentes: PerguntaFrequente[] = [
-  {
-    pergunta: 'O que recebo ao comprar este projeto?',
-    resposta:
-      'Você recebe plantas baixas, fachadas, cortes, implantação, arquivos técnicos em PDF e DWG e imagens 3D do projeto.',
-  },
   {
     pergunta: 'Como recebo os arquivos?',
     resposta:
@@ -77,8 +80,10 @@ export const perguntasFrequentes: PerguntaFrequente[] = [
   },
   {
     pergunta: 'Posso adaptar o projeto?',
-    resposta:
-      'Sim. O projeto pode ser adaptado ao seu terreno e à legislação local por um profissional habilitado. Se preferir, fale com a nossa equipe.',
+    resposta: [
+      'Nós não realizamos modificações diretas nos projetos, pois vendemos os modelos prontos para garantir o menor preço do mercado.',
+      'Porém, ao comprar na Planta Fácil 3D, você recebe todos os arquivos 100% editáveis em formato DWG (AutoCAD) e em outros formatos. Basta entregar esses arquivos ao arquiteto ou engenheiro da sua própria região que vai construir sua casa. Ele poderá alterar qualquer parede, janela ou cômodo facilmente e assinar a documentação técnica para sua obra.',
+    ],
   },
   {
     pergunta: 'Posso usar em outro terreno?',
@@ -102,8 +107,10 @@ export const perguntasFrequentes: PerguntaFrequente[] = [
   },
   {
     pergunta: 'O projeto é registrado?',
-    resposta:
-      'A compra é do projeto arquitetônico. Para aprovar na prefeitura e construir, um profissional habilitado precisa assumir a responsabilidade técnica (ART ou RRT).',
+    resposta: [
+      'Para construir de forma legalizada, toda prefeitura exige a assinatura de um Responsável Técnico Local (um engenheiro civil ou arquiteto habilitado na sua cidade) para dar entrada no alvará de construção.',
+      'Como disponibilizamos o projeto em arquivos editáveis (DWG), você deve entregar esse material ao profissional local contratado para tocar sua obra. Ele fará as adaptações necessárias ao código de obras do seu município e assinará a documentação perante a prefeitura.',
+    ],
   },
   {
     pergunta: 'Posso parcelar a compra?',

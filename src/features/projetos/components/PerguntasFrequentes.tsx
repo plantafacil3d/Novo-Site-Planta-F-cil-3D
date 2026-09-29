@@ -1,14 +1,39 @@
 import { Section } from '@/components/layout/Section'
 import { Accordion } from '@/components/ui/Accordion'
 
-import { perguntasFrequentes } from '../conteudo'
+import {
+  perguntaItensInclusos,
+  perguntasFrequentes,
+  respostaItensInclusosPadrao,
+} from '../conteudo'
+import { descreverItensInclusos } from '../rules'
 
-/** Perguntas frequentes em duas colunas (uma no celular), cada pergunta abre e fecha. */
-export function PerguntasFrequentes() {
-  const itens = perguntasFrequentes.map((item) => ({
-    title: item.pergunta,
-    content: item.resposta,
-  }))
+/**
+ * Perguntas frequentes em duas colunas (uma no celular), cada pergunta abre e fecha. A primeira
+ * resposta resume, numa frase, os itens inclusos do cadastro; sem itens, usa o texto padrão.
+ */
+export function PerguntasFrequentes({ itensInclusos }: { itensInclusos: string[] }) {
+  const itens = [
+    {
+      title: perguntaItensInclusos,
+      content:
+        itensInclusos.length > 0 ? (
+          <p>Você vai receber os seguintes itens: {descreverItensInclusos(itensInclusos)}</p>
+        ) : (
+          <p>{respostaItensInclusosPadrao}</p>
+        ),
+    },
+    ...perguntasFrequentes.map((item) => ({
+      title: item.pergunta,
+      content: (
+        <div className="flex flex-col gap-3">
+          {[item.resposta].flat().map((paragrafo) => (
+            <p key={paragrafo}>{paragrafo}</p>
+          ))}
+        </div>
+      ),
+    })),
+  ]
   const metade = Math.ceil(itens.length / 2)
 
   return (

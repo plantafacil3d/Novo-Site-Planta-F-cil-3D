@@ -84,7 +84,7 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
         />
       )}
       <PerfilProjeto perfil={projeto.perfil} />
-      <PerguntasFrequentes />
+      <PerguntasFrequentes itensInclusos={projeto.itensInclusos} />
 
       {checkoutUrl && (
         <CTABanner

@@ -25,7 +25,7 @@ export function ProjetosDestaque({ projetos, className }: ProjetosDestaqueProps)
               href={hrefProjeto(projeto)}
               title={projeto.titulo}
               code={projeto.codigoYoutube}
-              projectCode={projeto.codigo}
+              projectCode={projeto.codigoYoutube ?? projeto.codigo}
               image={projeto.imagem}
               badge={projeto.selo}
               specs={especificacoesDoCard(projeto)}

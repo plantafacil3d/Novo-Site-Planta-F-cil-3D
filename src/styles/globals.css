@@ -48,6 +48,17 @@
 }
 
 /*
+ * No celular, a página do projeto tem a barra de compra fixa (`BarraCompraMobile`); nela o rodapé
+ * do site sai, para a barra ficar sempre colada na base da tela em vez de subir sobre o rodapé.
+ * Abaixo do breakpoint `md` do Tailwind (48rem), o mesmo em que a barra aparece.
+ */
+@media (max-width: 47.99rem) {
+  body:has([data-barra-compra-mobile]) footer {
+    display: none;
+  }
+}
+
+/*
  * Esconde a interface visual do widget do Google Translate (`features/idioma`): o site usa só o
  * `<select>` que ele injeta, por trás do seletor de idioma próprio. `!important` porque o Google
  * aplica estilo inline nesses elementos.

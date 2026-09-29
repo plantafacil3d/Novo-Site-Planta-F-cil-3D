@@ -32,11 +32,12 @@ import type { ProjetoAdminRepository } from './ProjetoAdminRepository'
 const POR_PAGINA_MAXIMO = 100
 
 /** Só as colunas que a tabela usa; nada de `select('*')`. */
-const COLUNAS = 'id, codigo, slug, titulo, categoria, preco_centavos, status, criado_em'
+const COLUNAS = 'id, codigo, codigo_youtube, slug, titulo, categoria, preco_centavos, status, criado_em'
 
 type Linha = {
   id: string
   codigo: string
+  codigo_youtube: string | null
   slug: string
   titulo: string
   categoria: string | null
@@ -48,7 +49,7 @@ type Linha = {
 function paraProjeto(linha: Linha): ProjetoAdmin {
   return {
     id: linha.id,
-    codigo: linha.codigo,
+    codigo: linha.codigo_youtube ?? linha.codigo,
     slug: linha.slug,
     titulo: linha.titulo,
     categoria: linha.categoria,

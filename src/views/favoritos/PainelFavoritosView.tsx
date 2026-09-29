@@ -46,7 +46,7 @@ function montarCard(projeto: Projeto): CardFavorito {
     titulo: projeto.titulo,
     href: hrefProjeto(projeto),
     code: projeto.codigoYoutube,
-    projectCode: projeto.codigo,
+    projectCode: projeto.codigoYoutube ?? projeto.codigo,
     image: projeto.imagem,
     specs: especificacoesDoCard(projeto),
     price: preco.atual,

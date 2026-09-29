@@ -5,7 +5,7 @@ export type StatusProjeto = 'publicado' | 'rascunho'
 /** Resumo do projeto na tabela do painel. */
 export type ProjetoAdmin = {
   id: string
-  /** Código que o cliente vê (ex.: "PF-001"). */
+  /** Código do projeto digitado no cadastro; sem ele, o PF-xxx automático. */
   codigo: string
   slug: string
   titulo: string

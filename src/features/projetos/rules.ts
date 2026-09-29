@@ -85,6 +85,21 @@ export function formatarArea(metrosQuadrados: number): string {
   return `${decimais.format(metrosQuadrados)} m²`
 }
 
+/**
+ * Junta os itens inclusos numa frase corrida ("a, b e c."), para a resposta do FAQ ocupar pouco
+ * espaço. A inicial vira minúscula, exceto em siglas (PDF, DWG), que são reconhecidas pela 2ª letra.
+ */
+export function descreverItensInclusos(itens: string[]): string {
+  const minusculos = itens.map((item) => {
+    const texto = item.trim()
+    const segunda = texto.charAt(1)
+    return segunda !== '' && segunda === segunda.toLowerCase()
+      ? texto.charAt(0).toLowerCase() + texto.slice(1)
+      : texto
+  })
+  return `${new Intl.ListFormat('pt-BR', { style: 'long', type: 'conjunction' }).format(minusculos)}.`
+}
+
 export function simNao(valor: boolean): string {
   return valor ? 'Sim' : 'Não'
 }
