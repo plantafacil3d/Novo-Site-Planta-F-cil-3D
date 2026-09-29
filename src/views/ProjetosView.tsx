@@ -1,65 +1,59 @@
 import { Suspense } from 'react'
 
-import { Breadcrumb } from '@/components/navigation/Breadcrumb'
 import { CollapsiblePanel } from '@/components/shared/CollapsiblePanel'
 import {
   FiltrosAplicados,
-  FiltrosSkeleton,
   FormularioDeFiltros,
-  ProjetosSkeleton,
   contarFiltros,
   listarFiltrosAplicados,
   listarLimitesDeFiltro,
+  listarProjetos,
   montarHrefListagem,
   type ParametrosListagem,
 } from '@/features/projetos'
 
+import { ListagemEsqueleto, ProjetosCasca } from './projetos/ListagemEsqueleto'
 import { ResultadosProjetos } from './projetos/ResultadosProjetos'
 
-/** Só renderiza o formulário depois que os limites (menor/maior preço e área) chegarem do banco;
- *  numa `Suspense` própria, para buscar em paralelo com `ResultadosProjetos` em vez de antes dela. */
-async function FiltrosComLimites({ params }: { params: ParametrosListagem }) {
-  const limites = await listarLimitesDeFiltro()
-  return <FormularioDeFiltros params={params} limites={limites} />
+/** Busca os limites do filtro e a página de projetos em paralelo, mas só troca os esqueletos pela
+ *  versão real quando os dois já chegaram — assim o filtro e a grade aparecem juntos, nunca um
+ *  bem depois do outro (a busca dos limites é bem mais pesada: várias consultas ao banco). */
+async function ListagemDeProjetos({ params }: { params: ParametrosListagem }) {
+  const [limites, resultado] = await Promise.all([
+    listarLimitesDeFiltro(),
+    listarProjetos(params),
+  ])
+
+  return (
+    <>
+      <aside aria-label="Filtros" className="lg:col-span-3">
+        <CollapsiblePanel label="Filtros" count={contarFiltros(params)}>
+          <FormularioDeFiltros params={params} limites={limites} />
+        </CollapsiblePanel>
+      </aside>
+
+      <div className="flex flex-col gap-6 lg:col-span-9">
+        <FiltrosAplicados filtros={listarFiltrosAplicados(params)} />
+        <ResultadosProjetos params={params} resultado={resultado} />
+      </div>
+    </>
+  )
 }
 
-/** Página pública `/projetos`: filtros à esquerda (recolhidos no celular) e a lista paginada. */
+/** Página pública `/projetos`: filtros à esquerda (recolhidos no celular) e a lista paginada.
+ *  A casca (trilha, título, texto) é a mesma do `loading.tsx` da rota, então só o miolo troca
+ *  quando os dados chegam — sem o layout mudar de novo no meio do caminho. */
 export function ProjetosView({ params }: { params: ParametrosListagem }) {
-  const filtrosAplicados = listarFiltrosAplicados(params)
-  // Muda a cada filtro, ordem ou página. Como `key`, faz o painel fechar e o formulário refletir
-  // a URL depois de aplicar ou remover um filtro, e faz o esqueleto aparecer enquanto carrega.
+  // Muda a cada filtro, ordem ou página. Como `key`, faz o esqueleto aparecer de novo enquanto
+  // a nova combinação carrega e o formulário (não controlado) refletir a URL depois de um filtro
+  // aplicado ou removido.
   const chave = montarHrefListagem(params)
 
   return (
-    <div>
-      <div className="mx-auto max-w-content px-4 pt-2">
-        <Breadcrumb items={[{ label: 'Início', href: '/' }, { label: 'Projetos' }]} />
-      </div>
-
-      <div className="mx-auto max-w-content px-4 pt-4 pb-12 md:pb-16">
-        <h1 className="text-3xl">Projetos prontos</h1>
-        <p className="mt-2 max-w-2xl text-fg-muted">
-          Plantas, fachadas e imagens 3D prontas para construir. Filtre por categoria, estilo,
-          quartos, vagas e até pelo tamanho do seu terreno.
-        </p>
-
-        <div className="mt-8 grid gap-8 lg:grid-cols-12">
-          <aside aria-label="Filtros" className="lg:col-span-3">
-            <CollapsiblePanel key={chave} label="Filtros" count={contarFiltros(params)}>
-              <Suspense fallback={<FiltrosSkeleton />}>
-                <FiltrosComLimites params={params} />
-              </Suspense>
-            </CollapsiblePanel>
-          </aside>
-
-          <div className="flex flex-col gap-6 lg:col-span-9">
-            <FiltrosAplicados filtros={filtrosAplicados} />
-            <Suspense key={chave} fallback={<ProjetosSkeleton />}>
-              <ResultadosProjetos params={params} />
-            </Suspense>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ProjetosCasca>
+      <Suspense key={chave} fallback={<ListagemEsqueleto />}>
+        <ListagemDeProjetos params={params} />
+      </Suspense>
+    </ProjetosCasca>
   )
 }

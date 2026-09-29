@@ -5,16 +5,22 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import {
   ProjetosDestaque,
   descreverResultados,
-  listarProjetos,
   montarHrefListagem,
   temFiltros,
   totalDePaginas,
   type ParametrosListagem,
+  type Projeto,
 } from '@/features/projetos'
+import type { Pagina } from '@/types/pagina'
 
-/** Busca uma página do catálogo e mostra: quantidade, grade de cards e paginação (ou o estado vazio). */
-export async function ResultadosProjetos({ params }: { params: ParametrosListagem }) {
-  const resultado = await listarProjetos(params)
+/** Mostra a contagem, a grade de cards e a paginação de uma página já buscada (ou o estado vazio). */
+export function ResultadosProjetos({
+  params,
+  resultado,
+}: {
+  params: ParametrosListagem
+  resultado: Pagina<Projeto>
+}) {
   const paginas = totalDePaginas(resultado.total, resultado.porPagina)
 
   // Link antigo ou digitado à mão para uma página que não existe (mais); leva à última.
