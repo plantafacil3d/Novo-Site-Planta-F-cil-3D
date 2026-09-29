@@ -1,9 +1,10 @@
-import type { ReactNode } from 'react'
+import { Suspense, type ReactNode } from 'react'
 
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { SkipLink } from '@/components/navigation/SkipLink'
 import { BotaoConta } from '@/features/conta'
+import { GoogleTranslateWidget, ReaplicarTraducaoNaRota, SeletorDeIdioma } from '@/features/idioma'
 import {
   navegacaoPrincipal,
   navegacaoRodape,
@@ -17,11 +18,16 @@ export function SiteShell({ children }: { children: ReactNode }) {
   return (
     <>
       <SkipLink href="#conteudo">Pular para o conteúdo</SkipLink>
+      <GoogleTranslateWidget />
+      <Suspense fallback={null}>
+        <ReaplicarTraducaoNaRota />
+      </Suspense>
       <Header
         nome={siteConfig.nome}
         tagline={siteConfig.tagline}
         items={navegacaoPrincipal}
         conta={(variante, className) => <BotaoConta variante={variante} className={className} />}
+        idioma={<SeletorDeIdioma />}
       />
       <main id="conteudo">{children}</main>
       <Footer

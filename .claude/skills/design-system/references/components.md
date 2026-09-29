@@ -350,6 +350,16 @@ Grava e envia de verdade (Supabase + Storage). A tela de criar é montada em `vi
 - Ícones novos no registro: `upload`, `trash`, `circle-check`, `circle-alert`.
 - Em "Informações Gerais", depois de "Descrição detalhada": três campos opcionais que espelham a seção "Sobre o projeto" da página pública (`SobreProjeto.tsx`, ainda mockada) — Ambientes (ícone `layout-grid`), Indicado para (`users`) e Aplicações (`building2`), usando a prop `icon` do `Field`.
 
+## Tradução do site (`features/idioma/components/`)
+
+Site traduzido pelo widget gratuito do Google Translate (Website Translator), escondido, comandado por um seletor com a cara do site — sem API paga, sem reload de página, sem cookie `googtrans`. Serviço puro (leitura/gravação do `<select>` que o Google injeta) em `services/translate`; o estado do idioma ativo vem do hook `useIdioma` (`hooks/`), que usa `useSyncExternalStore` para ler o `localStorage` sem erro de hidratação (servidor sempre renderiza `pt`).
+
+- `SeletorDeIdioma`: dropdown no `Header`, com bandeira + código do idioma ativo (ex.: 🇧🇷 PT) e um painel com os 8 idiomas (pt, en, es, fr, it, de, ja, zh-CN). Mesma técnica de posicionamento do `DropdownMenu` (`popover` nativo), com gatilho e itens próprios (bandeira, texto e um check no idioma atual, em vez de ícone/link/ação). `notranslate` no elemento inteiro, para o Google não tentar traduzir o próprio seletor.
+- `GoogleTranslateWidget`: sem interface, monta a `<div id="google_translate_element">` escondida (fora da tela, não só `display:none`, porque o widget do Google pode falhar ao montar se o container nunca tiver layout) e os dois `<Script>` (a função de callback do Google e o `element.js` dele). A UI visual do widget (banner, balão, destaque de texto) é escondida globalmente em `styles/globals.css`, com `!important` (o Google usa estilo inline).
+- `ReaplicarTraducaoNaRota`: sem interface. O Next troca de rota sem recarregar a página, então o Google só traduziu o HTML da rota anterior; a cada mudança de caminho ou busca (`usePathname`/`useSearchParams`), reaplica o idioma salvo ao conteúdo novo.
+- Os três são montados uma vez no `SiteShell` (não no layout raiz): a tradução é só para as páginas públicas, o painel do administrador (layout próprio) não carrega o widget.
+- **Sem token novo.** 5 bandeiras novas no registro do `Icon` (`flag-fr`, `flag-it`, `flag-de`, `flag-jp`, `flag-cn`), mesmo estilo SVG das 3 que já existiam — emoji de bandeira não renderiza como cor no Chrome/Windows (nota já registrada no `Icon` acima).
+
 ## Registro
 
 Ao criar ou alterar um componente, adicione/atualize a entrada acima e anote em `../changelog.md`.

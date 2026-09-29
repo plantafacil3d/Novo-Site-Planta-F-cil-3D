@@ -4,6 +4,19 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-09-28 (correção: texto traduzido parecia "selecionado" ao passar o mouse)
+
+- Usuário reportou que, com o site traduzido, passar o mouse por cima de um texto fazia ele parecer selecionado. Causa: o Google embrulha todo trecho traduzido num `<font>` e, ao passar o mouse por cima, aplica a classe `.goog-text-highlight` (o "grifado" que mostra o texto original) — já estava com fundo/borda/sombra zerados, mas faltava travar o próprio hover.
+- `styles/globals.css`: `.goog-text-highlight` ganhou `pointer-events: none`, e todo `<font>` (só existe na página por causa do Google) também — o hover (e o clique) passa direto para quem está por trás (link, botão etc.), então nada para de funcionar, só o Google deixa de "ouvir" o mouse nesse texto.
+- Sem token novo.
+
+## 2026-09-28 (seletor de idioma + tradução automática via Google Translate)
+
+- Novo componente `SeletorDeIdioma` (`features/idioma/components/`), no `Header`: dropdown com a mesma técnica de `popover` nativo do `DropdownMenu` (posição calculada perto do botão, fecha com Esc/clique fora), mas com gatilho próprio (bandeira + código do idioma) em vez do botão ⋮ — por isso não reaproveitou o `DropdownMenu` em si, só a técnica.
+- 5 bandeiras novas no registro do `Icon` (`flag-fr`, `flag-it`, `flag-de`, `flag-jp`, `flag-cn`), no mesmo estilo SVG das 3 que já existiam (`flag-us`, `flag-br`, `flag-es`). Motivo: a referência que o usuário trouxe usava emoji de bandeira (🇫🇷🇮🇹🇩🇪🇯🇵🇨🇳), mas o próprio catálogo já registra que emoji de bandeira não renderiza como cor no Chrome/Windows (vira sigla) — os 8 idiomas precisavam do mesmo tratamento SVG.
+- `SeletorDeIdioma` e o botão fica com `notranslate`/`translate="no"`: o Google Translate não deve tentar traduzir o próprio controle que troca de idioma.
+- Sem token novo (reaproveita `border`, `surface`, `subtle`, `fg`/`fg-muted`).
+
 ## 2026-09-28 (ícone de carrinho e abas Complementares/Interiores ocultados)
 
 - `Header` perdeu o ícone/link de carrinho (`/carrinho`) — rota que nem existia; o contador (`carrinhoQuantidade`) nunca era usado por quem monta o header. Motivo: o site não vai trabalhar com checkout interno por enquanto.

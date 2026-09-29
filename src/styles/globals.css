@@ -46,3 +46,55 @@
     }
   }
 }
+
+/*
+ * Esconde a interface visual do widget do Google Translate (`features/idioma`): o site usa só o
+ * `<select>` que ele injeta, por trás do seletor de idioma próprio. `!important` porque o Google
+ * aplica estilo inline nesses elementos.
+ */
+.goog-te-banner-frame,
+.VIpgJd-Zvi9od-aZ2wEe-wOHMyf,
+.VIpgJd-Zvi9od-ORHb-OphiS,
+.skiptranslate,
+iframe.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  pointer-events: none !important;
+}
+
+/* O Google empurra a página para baixo ao carregar o banner; isso impede o salto de layout. */
+body {
+  top: 0 !important;
+  position: static !important;
+  margin-top: 0 !important;
+}
+
+html {
+  top: 0 !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  /* Sem isso, passar o mouse por cima de um trecho traduzido dispara o "grifado" do Google, que
+     por fora parece o texto tendo sido selecionado. */
+  pointer-events: none !important;
+}
+
+/*
+ * O Google embrulha cada trecho traduzido num <font> (às vezes vários, um dentro do outro); é o
+ * mouse por cima de um desses <font> que aciona o "grifado" acima. `pointer-events: none` faz o
+ * hover (e o clique) atravessar o <font> direto para quem está por trás (o link, o botão etc.),
+ * então nada deixa de funcionar — só o Google para de "ouvir" o mouse nesse texto.
+ */
+font {
+  pointer-events: none !important;
+}
