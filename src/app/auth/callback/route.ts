@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
   const destino = await concluirLoginGoogle(
     request.nextUrl.searchParams.get('code'),
     request.nextUrl.searchParams.get('favoritar'),
+    request.nextUrl.searchParams.get('tentativa') === '2',
   )
   return NextResponse.redirect(new URL(destino, siteUrl))
 }
