@@ -90,7 +90,7 @@ export async function HomeView() {
         image={imagemUnreal}
         action={{
           label: 'Conheça nosso curso',
-          href: '/3d-unreal',
+          href: '/curso-unreal-engine',
           variant: 'secondary-inverse',
         }}
       />

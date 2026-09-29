@@ -9,11 +9,11 @@ const description =
 export const metadata: Metadata = {
   title,
   description,
-  alternates: { canonical: '/3d-unreal' },
+  alternates: { canonical: '/curso-unreal-engine' },
   openGraph: {
     title: `${title} | Planta Fácil 3D`,
     description,
-    url: '/3d-unreal',
+    url: '/curso-unreal-engine',
     siteName: 'Planta Fácil 3D',
     locale: 'pt_BR',
     type: 'website',

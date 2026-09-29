@@ -23,7 +23,7 @@ export const selosDeConfianca = [
 export const navegacaoPrincipal: LinkNavegacao[] = [
   { label: 'Início', href: '/' },
   { label: 'Projetos', href: '/projetos' },
-  { label: 'Curso Unreal 5', href: '/3d-unreal' },
+  { label: 'Curso Unreal 5', href: '/curso-unreal-engine' },
   { label: 'Sobre', href: '/sobre' },
 ]
 

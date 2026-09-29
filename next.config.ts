@@ -37,6 +37,10 @@ const nextConfig: NextConfig = {
         : []),
     ],
   },
+  async redirects() {
+    // URL antiga do curso: mantém links e posição no Google.
+    return [{ source: '/3d-unreal', destination: '/curso-unreal-engine', permanent: true }]
+  },
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }]
   },

@@ -1,5 +1,5 @@
 Pasta reservada para as imagens reais da landing page do curso Unreal Engine 5.6 (parceiro DVIZ),
-em /3d-unreal. Suba os arquivos com exatamente estes nomes:
+em /curso-unreal-engine. Suba os arquivos com exatamente estes nomes:
 
   hero-video-thumb.jpg        -> miniatura do vídeo "NOVO Curso de Unreal Engine 5.6" (topo da página)
   alunos-video-thumb.jpg      -> miniatura do vídeo "Projetos feitos por alunos"

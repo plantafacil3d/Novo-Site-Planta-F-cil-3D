@@ -22,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
     {
-      url: `${siteUrl}/3d-unreal`,
+      url: `${siteUrl}/curso-unreal-engine`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.7,
