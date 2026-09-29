@@ -38,6 +38,12 @@ export async function generateMetadata({ params }: ProjetoPageProps): Promise<Me
       type: 'website',
       images: [{ url: projeto.imagem.src, alt: projeto.imagem.alt }],
     },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [{ url: projeto.imagem.src, alt: projeto.imagem.alt }],
+    },
   }
 }
 
