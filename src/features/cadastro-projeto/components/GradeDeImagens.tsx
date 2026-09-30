@@ -10,6 +10,8 @@ type GradeDeImagensProps<T extends ImagemProjeto> = {
   /** Nome acessível do botão de remover (ex.: "Remover a imagem 2"). */
   rotuloDeRemover: (imagem: T, indice: number) => string
   aoRemover: (id: string) => void
+  /** Nome que a imagem terá no site (prévia), mostrado abaixo da miniatura. */
+  previaDoNome?: (imagem: T, indice: number) => string
   /** Conteúdo abaixo da miniatura (ex.: o campo de nome da planta). */
   extra?: (imagem: T, indice: number) => ReactNode
 }
@@ -19,6 +21,7 @@ export function GradeDeImagens<T extends ImagemProjeto>({
   imagens,
   rotuloDeRemover,
   aoRemover,
+  previaDoNome,
   extra,
 }: GradeDeImagensProps<T>) {
   if (imagens.length === 0) return null
@@ -46,6 +49,11 @@ export function GradeDeImagens<T extends ImagemProjeto>({
               className="absolute top-2 right-2"
             />
           </div>
+          {previaDoNome && (
+            <p className="px-3 pt-3 text-xs break-all text-fg-muted">
+              Nome no site: {previaDoNome(imagem, indice)}
+            </p>
+          )}
           {extra && <div className="p-3">{extra(imagem, indice)}</div>}
         </li>
       ))}

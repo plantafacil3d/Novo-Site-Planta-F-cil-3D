@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { textoAlternativoDaImagem, type DadosDoNomeDaImagem } from '@/features/cadastro-projeto'
 import {
   formatarFamiliaIndicada,
   type Categoria,
@@ -142,6 +143,16 @@ async function resolverUrl(caminho: string): Promise<string> {
   return fileStorage.urlPublica({ acesso: 'publico', caminho })
 }
 
+/** O que o texto alternativo das imagens usa do cadastro (a mesma regra do nome dos arquivos). */
+const dadosDoNome = (linha: LinhaResumo): DadosDoNomeDaImagem => ({
+  categoria: linha.categoria,
+  larguraM: linha.largura_m,
+  profundidadeM: linha.profundidade_m,
+  quartos: linha.quartos,
+  suites: linha.suites,
+  suiteMaster: linha.suite_master,
+})
+
 function derivarDiferencial(piscina: boolean, areaGourmet: boolean): Diferencial | undefined {
   if (piscina) return { tipo: 'piscina', rotulo: 'Piscina' }
   if (areaGourmet) return { tipo: 'varanda-gourmet', rotulo: 'Área Gourmet' }
@@ -149,6 +160,17 @@ function derivarDiferencial(piscina: boolean, areaGourmet: boolean): Diferencial
 }
 
 /** `null` quando o projeto não tem imagem principal (não deveria acontecer com status "publicado"). */
+/** "Planta baixa de sobrado 10x20 com 3 quartos"; com mais de um pavimento, o nome dele vai no fim. */
+function altDaPlanta(
+  linha: LinhaResumo,
+  nomeDoPavimento: string,
+  variosPavimentos: boolean,
+): string {
+  const texto = textoAlternativoDaImagem(dadosDoNome(linha), 'planta')
+  if (!texto) return `Planta: ${nomeDoPavimento}`
+  return variosPavimentos ? `${texto} – ${nomeDoPavimento}` : texto
+}
+
 async function montarResumo(linha: LinhaResumo): Promise<Projeto | null> {
   const principal = linha.projeto_arquivos.find((arquivo) => arquivo.papel === 'principal')
   if (!principal) return null
@@ -164,7 +186,9 @@ async function montarResumo(linha: LinhaResumo): Promise<Projeto | null> {
     titulo: linha.titulo,
     imagem: {
       src: await resolverUrl(principal.caminho),
-      alt: `Foto principal do projeto ${linha.titulo}`,
+      alt:
+        textoAlternativoDaImagem(dadosDoNome(linha), 'foto') ??
+        `Foto principal do projeto ${linha.titulo}`,
     },
     estilo: (linha.estilo ?? undefined) as Projeto['estilo'],
     larguraM: linha.largura_m ?? 0,
@@ -209,7 +233,9 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
       id: arquivo.caminho,
       imagem: {
         src: await resolverUrl(arquivo.caminho),
-        alt: `Foto ${indice + 2} do projeto ${linha.titulo}`,
+        alt:
+          textoAlternativoDaImagem(dadosDoNome(linha), 'foto') ??
+          `Foto ${indice + 2} do projeto ${linha.titulo}`,
       },
     })),
   )
@@ -242,7 +268,10 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
           return {
             id: pavimento.id,
             nome,
-            imagem: { src: await resolverUrl(arquivo.caminho), alt: `Planta: ${nome}` },
+            imagem: {
+              src: await resolverUrl(arquivo.caminho),
+              alt: altDaPlanta(linha, nome, linha.projeto_pavimentos.length > 1),
+            },
             itens,
           }
         }),

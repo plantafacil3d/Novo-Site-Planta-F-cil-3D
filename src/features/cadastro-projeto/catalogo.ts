@@ -4,22 +4,64 @@
 
 import type { EtapaId } from './types'
 
+/** `arquivo`: como a categoria entra no nome das imagens (singular, sem acento). `singular`: o mesmo, escrito
+ *  normalmente, para o texto alternativo. */
 export const categoriasDoCadastro = [
-  { valor: 'casas-terreas', rotulo: 'Casas Térreas' },
-  { valor: 'sobrados', rotulo: 'Sobrados' },
-  { valor: 'mansoes-alto-padrao', rotulo: 'Mansões / Alto Padrão' },
-  { valor: 'casas-pequenas', rotulo: 'Casas Pequenas' },
-  { valor: 'casas-geminadas', rotulo: 'Casas Geminadas' },
-  { valor: 'casas-de-campo', rotulo: 'Casas de Campo' },
-  { valor: 'casas-de-praia', rotulo: 'Casas de Praia' },
-  { valor: 'projetos-de-fachada', rotulo: 'Projetos de Fachada' },
-  { valor: 'kitnets', rotulo: 'Kitnets' },
-  { valor: 'lofts', rotulo: 'Lofts' },
-  { valor: 'casas-modulares', rotulo: 'Casas Modulares' },
-  { valor: 'comercial', rotulo: 'Comercial' },
-  { valor: 'chale', rotulo: 'Chalé' },
-  { valor: 'loja', rotulo: 'Loja' },
-  { valor: 'outros', rotulo: 'Outros' },
+  {
+    valor: 'casas-terreas',
+    rotulo: 'Casas Térreas',
+    arquivo: 'casa-terrea',
+    singular: 'Casa térrea',
+  },
+  { valor: 'sobrados', rotulo: 'Sobrados', arquivo: 'sobrado', singular: 'Sobrado' },
+  {
+    valor: 'mansoes-alto-padrao',
+    rotulo: 'Mansões / Alto Padrão',
+    arquivo: 'mansao',
+    singular: 'Mansão',
+  },
+  {
+    valor: 'casas-pequenas',
+    rotulo: 'Casas Pequenas',
+    arquivo: 'casa-pequena',
+    singular: 'Casa pequena',
+  },
+  {
+    valor: 'casas-geminadas',
+    rotulo: 'Casas Geminadas',
+    arquivo: 'casa-geminada',
+    singular: 'Casa geminada',
+  },
+  {
+    valor: 'casas-de-campo',
+    rotulo: 'Casas de Campo',
+    arquivo: 'casa-de-campo',
+    singular: 'Casa de campo',
+  },
+  {
+    valor: 'casas-de-praia',
+    rotulo: 'Casas de Praia',
+    arquivo: 'casa-de-praia',
+    singular: 'Casa de praia',
+  },
+  {
+    valor: 'projetos-de-fachada',
+    rotulo: 'Projetos de Fachada',
+    arquivo: 'fachada',
+    singular: 'Fachada',
+  },
+  { valor: 'kitnets', rotulo: 'Kitnets', arquivo: 'kitnet', singular: 'Kitnet' },
+  { valor: 'lofts', rotulo: 'Lofts', arquivo: 'loft', singular: 'Loft' },
+  {
+    valor: 'casas-modulares',
+    rotulo: 'Casas Modulares',
+    arquivo: 'casa-modular',
+    singular: 'Casa modular',
+  },
+  { valor: 'comercial', rotulo: 'Comercial', arquivo: 'comercial', singular: 'Comercial' },
+  { valor: 'chale', rotulo: 'Chalé', arquivo: 'chale', singular: 'Chalé' },
+  { valor: 'loja', rotulo: 'Loja', arquivo: 'loja', singular: 'Loja' },
+  { valor: 'outros', rotulo: 'Outros', arquivo: 'projeto', singular: 'Projeto' },
 ] as const
 
 export type CategoriaDoCadastro = (typeof categoriasDoCadastro)[number]['valor']

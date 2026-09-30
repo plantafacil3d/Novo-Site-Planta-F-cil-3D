@@ -1,7 +1,7 @@
 import { extensaoDe, formatarTamanho } from '@/services/upload/arquivos'
 import type { AcessoDoArquivo } from '@/types/envio'
 
-import { etapasDoCadastro } from './catalogo'
+import { categoriasDoCadastro, etapasDoCadastro } from './catalogo'
 import type {
   ArquivoCompletoDoBanco,
   ArquivoDoPayload,
@@ -10,6 +10,7 @@ import type {
   CadastroGravavel,
   ComplementarGravavel,
   ComplementarProjeto,
+  DadosDoNomeDaImagem,
   DadosProjeto,
   DadosValidaveis,
   EstadoParaPublicar,
@@ -313,7 +314,7 @@ export const idDoCampo = (chave: string) => `campo-${chave.replaceAll('.', '-')}
 
 // ── Arquivos por papel ───────────────────────────────────────────────────────────────────────────
 
-const ehImagem = (papel: PapelDoArquivo) =>
+export const ehImagem = (papel: PapelDoArquivo) =>
   papel === 'principal' || papel === 'galeria' || papel === 'planta'
 
 /** Imagens e plantas aparecem no site (público). Entrega e PDFs dos complementares são conteúdo pago (privado). */
@@ -348,6 +349,142 @@ export const caminhoDoArquivo = (
   id: string,
   extensao: string,
 ) => `${projetoId}/${papel}/${id}.${extensao}`
+
+// ── Nome e texto alternativo das imagens (SEO) ───────────────────────────────────────────────────
+//
+// O nome vem só do cadastro (categoria, terreno, quartos): nunca do título, do código, do ID nem do
+// nome que o navegador enviou. Dado que falta é omitido.
+
+/** Só galeria e plantas são numeradas no nome. */
+export const ehImagemComNumero = (papel: PapelDoArquivo) =>
+  papel === 'galeria' || papel === 'planta'
+
+/** Quartos + suítes + suíte master: suíte também é quarto. */
+export const somaDeQuartos = (dados: DadosDoNomeDaImagem): number =>
+  (dados.quartos ?? 0) + (dados.suites ?? 0) + (dados.suiteMaster ?? 0)
+
+const categoriaDoNome = (categoria: string | null) =>
+  categoriasDoCadastro.find((item) => item.valor === categoria)
+
+/** `10` → "10"; `10.5` → "10-5" (a vírgula não vai para o nome do arquivo). */
+const medidaNoNome = (metros: number) => String(metros).replace('.', '-')
+
+/** "10x20" / "10-5x20", ou `null` se faltar uma das medidas. */
+function terrenoNoNome(dados: DadosDoNomeDaImagem): string | null {
+  const { larguraM, profundidadeM } = dados
+  if (!larguraM || !profundidadeM) return null
+  return `${medidaNoNome(larguraM)}x${medidaNoNome(profundidadeM)}`
+}
+
+/** "3 quartos" / "1 quarto"; `null` se a soma for zero. */
+function quartosPorExtenso(dados: DadosDoNomeDaImagem): string | null {
+  const soma = somaDeQuartos(dados)
+  if (soma <= 0) return null
+  return soma === 1 ? '1 quarto' : `${soma} quartos`
+}
+
+/** "sobrado-10x20-3-quartos": a parte comum ao nome de todas as imagens do projeto. */
+export function nomeBaseDaImagem(dados: DadosDoNomeDaImagem): string {
+  const partes = [
+    categoriaDoNome(dados.categoria)?.arquivo,
+    terrenoNoNome(dados),
+    quartosPorExtenso(dados)?.replace(' ', '-'),
+  ].filter((parte): parte is string => Boolean(parte))
+  return partes.join('-') || 'projeto'
+}
+
+const doisDigitos = (numero: number) => String(numero).padStart(2, '0')
+
+/**
+ * Nome do arquivo (sem extensão). A principal é uma só e não leva número; galeria e plantas levam
+ * número de dois dígitos (`-01`), contados à parte. As plantas começam com "planta-de-".
+ */
+export function nomeDaImagem(
+  papel: PapelDoArquivo,
+  dados: DadosDoNomeDaImagem,
+  numero: number | null,
+): string {
+  const base = nomeBaseDaImagem(dados)
+  if (!ehImagemComNumero(papel) || numero === null) {
+    return papel === 'planta' ? `planta-de-${base}` : base
+  }
+  const comNumero = `${base}-${doisDigitos(numero)}`
+  return papel === 'planta' ? `planta-de-${comNumero}` : comNumero
+}
+
+/** Caminho de uma imagem: a pasta do projeto e do papel continuam controladas pelo app. */
+export const caminhoDaImagem = (
+  projetoId: string,
+  papel: PapelDoArquivo,
+  nome: string,
+  extensao: string,
+) => `${projetoId}/${papel}/${nome}.${extensao}`
+
+/** O caminho sem a extensão: é assim que os nomes são comparados. */
+export const caminhoSemExtensao = (caminho: string) => caminho.replace(/\.[^./]+$/, '')
+
+/** Número de dois dígitos ou mais no fim do nome (`.../sobrado-10x20-02.webp` → 2), ou `null`. */
+export function numeroDoCaminho(caminho: string): number | null {
+  const achado = /-(\d{2,4})$/.exec(caminhoSemExtensao(caminho))
+  return achado?.[1] ? Number(achado[1]) : null
+}
+
+/**
+ * Os próximos `quantidade` números livres (1, 2, 3...), pulando os que já estão ocupados. Ocupado =
+ * já existe um arquivo com esse nome (a extensão não conta: `-01.jpg` e `-01.webp` seriam confusos).
+ * `nomeDe(n)` devolve o caminho sem extensão do número `n`.
+ */
+export function proximosNumerosLivres(
+  quantidade: number,
+  nomeDe: (numero: number) => string,
+  ocupados: ReadonlySet<string>,
+): number[] {
+  const livres: number[] = []
+  for (let numero = 1; livres.length < quantidade && numero <= 9999; numero++) {
+    if (!ocupados.has(nomeDe(numero))) livres.push(numero)
+  }
+  return livres
+}
+
+/**
+ * Prévia do nome que a imagem terá no site, para o formulário mostrar. A posição na lista vira o número;
+ * o número real é o próximo livre do projeto, definido pelo servidor ao salvar.
+ */
+export function previaDoNomeDaImagem(
+  dados: DadosProjeto,
+  papel: 'principal' | 'galeria' | 'planta',
+  posicao: number,
+  nomeArquivo: string,
+): string {
+  const { categoria, larguraM, profundidadeM, quartos, suites, suiteMaster } = montarCadastro(dados)
+  const nome = nomeDaImagem(
+    papel,
+    { categoria, larguraM, profundidadeM, quartos, suites, suiteMaster },
+    ehImagemComNumero(papel) ? posicao + 1 : null,
+  )
+  return `${nome}.${extensaoDe(nomeArquivo)}`
+}
+
+/**
+ * Texto alternativo da imagem: "Sobrado 10x20 com 3 quartos" (fotos) ou "Planta baixa de sobrado 10x20
+ * com 3 quartos" (plantas). `null` se o cadastro não tem nenhum dado para descrever: quem chama usa o
+ * texto de antes.
+ */
+export function textoAlternativoDaImagem(
+  dados: DadosDoNomeDaImagem,
+  tipo: 'foto' | 'planta',
+): string | null {
+  const categoria = categoriaDoNome(dados.categoria)?.singular
+  const terreno = terrenoNoNome(dados)?.replace(/-/g, ',')
+  const quartos = quartosPorExtenso(dados)
+  if (!categoria && !terreno && !quartos) return null
+
+  const descricao = [categoria ?? 'Projeto', terreno, quartos ? `com ${quartos}` : null]
+    .filter(Boolean)
+    .join(' ')
+  if (tipo === 'foto') return descricao
+  return `Planta baixa de ${descricao.charAt(0).toLowerCase()}${descricao.slice(1)}`
+}
 
 // `formatoConfere` (conferência binária real do conteúdo) mora em `services/upload/assinaturas`:
 // também serve a biblioteca de arquivos de exemplo, então foi promovida para lá (reexportada abaixo

@@ -4,7 +4,7 @@ import { MensagensDeArquivo } from '@/components/shared/MensagensDeArquivo'
 import { FileInput } from '@/components/ui/FileInput'
 
 import type { FormularioProjetoApi } from '../hooks/useFormularioProjeto'
-import { ARQUIVOS_DE_IMAGEM } from '../rules'
+import { ARQUIVOS_DE_IMAGEM, previaDoNomeDaImagem } from '../rules'
 import { GradeDeImagens } from './GradeDeImagens'
 import { PainelDaEtapa } from './PainelDaEtapa'
 
@@ -40,6 +40,9 @@ export function EtapaImagens({ form }: { form: FormularioProjetoApi }) {
             imagens={[dados.imagemPrincipal]}
             rotuloDeRemover={() => 'Remover a imagem principal'}
             aoRemover={() => form.removerImagem('imagemPrincipal', dados.imagemPrincipal?.id ?? '')}
+            previaDoNome={(imagem) =>
+              previaDoNomeDaImagem(dados, 'principal', 0, imagem.nomeArquivo)
+            }
           />
         ) : (
           <FileInput
@@ -81,6 +84,9 @@ export function EtapaImagens({ form }: { form: FormularioProjetoApi }) {
           imagens={dados.imagens}
           rotuloDeRemover={(_imagem, indice) => `Remover a imagem ${indice + 1}`}
           aoRemover={(id) => form.removerImagem('imagens', id)}
+          previaDoNome={(imagem, indice) =>
+            previaDoNomeDaImagem(dados, 'galeria', indice, imagem.nomeArquivo)
+          }
         />
       </Grupo>
     </PainelDaEtapa>

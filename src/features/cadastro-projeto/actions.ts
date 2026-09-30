@@ -16,7 +16,11 @@ import {
   LIMITES,
   acessoDoPapel,
   arquivosQueFaltam,
+  caminhoDaImagem,
   caminhoDoArquivo,
+  caminhoSemExtensao,
+  ehImagem,
+  ehImagemComNumero,
   erroDoArquivoDoPapel,
   extensaoDe,
   formatoConfere,
@@ -26,11 +30,16 @@ import {
   montarCadastro,
   montarComplementares,
   montarPavimentos,
+  nomeDaImagem,
+  numeroDoCaminho,
+  proximosNumerosLivres,
   tipoDeConteudoDaExtensao,
 } from './rules'
 import { lerPayload, validarEtapas } from './schemas'
 import type {
+  ArquivoGravado,
   CadastroGravavel,
+  DadosDoNomeDaImagem,
   PayloadProjeto,
   ProjetoCriado,
   ResultadoCadastro,
@@ -79,6 +88,9 @@ const schemaArquivo = z
     complementarId: z.uuid().nullable(),
     pavimentoId: z.uuid().nullable(),
     ordem: z.number().int().min(0).max(1000),
+    // Só a confirmação usa: o número que o servidor deu à imagem no preparo (`-01` no nome). O
+    // caminho inteiro continua sendo montado aqui; do navegador só vem este inteiro.
+    numero: z.number().int().min(1).max(9999).nullable().optional(),
   })
   .refine((arquivo) => (arquivo.papel === 'complementar_pdf') === (arquivo.complementarId !== null))
   .refine((arquivo) => (arquivo.papel === 'planta') === (arquivo.pavimentoId !== null))
@@ -107,8 +119,17 @@ function mensagemDoItem(erro: unknown): string {
   return 'Não foi possível concluir a operação com este arquivo.'
 }
 
-/** Onde o arquivo vai ficar, já com a extensão e o tipo conferidos pelo papel dele. */
-function resolverDestino(projetoId: string, arquivo: DadosDoArquivo) {
+/**
+ * Onde o arquivo vai ficar, já com a extensão e o tipo conferidos pelo papel dele. Imagens ganham um
+ * nome descritivo montado com o cadastro (SEO) e, na galeria e nas plantas, o número; os demais
+ * arquivos (entrega e PDFs, privados) continuam com o id no nome.
+ */
+function resolverDestino(
+  projetoId: string,
+  arquivo: DadosDoArquivo,
+  dadosDoNome: DadosDoNomeDaImagem | null,
+  numero: number | null,
+) {
   const extensao = extensaoDe(arquivo.nomeArquivo)
   const tipoDoConteudo = tipoDeConteudoDaExtensao(extensao)
   const motivo = erroDoArquivoDoPapel(arquivo.papel, {
@@ -122,14 +143,83 @@ function resolverDestino(projetoId: string, arquivo: DadosDoArquivo) {
       `${arquivo.nomeArquivo}: ${motivo ?? 'formato não aceito.'}`,
     )
   }
+
+  let caminho: string
+  if (ehImagem(arquivo.papel)) {
+    if (!dadosDoNome) throw new AppError('falha_inesperada', 'Não foi possível nomear a imagem.')
+    if (ehImagemComNumero(arquivo.papel) && numero === null) {
+      throw new AppError('dados_invalidos', `${arquivo.nomeArquivo}: falta o número da imagem.`)
+    }
+    const nome = nomeDaImagem(arquivo.papel, dadosDoNome, numero)
+    caminho = caminhoDaImagem(projetoId, arquivo.papel, nome, extensao)
+  } else {
+    caminho = caminhoDoArquivo(projetoId, arquivo.papel, arquivo.id, extensao)
+  }
+
   return {
     extensao,
     tipoDoConteudo,
-    destino: {
-      acesso: acessoDoPapel(arquivo.papel),
-      caminho: caminhoDoArquivo(projetoId, arquivo.papel, arquivo.id, extensao),
-    },
+    destino: { acesso: acessoDoPapel(arquivo.papel), caminho },
   }
+}
+
+/** O que o servidor precisa saber do projeto para nomear as imagens de um lote. */
+type ContextoDeNomes = { dados: DadosDoNomeDaImagem; gravados: ArquivoGravado[] }
+
+/** `null` se o lote não tem imagens (entrega e PDFs não dependem do cadastro para o nome). */
+async function lerContextoDeNomes(
+  projetoId: string,
+  arquivos: DadosDoArquivo[],
+): Promise<ContextoDeNomes | null> {
+  if (!arquivos.some((arquivo) => ehImagem(arquivo.papel))) return null
+  const [cadastro, gravados] = await Promise.all([
+    projetoAdminRepository.buscarCadastroCompleto(projetoId),
+    projetoAdminRepository.listarArquivos(projetoId),
+  ])
+  if (!cadastro) throw new AppError('dados_invalidos', 'Projeto não encontrado.')
+  return { dados: cadastro, gravados }
+}
+
+/**
+ * Dá a cada imagem nova da galeria e das plantas o próximo número livre do projeto (cada papel conta
+ * à parte). Quem já está gravado (o envio se repete quando a resposta anterior se perde) mantém o
+ * número que já tinha. Devolve o número por id de arquivo.
+ */
+function numerarImagens(
+  projetoId: string,
+  arquivos: DadosDoArquivo[],
+  contexto: ContextoDeNomes,
+): Map<string, number> {
+  const numeros = new Map<string, number>()
+  for (const papel of ['galeria', 'planta'] as const) {
+    const doPapel = arquivos.filter((arquivo) => arquivo.papel === papel)
+    const novos = doPapel.filter((arquivo) => {
+      const gravado = contexto.gravados.find((item) => item.id === arquivo.id)
+      const numero = gravado ? numeroDoCaminho(gravado.caminho) : null
+      if (numero !== null) numeros.set(arquivo.id, numero)
+      return numero === null
+    })
+    if (novos.length === 0) continue
+
+    const ocupados = new Set(
+      contexto.gravados
+        .filter((gravado) => gravado.papel === papel)
+        .map((gravado) => caminhoSemExtensao(gravado.caminho)),
+    )
+    const livres = proximosNumerosLivres(
+      novos.length,
+      (numero) =>
+        caminhoSemExtensao(
+          caminhoDaImagem(projetoId, papel, nomeDaImagem(papel, contexto.dados, numero), 'webp'),
+        ),
+      ocupados,
+    )
+    if (livres.length < novos.length) {
+      throw new AppError('dados_invalidos', 'O projeto chegou ao limite de imagens.')
+    }
+    novos.forEach((arquivo, indice) => numeros.set(arquivo.id, livres[indice] as number))
+  }
+  return numeros
 }
 
 /**
@@ -290,24 +380,70 @@ export async function salvarProjeto(
 export async function prepararEnvioEmLote(
   projetoId: unknown,
   entrada: unknown,
-): Promise<ResultadoCadastro<{ itens: ResultadoDoItem<{ envio: EnvioAutorizado }>[] }>> {
+): Promise<
+  ResultadoCadastro<{
+    itens: ResultadoDoItem<{ envio: EnvioAutorizado; numero: number | null }>[]
+  }>
+> {
   return rodarComoAdmin(async () => {
     const id = lerId(projetoId)
     const arquivos = lerLote(entrada)
     const somaGravada = await somaGravadaDaEntrega(id, arquivos)
+    const contexto = await lerContextoDeNomes(id, arquivos)
+    const numeros = contexto ? numerarImagens(id, arquivos, contexto) : new Map<string, number>()
+
+    // Primeiro decide o destino de todos; só depois autoriza (precisa limpar os órfãos antes).
+    const decididos = arquivos.map((arquivo) => {
+      try {
+        const numero = numeros.get(arquivo.id) ?? null
+        const { tipoDoConteudo, destino } = resolverDestino(
+          id,
+          arquivo,
+          contexto?.dados ?? null,
+          numero,
+        )
+        conferirSomaDoLote(arquivo, arquivos, somaGravada, arquivo.tamanho)
+        return { ok: true as const, arquivo, numero, tipoDoConteudo, destino }
+      } catch (erro) {
+        return { ok: false as const, arquivo, erro }
+      }
+    })
+
+    // O nome da imagem agora se repete (a troca da principal reaproveita o nome). Um arquivo com esse
+    // caminho no Storage e sem linha no banco é sobra de uma falha antiga: sai antes do novo envio.
+    const orfaos = decididos.flatMap((item) =>
+      item.ok &&
+      ehImagem(item.arquivo.papel) &&
+      !contexto?.gravados.some((gravado) => gravado.caminho === item.destino.caminho)
+        ? [item.destino]
+        : [],
+    )
+    if (orfaos.length > 0) await fileStorage.remover(orfaos).catch(() => undefined)
 
     const itens = await Promise.all(
-      arquivos.map(async (arquivo): Promise<ResultadoDoItem<{ envio: EnvioAutorizado }>> => {
-        try {
-          const { tipoDoConteudo, destino } = resolverDestino(id, arquivo)
-          conferirSomaDoLote(arquivo, arquivos, somaGravada, arquivo.tamanho)
-
-          const envio = await fileStorage.autorizarEnvio({ ...destino, tipoDoConteudo })
-          return { id: arquivo.id, ok: true, mensagem: 'Envio autorizado.', envio }
-        } catch (erro) {
-          return { id: arquivo.id, ok: false, mensagem: mensagemDoItem(erro) }
-        }
-      }),
+      decididos.map(
+        async (
+          item,
+        ): Promise<ResultadoDoItem<{ envio: EnvioAutorizado; numero: number | null }>> => {
+          if (!item.ok)
+            return { id: item.arquivo.id, ok: false, mensagem: mensagemDoItem(item.erro) }
+          try {
+            const envio = await fileStorage.autorizarEnvio({
+              ...item.destino,
+              tipoDoConteudo: item.tipoDoConteudo,
+            })
+            return {
+              id: item.arquivo.id,
+              ok: true,
+              mensagem: 'Envio autorizado.',
+              envio,
+              numero: item.numero,
+            }
+          } catch (erro) {
+            return { id: item.arquivo.id, ok: false, mensagem: mensagemDoItem(erro) }
+          }
+        },
+      ),
     )
     return { ok: true, mensagem: 'Envio autorizado.', itens }
   })
@@ -329,13 +465,37 @@ export async function confirmarEnvioEmLote(
     const id = lerId(projetoId)
     const arquivos = lerLote(entrada)
     const somaGravada = await somaGravadaDaEntrega(id, arquivos)
+    const contexto = await lerContextoDeNomes(id, arquivos)
 
     const itens = await executarComLimite(
       arquivos,
       CONCORRENCIA_DE_INSPECAO,
       async (arquivo): Promise<ResultadoDoItem> => {
         try {
-          const { extensao, tipoDoConteudo, destino } = resolverDestino(id, arquivo)
+          // O número vem do navegador (foi o servidor que o deu no preparo), mas o caminho é montado
+          // aqui; um número que colide com outra imagem do projeto ou do lote é recusado.
+          const numero = ehImagemComNumero(arquivo.papel) ? (arquivo.numero ?? null) : null
+          const { extensao, tipoDoConteudo, destino } = resolverDestino(
+            id,
+            arquivo,
+            contexto?.dados ?? null,
+            numero,
+          )
+          const repetidoNoLote =
+            numero !== null &&
+            arquivos.some(
+              (outro) =>
+                outro.id !== arquivo.id && outro.papel === arquivo.papel && outro.numero === numero,
+            )
+          const ocupadoPorOutro = contexto?.gravados.some(
+            (gravado) => gravado.caminho === destino.caminho && gravado.id !== arquivo.id,
+          )
+          if (repetidoNoLote || ocupadoPorOutro) {
+            throw new AppError(
+              'conflito',
+              `${arquivo.nomeArquivo}: já existe uma imagem com esse nome no projeto. Salve de novo.`,
+            )
+          }
 
           const noStorage = await fileStorage.inspecionar(destino)
           if (!noStorage) {

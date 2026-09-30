@@ -265,6 +265,12 @@ export type CadastroCompletoDoBanco = CadastroGravavel & {
   arquivosExemplo: string[]
 }
 
+/** Os dados do cadastro que entram no nome e no texto alternativo das imagens. */
+export type DadosDoNomeDaImagem = Pick<
+  CadastroGravavel,
+  'categoria' | 'larguraM' | 'profundidadeM' | 'quartos' | 'suites' | 'suiteMaster'
+>
+
 /** Um arquivo que já está gravado (linha em `projeto_arquivos`). */
 export type ArquivoGravado = {
   id: string

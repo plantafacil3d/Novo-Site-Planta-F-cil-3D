@@ -675,7 +675,11 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
       }),
     )
 
-    const paraConfirmar = dadosDosArquivos.filter((dados) => preparoPorId.get(dados.id)?.ok)
+    // O número que o servidor deu a cada imagem (`-01` no nome) volta na confirmação.
+    const paraConfirmar = dadosDosArquivos.flatMap((dados) => {
+      const preparoItem = preparoPorId.get(dados.id)
+      return preparoItem?.ok ? [{ ...dados, numero: preparoItem.numero }] : []
+    })
     const confirmado =
       paraConfirmar.length > 0
         ? await confirmarEnvioEmLote(id, paraConfirmar)

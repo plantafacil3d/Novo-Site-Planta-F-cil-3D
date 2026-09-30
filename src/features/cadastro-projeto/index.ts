@@ -2,7 +2,7 @@ export { FormularioProjeto } from './components/FormularioProjeto'
 export { categoriasDoCadastro, estilosDoCadastro } from './catalogo'
 export { publicarProjeto } from './actions'
 export { buscarProjetoParaEditar } from './queries'
-export { acessoDoPapel, nomePadraoPavimento } from './rules'
+export { acessoDoPapel, nomePadraoPavimento, textoAlternativoDaImagem } from './rules'
 export type {
   ArquivoCompletoDoBanco,
   ArquivoDeExemplo,
@@ -10,6 +10,7 @@ export type {
   CadastroCompletoDoBanco,
   CadastroGravavel,
   ComplementarGravavel,
+  DadosDoNomeDaImagem,
   DadosProjeto,
   EstadoParaPublicar,
   ItemDaPlantaGravavel,
