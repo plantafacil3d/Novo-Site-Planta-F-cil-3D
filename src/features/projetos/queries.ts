@@ -33,6 +33,9 @@ export function invalidarCatalogo() {
   revalidateTag(TAG_CATALOGO, { expire: 0 })
   // A vitrine da home é uma página estática; sem isto ela só atualizaria no prazo do `revalidate`.
   revalidatePath('/')
+  // A página de cada projeto também é estática (`generateStaticParams`): sem isto ela guarda os
+  // endereços das imagens de antes e, depois de trocar as imagens, mostra as antigas (já apagadas).
+  revalidatePath('/projetos/[slug]', 'page')
 }
 
 /** Uma página do catálogo para os parâmetros da URL (já validados por `lerParametrosListagem`). */

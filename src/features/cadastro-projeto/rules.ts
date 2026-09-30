@@ -447,25 +447,6 @@ export function proximosNumerosLivres(
 }
 
 /**
- * Prévia do nome que a imagem terá no site, para o formulário mostrar. A posição na lista vira o número;
- * o número real é o próximo livre do projeto, definido pelo servidor ao salvar.
- */
-export function previaDoNomeDaImagem(
-  dados: DadosProjeto,
-  papel: 'principal' | 'galeria' | 'planta',
-  posicao: number,
-  nomeArquivo: string,
-): string {
-  const { categoria, larguraM, profundidadeM, quartos, suites, suiteMaster } = montarCadastro(dados)
-  const nome = nomeDaImagem(
-    papel,
-    { categoria, larguraM, profundidadeM, quartos, suites, suiteMaster },
-    ehImagemComNumero(papel) ? posicao + 1 : null,
-  )
-  return `${nome}.${extensaoDe(nomeArquivo)}`
-}
-
-/**
  * Texto alternativo da imagem: "Sobrado 10x20 com 3 quartos" (fotos) ou "Planta baixa de sobrado 10x20
  * com 3 quartos" (plantas). `null` se o cadastro não tem nenhum dado para descrever: quem chama usa o
  * texto de antes.

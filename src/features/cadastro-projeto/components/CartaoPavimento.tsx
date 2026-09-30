@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/Textarea'
 import { type AlcaDeArrasto, useArrastarParaReordenar } from '@/hooks/useArrastarParaReordenar'
 
 import type { FormularioProjetoApi } from '../hooks/useFormularioProjeto'
-import { ARQUIVOS_DE_IMAGEM, LIMITES, nomePadraoPavimento, previaDoNomeDaImagem } from '../rules'
+import { ARQUIVOS_DE_IMAGEM, LIMITES, nomePadraoPavimento } from '../rules'
 import type { PavimentoProjeto } from '../types'
 import { GradeDeImagens } from './GradeDeImagens'
 import { ItemDaPlantaLinha } from './ItemDaPlantaLinha'
@@ -182,9 +182,6 @@ export function CartaoPavimento({
             imagens={[pavimento.imagem]}
             rotuloDeRemover={() => `Remover a imagem do pavimento ${indice + 1}`}
             aoRemover={() => form.removerImagemDoPavimento(pavimento.id)}
-            previaDoNome={(imagem) =>
-              previaDoNomeDaImagem(form.dados, 'planta', indice, imagem.nomeArquivo)
-            }
           />
         ) : (
           <FileInput
