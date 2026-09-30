@@ -34,9 +34,14 @@ export const textosDeEspecificacao: Record<ChaveEspecificacao, EspecificacaoText
     label: 'Suítes',
     explicacao: 'Quarto que tem banheiro e closet (armário embutido) só para quem dorme nele.',
   },
+  suiteMaster: {
+    label: 'Suíte master',
+    explicacao:
+      'A suíte principal da casa: maior que as demais, com banheiro e closet (armário embutido) próprios.',
+  },
   banheiros: {
     label: 'Banheiros',
-    explicacao: 'Banheiro de uso comum, fora dos quartos.',
+    explicacao: 'Cômodo com vaso, pia e chuveiro, para banho e higiene.',
   },
   lavabo: {
     label: 'Lavabo',

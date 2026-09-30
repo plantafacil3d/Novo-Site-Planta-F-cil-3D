@@ -16,9 +16,10 @@ import type { ProjetoDetalhe } from '../types'
 const icones: Record<ChaveEspecificacao, IconName> = {
   larguraTerreno: 'move-horizontal',
   profundidadeTerreno: 'move-vertical',
-  areaConstruida: 'scaling',
+  areaConstruida: 'house',
   quartos: 'bed-single',
   suites: 'bed-double',
+  suiteMaster: 'bed-double',
   banheiros: 'bath',
   lavabo: 'toilet',
   vagas: 'car',
@@ -39,6 +40,8 @@ function valorDe(chave: ChaveEspecificacao, projeto: ProjetoDetalhe): string {
       return String(totalDeQuartos(projeto))
     case 'suites':
       return String(projeto.suites)
+    case 'suiteMaster':
+      return String(projeto.suiteMaster)
     case 'banheiros':
       return String(projeto.banheiros)
     case 'lavabo':

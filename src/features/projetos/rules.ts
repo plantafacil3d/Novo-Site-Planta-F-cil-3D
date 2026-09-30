@@ -109,9 +109,11 @@ export function formatarFamiliaIndicada(capacidade: number): string {
   return `Até ${contar(capacidade, 'pessoa', 'pessoas')}`
 }
 
-/** `quartos` do projeto são os que sobram além das suítes; o total é a soma dos dois. */
-export function totalDeQuartos(projeto: Pick<Projeto, 'suites' | 'quartos'>): number {
-  return projeto.suites + projeto.quartos
+/** `quartos` do projeto são os que sobram além das suítes; o total é a soma de todos. */
+export function totalDeQuartos(
+  projeto: Pick<Projeto, 'suites' | 'suiteMaster' | 'quartos'>,
+): number {
+  return projeto.suites + projeto.suiteMaster + projeto.quartos
 }
 
 /** Especificações técnicas exibidas na página do projeto (`EspecificacoesTecnicas` e `GlossarioEspecificacoes`). */
@@ -121,6 +123,7 @@ export type ChaveEspecificacao =
   | 'areaConstruida'
   | 'quartos'
   | 'suites'
+  | 'suiteMaster'
   | 'banheiros'
   | 'lavabo'
   | 'vagas'
@@ -130,7 +133,7 @@ export type ChaveEspecificacao =
 
 type CamposDeEspecificacao = Pick<
   Projeto,
-  'suites' | 'quartos' | 'banheiros' | 'lavabo' | 'vagas' | 'areaGourmet'
+  'suites' | 'suiteMaster' | 'quartos' | 'banheiros' | 'lavabo' | 'vagas' | 'areaGourmet'
 >
 
 /**
@@ -146,6 +149,7 @@ export function listarChavesDeEspecificacao(projeto: CamposDeEspecificacao): Cha
     'areaConstruida',
     totalDeQuartos(projeto) > 0 && 'quartos',
     projeto.suites > 0 && 'suites',
+    projeto.suiteMaster > 0 && 'suiteMaster',
     projeto.banheiros > 0 && 'banheiros',
     projeto.lavabo > 0 && 'lavabo',
     projeto.vagas > 0 && 'vagas',
