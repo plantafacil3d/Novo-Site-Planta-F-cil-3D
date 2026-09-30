@@ -6,7 +6,7 @@ import { Field } from '@/components/ui/Field'
 import { IconButton } from '@/components/ui/IconButton'
 import { Input } from '@/components/ui/Input'
 
-import { LIMITES, adicionarTexto, semSimbolos } from '../rules'
+import { LIMITES, adicionarTexto, adicionarVarios, semSimbolos } from '../rules'
 
 type CampoTagsProps = {
   id: string
@@ -15,15 +15,38 @@ type CampoTagsProps = {
   error?: string
 }
 
-/** Tags para busca: digita e aperta Enter; cada tag tem um botão para remover. */
+/**
+ * Tags para busca: digita e aperta Enter; com vírgulas, cada pedaço vira uma tag.
+ * Cada tag tem um botão para remover.
+ */
 export function CampoTags({ id, tags, onChange, error }: CampoTagsProps) {
   const [texto, setTexto] = useState('')
   const [aviso, setAviso] = useState<string | null>(null)
+
+  /** Texto com vírgula: cada pedaço vira uma tag; o que não couber fica de fora, com aviso. */
+  function adicionarLista() {
+    const resultado = adicionarVarios(tags, texto, {
+      limite: LIMITES.tagsMax,
+      tamanhoMax: LIMITES.tagTamanhoMax,
+    })
+    if (resultado.lista.length > tags.length) onChange(resultado.lista)
+    setTexto('')
+    setAviso(
+      resultado.ignorados === 0
+        ? null
+        : `${resultado.ignorados} ${resultado.ignorados === 1 ? 'tag ficou' : 'tags ficaram'} de fora: repetida, muito longa ou acima do limite de ${LIMITES.tagsMax}.`,
+    )
+  }
 
   function aoTeclar(evento: KeyboardEvent<HTMLInputElement>) {
     if (evento.key !== 'Enter') return
     // Enter dentro do formulário não deve enviar nada: aqui ele só adiciona a tag.
     evento.preventDefault()
+    if (/[,\n]/.test(texto)) return adicionarLista()
+    if (texto.trim().length > LIMITES.tagTamanhoMax) {
+      setAviso(`Cada tag pode ter até ${LIMITES.tagTamanhoMax} letras.`)
+      return
+    }
     const resultado = adicionarTexto(tags, texto, {
       limite: LIMITES.tagsMax,
       repetido: 'Essa tag já foi adicionada.',
@@ -43,13 +66,13 @@ export function CampoTags({ id, tags, onChange, error }: CampoTagsProps) {
         label="Tags para busca"
         htmlFor={id}
         error={mensagem}
-        hint="Digite uma palavra e aperte Enter."
+        hint="Digite uma palavra e aperte Enter. Ou separe por vírgula (casa, moderna, 3 quartos) para adicionar várias."
         counter={`${tags.length}/${LIMITES.tagsMax}`}
       >
         <Input
           id={id}
           value={texto}
-          maxLength={LIMITES.tagTamanhoMax}
+          maxLength={LIMITES.listaColadaMax}
           invalid={Boolean(mensagem)}
           aria-describedby={mensagem ? `${id}-erro` : undefined}
           onChange={(evento) => {

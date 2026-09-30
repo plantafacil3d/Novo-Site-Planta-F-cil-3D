@@ -44,6 +44,8 @@ export const LIMITES = {
   linkMax: 500,
   itemMax: 100,
   itensMax: 100,
+  /** Tamanho do texto que cabe nos campos de lista (itens, tags), para colar vários separados por vírgula. */
+  listaColadaMax: 5000,
   pavimentoNomeMax: 60,
   pavimentosMax: 30,
   itemDaPlantaNomeMax: 80,
@@ -124,6 +126,28 @@ export function adicionarTexto(
     return { lista: [...lista], erro: mensagens.cheio }
   }
   return { lista: [...lista, limpo], erro: null }
+}
+
+/**
+ * Acrescenta vários textos de uma vez, vindos de um texto separado por vírgula ou quebra de linha
+ * ("piscina, churrasqueira, 3 suítes"). Cada parte passa pelas mesmas regras de `adicionarTexto`;
+ * as que não entram (repetidas, acima de `tamanhoMax` ou além do limite da lista) são só contadas.
+ */
+export function adicionarVarios(
+  lista: readonly string[],
+  texto: string,
+  opcoes: { limite?: number; tamanhoMax: number },
+): { lista: string[]; ignorados: number } {
+  const partes = texto.split(/[,\n]/).filter((parte) => parte.trim() !== '')
+  let atual = [...lista]
+  let ignorados = 0
+  for (const parte of partes) {
+    const limpo = semSimbolos(parte).trim()
+    const resultado = adicionarTexto(atual, limpo, { limite: opcoes.limite, repetido: '', cheio: '' })
+    if (resultado.erro || limpo.length > opcoes.tamanhoMax) ignorados += 1
+    else atual = resultado.lista
+  }
+  return { lista: atual, ignorados }
 }
 
 /** Só dígitos (campos inteiros). */

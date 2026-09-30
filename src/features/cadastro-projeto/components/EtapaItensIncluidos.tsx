@@ -10,7 +10,12 @@ import { IconButton } from '@/components/ui/IconButton'
 import { Input } from '@/components/ui/Input'
 
 import type { FormularioProjetoApi } from '../hooks/useFormularioProjeto'
-import { LIMITES, adicionarTexto, semSimbolos } from '../rules'
+import {
+  LIMITES,
+  adicionarTexto,
+  adicionarVarios as adicionarVariosRegra,
+  semSimbolos,
+} from '../rules'
 import { PainelDaEtapa } from './PainelDaEtapa'
 
 /** Aba 4: o que o comprador recebe. A lista começa vazia; é preciso ter pelo menos 1 item. */
@@ -21,7 +26,32 @@ export function EtapaItensIncluidos({ form }: { form: FormularioProjetoApi }) {
   const campo = form.campo('itens')
   const mensagem = aviso ?? erroDe('itens')
 
+  /** Texto com vírgula ou quebra de linha: cada pedaço vira um item. */
+  function adicionarVarios() {
+    const resultado = adicionarVariosRegra(dados.itens, texto, {
+      limite: LIMITES.itensMax,
+      tamanhoMax: LIMITES.itemMax,
+    })
+    const adicionados = resultado.lista.length - dados.itens.length
+    if (adicionados > 0) form.atualizar({ itens: resultado.lista })
+    form.tocar('itens')
+    if (resultado.ignorados === 0) {
+      setAviso(null)
+      setTexto('')
+      return
+    }
+    setAviso(
+      `${resultado.ignorados} ${resultado.ignorados === 1 ? 'item ficou' : 'itens ficaram'} de fora: repetido, muito longo ou acima do limite de ${LIMITES.itensMax}.`,
+    )
+    setTexto('')
+  }
+
   function adicionar() {
+    if (/[,\n]/.test(texto)) return adicionarVarios()
+    if (texto.trim().length > LIMITES.itemMax) {
+      setAviso(`Cada item pode ter até ${LIMITES.itemMax} letras.`)
+      return
+    }
     const resultado = adicionarTexto(dados.itens, texto, {
       limite: LIMITES.itensMax,
       repetido: 'Esse item já está na lista.',
@@ -46,13 +76,18 @@ export function EtapaItensIncluidos({ form }: { form: FormularioProjetoApi }) {
       descricao="Liste o que o comprador recebe. Adicione pelo menos 1 item."
     >
       <div className="flex flex-col gap-2">
-        <Field label="Novo item" htmlFor={campo.id} error={mensagem}>
+        <Field
+          label="Novo item"
+          htmlFor={campo.id}
+          error={mensagem}
+          hint="Dica: separe por vírgula (ex.: Planta baixa, Cortes, Fachadas) e aperte Enter para adicionar todos de uma vez."
+        >
           <div className="flex flex-col gap-3 sm:flex-row">
             <Input
               id={campo.id}
               name={campo.name}
               value={texto}
-              maxLength={LIMITES.itemMax}
+              maxLength={LIMITES.listaColadaMax}
               invalid={Boolean(mensagem)}
               aria-describedby={mensagem ? `${campo.id}-erro` : undefined}
               autoComplete="off"
