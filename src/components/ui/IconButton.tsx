@@ -11,6 +11,8 @@ const iconButtonStyles = cva(
       tone: {
         surface: 'bg-surface text-fg shadow-md hover:bg-subtle',
         inverse: 'bg-inverse/70 text-fg-inverse hover:bg-inverse',
+        // Discreto, sem fundo nem sombra: para ação de apoio dentro de tabela.
+        quiet: 'text-fg-muted hover:bg-subtle hover:text-fg',
       },
       size: {
         md: 'size-11',
@@ -37,7 +39,10 @@ export function IconButton({ icon, label, tone, size, className, ...props }: Ico
       className={cn(iconButtonStyles({ tone, size }), className)}
       {...props}
     >
-      <Icon name={icon} className={size === 'lg' ? 'size-7' : 'size-5'} />
+      <Icon
+        name={icon}
+        className={size === 'lg' ? 'size-7' : tone === 'quiet' ? 'size-4' : 'size-5'}
+      />
     </button>
   )
 }

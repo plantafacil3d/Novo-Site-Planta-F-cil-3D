@@ -19,9 +19,9 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ### IconButton
 
 - **Propósito:** botão redondo só com ícone (setas de galeria e carrossel, fechar, play). `label` é obrigatório: vira o `aria-label`.
-- **Variantes:** `tone` `surface` (branco com sombra, padrão) e `inverse` (escuro translúcido, para cima de fotos); `size` `md` (44px) e `lg` (64px, play do banner de vídeo).
+- **Variantes:** `tone` `surface` (branco com sombra, padrão) e `inverse` (escuro translúcido, para cima de fotos) e `quiet` (sem fundo nem sombra, cinza; ação discreta de apoio em tabela, ex.: copiar mensagem de venda; ícone de 16px, área de toque continua 44px); `size` `md` (44px) e `lg` (64px, play do banner de vídeo).
 - **Estados:** repouso, hover, foco, disabled.
-- **Tokens:** `--color-surface`, `--color-inverse`, `--color-fg`, `--color-fg-inverse`, `--shadow-md`.
+- **Tokens:** `--color-surface`, `--color-inverse`, `--color-fg`, `--color-fg-muted`, `--color-subtle`, `--color-fg-inverse`, `--shadow-md`.
 
 ### DropdownMenu
 

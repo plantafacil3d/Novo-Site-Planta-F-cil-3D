@@ -18,6 +18,11 @@ export const rotuloDeStatus: Record<StatusProjeto, string> = {
   rascunho: 'Rascunho',
 }
 
+/** Texto pronto para colar na descrição do vídeo do YouTube, com o link do projeto. */
+export function montarMensagemDeVenda(link: string): string {
+  return `🚀 Adquira agora mesmo o seu projeto completo!\n👉 ${link}`
+}
+
 /** Endereço da listagem com busca, página e tamanho de página na URL (valores padrão não aparecem). */
 export function montarHrefAdminProjetos({ q, pagina, porPagina }: ParametrosAdminProjetos): string {
   const params = new URLSearchParams()

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 
 import { DialogoDeConfirmacao } from '@/components/shared/DialogoDeConfirmacao'
 import { Alert } from '@/components/ui/Alert'
@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Checkbox'
 import { DropdownMenu } from '@/components/ui/DropdownMenu'
+import { IconButton } from '@/components/ui/IconButton'
 import {
   Table,
   TableBody,
@@ -18,8 +19,10 @@ import {
   TableRow,
 } from '@/components/ui/Table'
 import { duplicarProjetos, excluirProjetos, moverParaRascunho, publicarProjetos } from '../actions'
-import { contarProjetos, rotuloDeStatus } from '../rules'
+import { contarProjetos, montarMensagemDeVenda, rotuloDeStatus } from '../rules'
 import type { LinhaProjetoAdmin, ResultadoAcao } from '../types'
+
+const TEMPO_DO_AVISO_MS = 2500
 
 type TabelaProjetosAdminProps = {
   linhas: LinhaProjetoAdmin[]
@@ -37,6 +40,14 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
   // estado serve para a ação em massa e para o botão de uma linha, que manda um id só.
   const [exclusao, setExclusao] = useState<string[] | null>(null)
   const [pendente, iniciar] = useTransition()
+  // Projeto cuja mensagem de venda acabou de ser copiada (o ícone vira ✓ por um instante).
+  const [copiadoId, setCopiadoId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (copiadoId === null) return
+    const timer = setTimeout(() => setCopiadoId(null), TEMPO_DO_AVISO_MS)
+    return () => clearTimeout(timer)
+  }, [copiadoId])
 
   const quantidade = selecionados.size
   const todos = quantidade === linhas.length
@@ -49,6 +60,17 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
     const proximo = new Set(selecionados)
     if (!proximo.delete(id)) proximo.add(id)
     setSelecionados(proximo)
+  }
+
+  async function copiarMensagem(linha: LinhaProjetoAdmin) {
+    if (!linha.urlPublica) return
+    try {
+      await navigator.clipboard.writeText(montarMensagemDeVenda(linha.urlPublica))
+      setAviso(null)
+      setCopiadoId(linha.id)
+    } catch {
+      setAviso({ ok: false, mensagem: 'Não foi possível copiar. Tente de novo.' })
+    }
   }
 
   function executar(
@@ -167,7 +189,20 @@ export function TabelaProjetosAdmin({ linhas }: TabelaProjetosAdminProps) {
                 {linha.criadoEmRotulo}
               </TableCell>
               <TableCell>
-                <div className="flex justify-end">
+                <div className="flex items-center justify-end gap-1">
+                  {linha.urlPublica && (
+                    <IconButton
+                      tone="quiet"
+                      icon={copiadoId === linha.id ? 'check' : 'copy'}
+                      label={
+                        copiadoId === linha.id
+                          ? 'Mensagem copiada'
+                          : `Copiar mensagem de venda de ${linha.titulo}`
+                      }
+                      title="Copiar mensagem de venda"
+                      onClick={() => copiarMensagem(linha)}
+                    />
+                  )}
                   <DropdownMenu
                     // O leitor de tela ouve "Ações de Sobrado com Piscina", não 20 menus iguais.
                     label={`Ações de ${linha.titulo}`}
