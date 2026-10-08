@@ -420,20 +420,32 @@ export function nomeBaseDaImagem(dados: DadosDoNomeDaImagem): string {
 const doisDigitos = (numero: number) => String(numero).padStart(2, '0')
 
 /**
+ * Código curto e único do arquivo, para o nome da imagem nunca se repetir: os 6 primeiros hex do id
+ * (um UUID v4 sorteado no navegador). Sair do id, e não de um sorteio novo, faz o preparo e a
+ * confirmação do envio chegarem ao mesmo nome, inclusive quando o envio é repetido.
+ */
+export const sufixoDaImagem = (id: string) => id.replaceAll('-', '').slice(0, 6).toLowerCase()
+
+/** O sufixo no fim do nome: `-` e 6 hex minúsculos. */
+const SUFIXO_NO_FIM = '(?:-[0-9a-f]{6})?'
+
+/**
  * Nome do arquivo (sem extensão). A principal é uma só e não leva número; galeria e plantas levam
- * número de dois dígitos (`-01`), contados à parte. As plantas começam com "planta-de-".
+ * número de dois dígitos (`-01`), contados à parte. As plantas começam com "planta-de-". Toda imagem
+ * nova termina com o sufixo do arquivo (`-a1b2c3`): trocar a foto muda o endereço, e por isso o
+ * Storage pode guardá-la em cache por um ano. As imagens gravadas antes não têm sufixo.
  */
 export function nomeDaImagem(
   papel: PapelDoArquivo,
   dados: DadosDoNomeDaImagem,
   numero: number | null,
+  sufixo: string,
 ): string {
   const base = nomeBaseDaImagem(dados)
-  if (!ehImagemComNumero(papel) || numero === null) {
-    return papel === 'planta' ? `planta-de-${base}` : base
-  }
-  const comNumero = `${base}-${doisDigitos(numero)}`
-  return papel === 'planta' ? `planta-de-${comNumero}` : comNumero
+  const comNumero =
+    !ehImagemComNumero(papel) || numero === null ? base : `${base}-${doisDigitos(numero)}`
+  const nome = papel === 'planta' ? `planta-de-${comNumero}` : comNumero
+  return `${nome}-${sufixo}`
 }
 
 /** Caminho de uma imagem: a pasta do projeto e do papel continuam controladas pelo app. */
@@ -444,28 +456,28 @@ export const caminhoDaImagem = (
   extensao: string,
 ) => `${projetoId}/${papel}/${nome}.${extensao}`
 
-/** O caminho sem a extensão: é assim que os nomes são comparados. */
-export const caminhoSemExtensao = (caminho: string) => caminho.replace(/\.[^./]+$/, '')
+const caminhoSemExtensao = (caminho: string) => caminho.replace(/\.[^./]+$/, '')
 
-/** Número de dois dígitos ou mais no fim do nome (`.../sobrado-10x20-02.webp` → 2), ou `null`. */
+/**
+ * Número de dois dígitos ou mais do nome, com ou sem o sufixo (`.../sobrado-10x20-02.webp` e
+ * `.../sobrado-10x20-02-a1b2c3.webp` → 2), ou `null`.
+ */
 export function numeroDoCaminho(caminho: string): number | null {
-  const achado = /-(\d{2,4})$/.exec(caminhoSemExtensao(caminho))
+  const achado = new RegExp(`-(\\d{2,4})${SUFIXO_NO_FIM}$`).exec(caminhoSemExtensao(caminho))
   return achado?.[1] ? Number(achado[1]) : null
 }
 
 /**
- * Os próximos `quantidade` números livres (1, 2, 3...), pulando os que já estão ocupados. Ocupado =
- * já existe um arquivo com esse nome (a extensão não conta: `-01.jpg` e `-01.webp` seriam confusos).
- * `nomeDe(n)` devolve o caminho sem extensão do número `n`.
+ * Os próximos `quantidade` números livres (1, 2, 3...), pulando os que já estão ocupados. Compara só
+ * o número: como os nomes novos têm sufixo e os antigos não, é o número que diz se `-02` já existe.
  */
 export function proximosNumerosLivres(
   quantidade: number,
-  nomeDe: (numero: number) => string,
-  ocupados: ReadonlySet<string>,
+  ocupados: ReadonlySet<number>,
 ): number[] {
   const livres: number[] = []
   for (let numero = 1; livres.length < quantidade && numero <= 9999; numero++) {
-    if (!ocupados.has(nomeDe(numero))) livres.push(numero)
+    if (!ocupados.has(numero)) livres.push(numero)
   }
   return livres
 }

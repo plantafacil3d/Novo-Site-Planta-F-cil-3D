@@ -18,7 +18,6 @@ import {
   arquivosQueFaltam,
   caminhoDaImagem,
   caminhoDoArquivo,
-  caminhoSemExtensao,
   ehImagem,
   ehImagemComNumero,
   erroDoArquivoDoPapel,
@@ -33,6 +32,7 @@ import {
   nomeDaImagem,
   numeroDoCaminho,
   proximosNumerosLivres,
+  sufixoDaImagem,
   tipoDeConteudoDaExtensao,
 } from './rules'
 import { lerPayload, validarEtapas } from './schemas'
@@ -121,8 +121,9 @@ function mensagemDoItem(erro: unknown): string {
 
 /**
  * Onde o arquivo vai ficar, já com a extensão e o tipo conferidos pelo papel dele. Imagens ganham um
- * nome descritivo montado com o cadastro (SEO) e, na galeria e nas plantas, o número; os demais
- * arquivos (entrega e PDFs, privados) continuam com o id no nome.
+ * nome descritivo montado com o cadastro (SEO), o número (galeria e plantas) e o código curto do
+ * arquivo, que torna o endereço único; os demais arquivos (entrega e PDFs, privados) continuam com
+ * o id no nome.
  */
 function resolverDestino(
   projetoId: string,
@@ -150,7 +151,7 @@ function resolverDestino(
     if (ehImagemComNumero(arquivo.papel) && numero === null) {
       throw new AppError('dados_invalidos', `${arquivo.nomeArquivo}: falta o número da imagem.`)
     }
-    const nome = nomeDaImagem(arquivo.papel, dadosDoNome, numero)
+    const nome = nomeDaImagem(arquivo.papel, dadosDoNome, numero, sufixoDaImagem(arquivo.id))
     caminho = caminhoDaImagem(projetoId, arquivo.papel, nome, extensao)
   } else {
     caminho = caminhoDoArquivo(projetoId, arquivo.papel, arquivo.id, extensao)
@@ -186,7 +187,6 @@ async function lerContextoDeNomes(
  * número que já tinha. Devolve o número por id de arquivo.
  */
 function numerarImagens(
-  projetoId: string,
   arquivos: DadosDoArquivo[],
   contexto: ContextoDeNomes,
 ): Map<string, number> {
@@ -201,19 +201,14 @@ function numerarImagens(
     })
     if (novos.length === 0) continue
 
+    // Só o número conta: as imagens antigas não têm sufixo e as novas têm, então o nome inteiro
+    // nunca coincidiria, mas o `-02` de uma e o `-02` da outra ainda seriam confusos.
     const ocupados = new Set(
       contexto.gravados
         .filter((gravado) => gravado.papel === papel)
-        .map((gravado) => caminhoSemExtensao(gravado.caminho)),
+        .flatMap((gravado) => numeroDoCaminho(gravado.caminho) ?? []),
     )
-    const livres = proximosNumerosLivres(
-      novos.length,
-      (numero) =>
-        caminhoSemExtensao(
-          caminhoDaImagem(projetoId, papel, nomeDaImagem(papel, contexto.dados, numero), 'webp'),
-        ),
-      ocupados,
-    )
+    const livres = proximosNumerosLivres(novos.length, ocupados)
     if (livres.length < novos.length) {
       throw new AppError('dados_invalidos', 'O projeto chegou ao limite de imagens.')
     }
@@ -390,7 +385,7 @@ export async function prepararEnvioEmLote(
     const arquivos = lerLote(entrada)
     const somaGravada = await somaGravadaDaEntrega(id, arquivos)
     const contexto = await lerContextoDeNomes(id, arquivos)
-    const numeros = contexto ? numerarImagens(id, arquivos, contexto) : new Map<string, number>()
+    const numeros = contexto ? numerarImagens(arquivos, contexto) : new Map<string, number>()
 
     // Primeiro decide o destino de todos; só depois autoriza (precisa limpar os órfãos antes).
     const decididos = arquivos.map((arquivo) => {
@@ -409,8 +404,10 @@ export async function prepararEnvioEmLote(
       }
     })
 
-    // O nome da imagem agora se repete (a troca da principal reaproveita o nome). Um arquivo com esse
-    // caminho no Storage e sem linha no banco é sobra de uma falha antiga: sai antes do novo envio.
+    // O caminho de uma imagem nova é sempre inédito (o código dele sai do id do arquivo), então a
+    // troca de foto nunca cai aqui. Sobra o envio repetido: o arquivo chegou ao Storage, mas a
+    // confirmação se perdeu e não há linha no banco. Esse arquivo sai antes do novo envio, porque o
+    // Storage recusa gravar sobre um caminho que já existe.
     const orfaos = decididos.flatMap((item) =>
       item.ok &&
       ehImagem(item.arquivo.papel) &&
@@ -487,8 +484,15 @@ export async function confirmarEnvioEmLote(
               (outro) =>
                 outro.id !== arquivo.id && outro.papel === arquivo.papel && outro.numero === numero,
             )
+          // Os caminhos de imagens nunca coincidem (cada um tem o seu código), então o que pode
+          // colidir de fato é o número: outra imagem do mesmo papel já está com ele.
           const ocupadoPorOutro = contexto?.gravados.some(
-            (gravado) => gravado.caminho === destino.caminho && gravado.id !== arquivo.id,
+            (gravado) =>
+              gravado.id !== arquivo.id &&
+              (gravado.caminho === destino.caminho ||
+                (numero !== null &&
+                  gravado.papel === arquivo.papel &&
+                  numeroDoCaminho(gravado.caminho) === numero)),
           )
           if (repetidoNoLote || ocupadoPorOutro) {
             throw new AppError(
