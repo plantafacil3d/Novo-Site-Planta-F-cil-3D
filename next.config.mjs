@@ -17,6 +17,15 @@ const securityHeaders = [
   // CSP: definir liberando só o que o app usa (Supabase, analytics...).
 ]
 
+// Páginas públicas que o painel muda (vitrine da home e página de cada projeto). O Next as serve com
+// `s-maxage=600` por causa do `revalidate`, e a CDN da Hostinger (hcdn) obedece: guarda o HTML por 10
+// minutos e `revalidatePath` não alcança essa cópia. Com este valor a CDN confere com o servidor a
+// cada acesso (resposta 304, barata); o cache do Next (`revalidate = 600` + invalidação do painel)
+// continua sendo quem guarda a página pronta. É o mesmo valor que o Next usa no sitemap.xml.
+const semCopiaNaCdn = [
+  { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+]
+
 const nextConfig = {
   poweredByHeader: false,
   images: {
@@ -40,7 +49,11 @@ const nextConfig = {
     return [{ source: '/3d-unreal', destination: '/curso-unreal-engine', permanent: true }]
   },
   async headers() {
-    return [{ source: '/(.*)', headers: securityHeaders }]
+    return [
+      { source: '/(.*)', headers: securityHeaders },
+      { source: '/', headers: semCopiaNaCdn },
+      { source: '/projetos/:slug', headers: semCopiaNaCdn },
+    ]
   },
 }
 

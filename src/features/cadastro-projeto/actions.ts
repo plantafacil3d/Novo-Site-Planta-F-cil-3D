@@ -558,6 +558,9 @@ export async function confirmarEnvioEmLote(
         }
       },
     )
+    // `salvarProjeto` invalida antes de os arquivos chegarem; sem esta, uma visita nesse intervalo
+    // refaria a página com as imagens de antes e ela ficaria assim até o prazo do `revalidate`.
+    if (itens.some((item) => item.ok)) invalidarCatalogo()
     return { ok: true, mensagem: 'Arquivos conferidos.', itens }
   })
 }
