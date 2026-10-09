@@ -10,3 +10,6 @@ next-env.d.ts
 
 .DS_Store
 npm-debug.log*
+
+# Fase 2: cópia local dos arquivos do Storage + estado/relatório do script de regravação
+backup-storage/

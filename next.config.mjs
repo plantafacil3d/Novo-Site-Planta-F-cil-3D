@@ -29,6 +29,11 @@ const semCopiaNaCdn = [
 const nextConfig = {
   poweredByHeader: false,
   images: {
+    // Cache de 1 ano das imagens otimizadas: o Next guarda cada variante e responde ao navegador com
+    // `max-age` desse valor. A validade vale o maior entre este número e o `Cache-Control` do
+    // Supabase (também de 1 ano). É seguro porque o Next não tem como invalidar esse cache: toda foto
+    // nova tem nome único (sufixo), então trocar a foto muda a URL em vez de reaproveitá-la.
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       // Temporário: fotos de exemplo. Remover quando as imagens reais estiverem em public/.
       { protocol: 'https', hostname: 'images.unsplash.com' },
