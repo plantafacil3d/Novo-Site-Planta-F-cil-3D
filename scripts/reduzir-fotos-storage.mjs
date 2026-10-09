@@ -24,6 +24,7 @@
  *
  * Opções: --executar  --limite=<N arquivos a reduzir>  --bucket=<nome>  --lote=<1-50, padrão 10>
  *         --pasta=<backup, padrão backup-storage>  --detalhar (dry-run lista todos)  --ajuda
+ *         --um-por-projeto  reduz no máximo uma foto por projeto (para amostras com --limite)
  *
  * Retomar: rode de novo o mesmo comando; o que já foi reduzido é pulado (estado em
  * <pasta>/estado-fase5.json).
@@ -68,6 +69,7 @@ function lerArgumentos(argv) {
   const opcoes = {
     executar: false,
     detalhar: false,
+    umPorProjeto: false,
     bucket: null,
     lote: 10,
     limite: Infinity,
@@ -76,6 +78,7 @@ function lerArgumentos(argv) {
   for (const arg of argv) {
     if (arg === '--executar') opcoes.executar = true
     else if (arg === '--detalhar') opcoes.detalhar = true
+    else if (arg === '--um-por-projeto') opcoes.umPorProjeto = true
     else if (arg === '--ajuda' || arg === '-h') {
       console.log(AJUDA)
       process.exit(0)
@@ -603,12 +606,23 @@ async function principal() {
   // `--limite` conta ARQUIVOS A REDUZIR, não os mantidos: processa até reduzir N (ou acabar a lista).
   let reduzidos = 0
   let proximo = 0
-  console.log(`Analisando e reduzindo (lotes de ${opcoes.lote}${Number.isFinite(opcoes.limite) ? `, até ${opcoes.limite} reduzidos` : ''}).\n`)
+  const projetosJaReduzidos = new Set()
+  const projetoDe = (item) => `${item.bucket}/${item.caminho.split('/')[0]}`
+  console.log(`Analisando e reduzindo (lotes de ${opcoes.lote}${Number.isFinite(opcoes.limite) ? `, até ${opcoes.limite} reduzidos` : ''}${opcoes.umPorProjeto ? ', um por projeto' : ''}).\n`)
   while (proximo < pendentes.length && !parar && reduzidos < opcoes.limite) {
-    const lote = pendentes.slice(proximo, proximo + opcoes.lote)
-    proximo += lote.length
+    // O lote nunca passa do que falta para o limite: cada arquivo do lote pode ser reduzido.
+    const tamanhoDoLote = Math.min(opcoes.lote, opcoes.limite - reduzidos)
+    // Com --um-por-projeto, pula quem é de um projeto que já teve uma foto reduzida nesta execução.
+    const lote = []
+    while (proximo < pendentes.length && lote.length < tamanhoDoLote) {
+      const item = pendentes[proximo++]
+      if (opcoes.umPorProjeto && projetosJaReduzidos.has(projetoDe(item))) {
+        relatorio.push({ ...item, bytesAntes: item.tamanho ?? 0, status: 'nao-processado', erro: '' })
+      } else lote.push(item)
+    }
     const resultados = await emParalelo(lote, CONCORRENCIA, (item) => processarArquivo(supabase, item, contexto))
     relatorio.push(...resultados.map((r) => ({ ...r, buffer: undefined })))
+    for (const r of resultados) if (r.status === 'reduzido') projetosJaReduzidos.add(projetoDe(r))
     reduzidos += resultados.filter((r) => r.status === 'reduzido').length
     const falhas = resultados.filter((r) => r.status === 'falha')
     console.log(`  ${Math.min(proximo, pendentes.length)}/${pendentes.length} analisados; reduzidos até agora: ${reduzidos} (falhas neste lote: ${falhas.length})`)
