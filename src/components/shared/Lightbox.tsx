@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import type { KeyboardEvent } from 'react'
+import { useState, type KeyboardEvent } from 'react'
 
 import { IconButton } from '../ui/IconButton'
 import { Modal } from '../ui/Modal'
@@ -18,14 +18,23 @@ type LightboxProps = {
 
 /** Visualizador de fotos em tela cheia, com setas do teclado e contador. */
 export function Lightbox({ images, index, onIndexChange, onClose, label }: LightboxProps) {
+  // A pré-carga da próxima foto só começa depois da primeira interação (seta ou teclado): quem só
+  // abre a foto e olha não baixa nada além dela. Volta a zero ao fechar.
+  const [interagiu, setInteragiu] = useState(false)
+
   const total = images.length
   const current = index === null ? undefined : images[index]
-  const proxima = index !== null && total > 1 ? images[(index + 1) % total] : null
-  const anterior = index !== null && total > 1 ? images[(index - 1 + total) % total] : null
+  const proxima = interagiu && index !== null && total > 1 ? images[(index + 1) % total] : null
 
   function go(step: number) {
     if (index === null) return
+    setInteragiu(true)
     onIndexChange((index + step + total) % total)
+  }
+
+  function fechar() {
+    setInteragiu(false)
+    onClose()
   }
 
   function handleKeyDown(event: KeyboardEvent) {
@@ -34,7 +43,7 @@ export function Lightbox({ images, index, onIndexChange, onClose, label }: Light
   }
 
   return (
-    <Modal open={index !== null} onClose={onClose} label={label}>
+    <Modal open={index !== null} onClose={fechar} label={label}>
       {current && index !== null && (
         <div className="relative" onKeyDown={handleKeyDown}>
           <div className="relative aspect-4/3 md:aspect-video">
@@ -48,22 +57,18 @@ export function Lightbox({ images, index, onIndexChange, onClose, label }: Light
             />
           </div>
 
-          {/* Pré-carrega a foto anterior e a próxima para as setas trocarem sem espera. */}
-          {(proxima || anterior) && (
+          {/* Pré-carrega só a PRÓXIMA foto, e só depois da primeira interação, para a seta trocar
+              sem espera. É o original, com o MESMO endereço que a foto exibida usa (`unoptimized`),
+              então o navegador baixa o arquivo uma vez e o reaproveita. A anterior não precisa:
+              quem volta já a viu e ela está no cache do navegador. */}
+          {proxima && (
             <div
               aria-hidden
               className="pointer-events-none absolute size-px overflow-hidden opacity-0"
             >
-              {proxima && (
-                <div className="relative aspect-4/3">
-                  <Image src={proxima.src} alt="" fill unoptimized />
-                </div>
-              )}
-              {anterior && (
-                <div className="relative aspect-4/3">
-                  <Image src={anterior.src} alt="" fill unoptimized />
-                </div>
-              )}
+              <div className="relative aspect-4/3">
+                <Image src={proxima.src} alt="" fill unoptimized loading="eager" />
+              </div>
             </div>
           )}
 
