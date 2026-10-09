@@ -20,9 +20,10 @@ import {
   exibirPreco,
   hrefProjeto,
   listarProjetosRelacionados,
+  mensagemDuvidaProjeto,
   type ProjetoDetalhe,
 } from '@/features/projetos'
-import { siteConfig, siteUrl } from '@/features/site'
+import { siteConfig, siteUrl, urlWhatsapp } from '@/features/site'
 
 /** Seção à parte: carrega depois do resto da página, sem travar o carregamento principal nela. */
 async function SecaoRelacionados({ projeto }: { projeto: ProjetoDetalhe }) {
@@ -34,6 +35,9 @@ async function SecaoRelacionados({ projeto }: { projeto: ProjetoDetalhe }) {
 export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
   const preco = exibirPreco(projeto)
   const checkoutUrl = checkoutSeguro(projeto.checkoutUrl)
+  const linkWhatsapp = urlWhatsapp(
+    mensagemDuvidaProjeto(projeto.titulo, `${siteUrl}${hrefProjeto(projeto)}`),
+  )
 
   return (
     <div>
@@ -84,7 +88,7 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
         />
       )}
       <PerfilProjeto perfil={projeto.perfil} />
-      <PerguntasFrequentes itensInclusos={projeto.itensInclusos} />
+      <PerguntasFrequentes projeto={projeto} linkWhatsapp={linkWhatsapp} />
 
       {checkoutUrl && (
         <CTABanner

@@ -29,16 +29,6 @@ export const navegacaoPrincipal: LinkNavegacao[] = [
 
 export const navegacaoRodape: LinkNavegacao[] = [...navegacaoPrincipal]
 
-export const redesSociais = [
-  { icone: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/plantafacil3d/' },
-  { icone: 'youtube', label: 'YouTube', href: 'https://www.youtube.com/@plantafacil3d' },
-  {
-    icone: 'facebook',
-    label: 'Facebook',
-    href: 'https://www.facebook.com/people/Planta-F%C3%A1cil-3D/100063632335156/?locale=pt_BR',
-  },
-] as const
-
 /** WhatsApp oficial, só dígitos com DDI e DDD. A variável de ambiente, se existir, tem prioridade. */
 const whatsappPadrao = '559992076875'
 
@@ -47,6 +37,21 @@ export function urlWhatsapp(mensagem: string): string {
   const numero = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, '') || whatsappPadrao
   return `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`
 }
+
+export const redesSociais = [
+  {
+    icone: 'whatsapp',
+    label: 'WhatsApp',
+    href: urlWhatsapp('Olá! Vim pelo site e gostaria de tirar uma dúvida sobre os projetos.'),
+  },
+  { icone: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/plantafacil3d/' },
+  { icone: 'youtube', label: 'YouTube', href: 'https://www.youtube.com/@plantafacil3d' },
+  {
+    icone: 'facebook',
+    label: 'Facebook',
+    href: 'https://www.facebook.com/people/Planta-F%C3%A1cil-3D/100063632335156/?locale=pt_BR',
+  },
+] as const
 
 export function textoDireitosAutorais(ano = new Date().getFullYear()): string {
   return `© ${ano} ${siteConfig.nome}. Todos os direitos reservados.`

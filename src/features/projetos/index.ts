@@ -42,6 +42,7 @@ export {
   formatarPreco,
   hrefCategoria,
   hrefProjeto,
+  mensagemDuvidaProjeto,
   listarFiltrosAplicados,
   montarHrefListagem,
   resumirParaBusca,

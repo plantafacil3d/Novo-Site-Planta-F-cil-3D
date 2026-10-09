@@ -85,6 +85,19 @@ export function formatarArea(metrosQuadrados: number): string {
   return `${decimais.format(metrosQuadrados)} m²`
 }
 
+const decimaisCurtos = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 })
+
+/** 12 x 25 → "12 m × 25 m = 300 m²" (sem zeros à toa: 12,5 → "12,5 m"). */
+export function descreverTerreno(larguraM: number, profundidadeM: number): string {
+  const area = Math.round(larguraM * profundidadeM * 100) / 100
+  return `${decimaisCurtos.format(larguraM)} m × ${decimaisCurtos.format(profundidadeM)} m = ${decimaisCurtos.format(area)} m²`
+}
+
+/** Mensagem pronta do WhatsApp para tirar dúvida sobre um projeto (nome e link da página). */
+export function mensagemDuvidaProjeto(titulo: string, urlPagina: string): string {
+  return `Olá! Estou com dúvida sobre este projeto: ${titulo}\n${urlPagina}`
+}
+
 /**
  * Junta os itens inclusos numa frase corrida ("a, b e c."), para a resposta do FAQ ocupar pouco
  * espaço. A inicial vira minúscula, exceto em siglas (PDF, DWG), que são reconhecidas pela 2ª letra.

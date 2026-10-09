@@ -1,9 +1,15 @@
 // Textos fixos da página do projeto: valem para todos os projetos, não vêm do banco.
 // TEMPORÁRIO: textos de exemplo. Revisar com o cliente antes de publicar.
 
-import type { ChaveEspecificacao } from './rules'
+import { descreverTerreno, type ChaveEspecificacao } from './rules'
 
-export type PerguntaFrequente = { pergunta: string; resposta: string | string[] }
+/** Medidas do terreno cadastradas no projeto, para respostas que mudam de um projeto para outro. */
+export type MedidasDoTerreno = { larguraM: number; profundidadeM: number }
+
+export type PerguntaFrequente = {
+  pergunta: string
+  resposta: string | string[] | ((terreno: MedidasDoTerreno) => string)
+}
 
 export type EspecificacaoTexto = { label: string; explicacao: string }
 
@@ -37,7 +43,7 @@ export const textosDeEspecificacao: Record<ChaveEspecificacao, EspecificacaoText
   suiteMaster: {
     label: 'Suíte master',
     explicacao:
-      'A suíte principal da casa: maior que as demais, com banheiro e closet (armário embutido) próprios.',
+      'Quarto principal da casa: maior que as demais, com banheiro e closet (armário embutido) próprios.',
   },
   banheiros: {
     label: 'Banheiros',
@@ -72,7 +78,12 @@ export const perguntaItensInclusos = 'O que eu recebo ao comprar este projeto?'
 export const respostaItensInclusosPadrao =
   'Você recebe plantas baixas, fachadas, cortes, implantação, arquivos técnicos em PDF e DWG e imagens 3D do projeto.'
 
-/** Demais perguntas: fixas. Um item do array vira um parágrafo na resposta. */
+const perguntaOutroTerreno = 'Posso usar em outro terreno?'
+
+/**
+ * Demais perguntas. Um item do array vira um parágrafo na resposta; uma função recebe as medidas
+ * do terreno do projeto e devolve o texto.
+ */
 export const perguntasFrequentes: PerguntaFrequente[] = [
   {
     pergunta: 'Como recebo os arquivos?',
@@ -91,9 +102,9 @@ export const perguntasFrequentes: PerguntaFrequente[] = [
     ],
   },
   {
-    pergunta: 'Posso usar em outro terreno?',
-    resposta:
-      'Sim, desde que as medidas do terreno sejam compatíveis. Para terrenos diferentes, pode ser preciso adaptar o projeto.',
+    pergunta: perguntaOutroTerreno,
+    resposta: ({ larguraM, profundidadeM }) =>
+      `Sim! Basta que o seu terreno tenha o tamanho deste projeto (${descreverTerreno(larguraM, profundidadeM)}) ou seja maior. Isso garante que a casa caiba no terreno com os recuos necessários.`,
   },
   {
     pergunta: 'O projeto inclui projetos complementares?',
@@ -104,11 +115,6 @@ export const perguntasFrequentes: PerguntaFrequente[] = [
     pergunta: 'Existe suporte após a compra?',
     resposta:
       'Sim. Nossa equipe tira as suas dúvidas sobre o projeto e sobre os arquivos depois da compra.',
-  },
-  {
-    pergunta: 'Como funciona a entrega?',
-    resposta:
-      'A entrega é 100% digital. Nada é enviado pelo correio: você baixa os arquivos assim que o pagamento é confirmado.',
   },
   {
     pergunta: 'O projeto é registrado?',
