@@ -34,6 +34,8 @@ const nextConfig = {
     // Supabase (também de 1 ano). É seguro porque o Next não tem como invalidar esse cache: toda foto
     // nova tem nome único (sufixo), então trocar a foto muda a URL em vez de reaproveitá-la.
     minimumCacheTTL: 31536000,
+    // Qualidades que o Next aceita pedir (o padrão é só 75). O card da vitrine usa 70.
+    qualities: [70, 75],
     remotePatterns: [
       // Temporário: fotos de exemplo. Remover quando as imagens reais estiverem em public/.
       { protocol: 'https', hostname: 'images.unsplash.com' },

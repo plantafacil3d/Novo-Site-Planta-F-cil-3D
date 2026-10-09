@@ -56,7 +56,10 @@ export const LIMITES = {
   complementarTituloMax: 80,
   complementarDescricaoMin: 10,
   complementarDescricaoMax: 300,
+  /** Tamanho máximo da imagem JÁ gravada no Storage (depois de reduzida). */
   imagemMaxBytes: 2 * MB,
+  /** Tamanho máximo da imagem que o usuário escolhe no computador, antes de ser reduzida. */
+  imagemOriginalMaxBytes: 20 * MB,
   /** Vale para cada PDF de complementar e para a soma dos arquivos de entrega do projeto. */
   anexoMaxBytes: 20 * MB,
   /** Quantos arquivos entram numa chamada de `prepararEnvioEmLote`/`confirmarEnvioEmLote`. */
@@ -77,6 +80,17 @@ const TIPOS_POR_EXTENSAO: Record<string, readonly string[]> = {
 export const ARQUIVOS_DE_IMAGEM = {
   extensoes: ['jpg', 'jpeg', 'png', 'webp'],
   accept: '.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp',
+} as const
+
+/**
+ * Como as imagens públicas são reduzidas ANTES de ir ao Storage: lado maior máximo (px) e qualidade do
+ * WebP (0 a 1). Fotos e plantas separadas: planta tem linhas finas e texto, e ainda recebe zoom na tela
+ * cheia. Nunca amplia: imagem menor que o limite segue como está.
+ * Os mesmos números estão em `scripts/reduzir-fotos-storage.mjs` (as fotos antigas): mudou aqui, mude lá.
+ */
+export const REDUCAO_DE_IMAGEM = {
+  foto: { ladoMaximo: 1920, qualidade: 0.85 },
+  planta: { ladoMaximo: 2400, qualidade: 0.9 },
 } as const
 
 export const ARQUIVOS_DE_PDF = { extensoes: ['pdf'], accept: '.pdf,application/pdf' } as const
@@ -205,15 +219,35 @@ function tipoCombinaComExtensao(extensao: string, tipo: string): boolean {
   return minusculo === '' || minusculo === 'application/octet-stream' || aceitos.includes(minusculo)
 }
 
-/** Motivo de a imagem não servir (JPG, PNG ou WEBP, até 2 MB), ou `null` se estiver certa. */
-export function erroDeImagem({ nomeArquivo, tamanho, tipo }: MetadadosDeArquivo): string | null {
+function erroDoFormatoDaImagem({ nomeArquivo, tipo }: MetadadosDeArquivo): string | null {
   const extensao = extensaoDe(nomeArquivo)
   const permitida = (ARQUIVOS_DE_IMAGEM.extensoes as readonly string[]).includes(extensao)
   // Imagem exige o MIME certo: tipo vazio ou genérico não passa (diferente de ZIP e RAR).
   const tipoConfere = TIPOS_POR_EXTENSAO[extensao]?.includes(tipo.toLowerCase()) ?? false
-  if (!permitida || !tipoConfere) return 'Use uma imagem JPG, PNG ou WEBP.'
-  if (tamanho <= 0) return 'O arquivo está vazio.'
-  if (tamanho > LIMITES.imagemMaxBytes) return 'A imagem passa de 2 MB.'
+  return !permitida || !tipoConfere ? 'Use uma imagem JPG, PNG ou WEBP.' : null
+}
+
+/**
+ * Motivo de a imagem GRAVADA no Storage não servir (JPG, PNG ou WEBP, até 2 MB), ou `null` se estiver
+ * certa. O servidor usa esta; as imagens novas já chegam reduzidas.
+ */
+export function erroDeImagem(arquivo: MetadadosDeArquivo): string | null {
+  const formato = erroDoFormatoDaImagem(arquivo)
+  if (formato) return formato
+  if (arquivo.tamanho <= 0) return 'O arquivo está vazio.'
+  if (arquivo.tamanho > LIMITES.imagemMaxBytes) return 'A imagem passa de 2 MB.'
+  return null
+}
+
+/**
+ * Motivo de a imagem ESCOLHIDA no computador não servir, antes de ser reduzida: mesmo formato, mas o
+ * limite de tamanho é o do arquivo original (até 20 MB), não o do arquivo já reduzido.
+ */
+export function erroDeImagemEscolhida(arquivo: MetadadosDeArquivo): string | null {
+  const formato = erroDoFormatoDaImagem(arquivo)
+  if (formato) return formato
+  if (arquivo.tamanho <= 0) return 'O arquivo está vazio.'
+  if (arquivo.tamanho > LIMITES.imagemOriginalMaxBytes) return 'A imagem passa de 20 MB.'
   return null
 }
 

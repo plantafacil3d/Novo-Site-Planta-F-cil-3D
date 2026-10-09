@@ -8,7 +8,7 @@ import { ARQUIVOS_DE_IMAGEM } from '../rules'
 import { GradeDeImagens } from './GradeDeImagens'
 import { PainelDaEtapa } from './PainelDaEtapa'
 
-const DICA_DE_IMAGEM = 'JPG, PNG ou WEBP, até 2 MB cada'
+const DICA_DE_IMAGEM = 'JPG, PNG ou WEBP, até 20 MB cada. Ao escolher, reduzimos para 1920 px'
 
 /** Bloco de uma pergunta da aba: título, explicação e o que vier dentro. */
 function Grupo({ titulo, dica, children }: { titulo: string; dica: string; children: ReactNode }) {

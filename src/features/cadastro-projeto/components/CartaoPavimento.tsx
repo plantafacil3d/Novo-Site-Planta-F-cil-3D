@@ -188,7 +188,7 @@ export function CartaoPavimento({
             id={imagemCampo.id}
             name={imagemCampo.name}
             label="Escolher a imagem da planta humanizada"
-            hint="JPG, PNG ou WEBP, até 2 MB. Só 1 imagem."
+            hint="JPG, PNG ou WEBP, até 20 MB. Ao escolher, reduzimos para 2400 px. Só 1 imagem."
             accept={ARQUIVOS_DE_IMAGEM.accept}
             invalid={imagemCampo.invalid}
             aria-describedby={imagemCampo['aria-describedby']}

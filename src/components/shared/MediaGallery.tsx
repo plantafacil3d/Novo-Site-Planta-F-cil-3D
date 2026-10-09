@@ -35,6 +35,9 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
   const [index, setIndex] = useState(0)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [videoOpen, setVideoOpen] = useState(false)
+  // A pré-carga da próxima foto só começa depois da primeira interação (seta, miniatura ou tela
+  // cheia): quem só olha a página não baixa nada além do que está na tela.
+  const [interagiu, setInteragiu] = useState(false)
 
   const total = images.length
   const thumbnails = images.slice(0, MAX_THUMBNAILS)
@@ -42,7 +45,16 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
   const firstHidden = images[MAX_THUMBNAILS]
   const current = images[index]
   const proxima = total > 1 ? images[(index + 1) % total] : null
-  const anterior = total > 1 ? images[(index - 1 + total) % total] : null
+
+  function irPara(novoIndice: number) {
+    setInteragiu(true)
+    setIndex(novoIndice)
+  }
+
+  function abrirTelaCheia(indice: number) {
+    setInteragiu(true)
+    setLightboxIndex(indice)
+  }
 
   function closeLightbox() {
     // Ao fechar, a foto grande acompanha a última vista no visualizador.
@@ -61,16 +73,17 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
           fill
           // A primeira foto é a maior da página (LCP): sem carregamento adiado e com pré-carga no <head>.
           preload={index === 0}
-          // Largura real da foto: a coluna inteira menos as margens (2rem) até 1023px; a partir daí
-          // é a metade do container de 1200px (568px). Sem isto o Next supõe 100vw e entrega a maior.
-          sizes="(min-width: 1024px) 568px, calc(100vw - 2rem)"
+          // Sem otimização, de propósito: a foto grande é o original do Storage, o mesmo arquivo
+          // que o visualizador em tela cheia mostra. A versão redimensionada pelo Next ficava
+          // desfocada ao lado dele; aqui a nitidez vem antes da economia de banda.
+          unoptimized
           className="object-cover"
         />
 
         <Button
           variant="primary"
           iconLeft="maximize"
-          onClick={() => setLightboxIndex(index)}
+          onClick={() => abrirTelaCheia(index)}
           className="absolute top-3 left-3"
         >
           Ver em tela cheia
@@ -92,32 +105,28 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
             <IconButton
               icon="chevron-left"
               label="Foto anterior"
-              onClick={() => setIndex((index - 1 + total) % total)}
+              onClick={() => irPara((index - 1 + total) % total)}
               className="absolute top-1/2 left-3 -translate-y-1/2"
             />
             <IconButton
               icon="chevron-right"
               label="Próxima foto"
-              onClick={() => setIndex((index + 1) % total)}
+              onClick={() => irPara((index + 1) % total)}
               className="absolute top-1/2 right-3 -translate-y-1/2"
             />
           </>
         )}
       </div>
 
-      {/* Pré-carrega a foto anterior e a próxima para as setas trocarem sem espera. */}
-      {(proxima || anterior) && (
+      {/* Pré-carrega só a PRÓXIMA foto, e só depois da primeira interação, para a seta trocar sem
+          espera. É o original, com o MESMO endereço que a foto grande vai usar (`unoptimized`):
+          o navegador baixa o arquivo uma vez e o reaproveita na troca. A anterior não precisa:
+          quem volta já a viu e ela está no cache do navegador. */}
+      {interagiu && proxima && (
         <div aria-hidden className="pointer-events-none absolute size-px overflow-hidden opacity-0">
-          {proxima && (
-            <div className="relative aspect-4/3">
-              <Image src={proxima.src} alt="" fill unoptimized />
-            </div>
-          )}
-          {anterior && (
-            <div className="relative aspect-4/3">
-              <Image src={anterior.src} alt="" fill unoptimized />
-            </div>
-          )}
+          <div className="relative aspect-4/3">
+            <Image src={proxima.src} alt="" fill unoptimized loading="eager" />
+          </div>
         </div>
       )}
 
@@ -128,7 +137,7 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
               type="button"
               aria-label={`Ver foto ${thumbIndex + 1} de ${total}`}
               aria-current={thumbIndex === index}
-              onClick={() => setIndex(thumbIndex)}
+              onClick={() => irPara(thumbIndex)}
               className={cn(
                 'group relative block aspect-4/3 w-full overflow-hidden rounded-md border-2 transition-colors duration-150 ease-standard',
                 thumbIndex === index
@@ -152,7 +161,7 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
             <button
               type="button"
               aria-label={`Ver todas as ${total} fotos`}
-              onClick={() => setLightboxIndex(MAX_THUMBNAILS)}
+              onClick={() => abrirTelaCheia(MAX_THUMBNAILS)}
               className="group relative block aspect-4/3 w-full overflow-hidden rounded-md text-sm font-semibold text-fg-inverse"
             >
               <Image

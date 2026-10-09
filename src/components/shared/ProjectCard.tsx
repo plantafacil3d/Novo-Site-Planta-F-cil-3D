@@ -40,7 +40,21 @@ type ProjectCardProps = {
    * sem recriar nada — passe explicitamente quando precisar.
    */
   density?: 'default' | 'compact'
+  /**
+   * Largura REAL da foto na tela (atributo `sizes`). O padrão vale para a grade de 1, 2 e 4 colunas do
+   * site (home, favoritos e sugestões); quem põe o card numa grade diferente (listagem, carrossel)
+   * passa o seu.
+   */
+  imageSizes?: string
 }
+
+/** Quanto o card mede em cada tela na grade padrão (container de 1200px, margem de 16px, vão de 24px). */
+const SIZES_GRADE_PADRAO = [
+  '(min-width: 1200px) 274px', // 4 colunas, container no máximo
+  '(min-width: 1024px) calc((100vw - 104px) / 4)', // 4 colunas, container acompanha a tela
+  '(min-width: 640px) calc((100vw - 3.5rem) / 2)', // 2 colunas
+  'calc(100vw - 2rem)', // 1 coluna
+].join(', ')
 
 /**
  * Card de projeto. O card inteiro leva a um único destino (o botão "Ver detalhes" estica o
@@ -59,6 +73,7 @@ export function ProjectCard({
   priceDiscount,
   favorite,
   density = 'compact',
+  imageSizes = SIZES_GRADE_PADRAO,
 }: ProjectCardProps) {
   const compact = density === 'compact'
 
@@ -69,7 +84,9 @@ export function ProjectCard({
           src={image.src}
           alt={image.alt}
           fill
-          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+          sizes={imageSizes}
+          // Foto pequena e sem zoom: qualidade 70 (o padrão é 75) pesa menos sem diferença visível.
+          quality={70}
           className="object-cover transition-transform duration-250 ease-standard group-hover:scale-105"
         />
         {compact

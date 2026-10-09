@@ -1,7 +1,8 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 
-import { fileUploader } from '@/services/upload'
+import { fileUploader, reduzirImagem } from '@/services/upload'
+import { AppError } from '@/types/erro'
 
 import {
   confirmarEnvioEmLote,
@@ -14,9 +15,11 @@ import {
   ARQUIVOS_DE_ENTREGA,
   ARQUIVOS_DE_PDF,
   LIMITES,
+  REDUCAO_DE_IMAGEM,
   dadosVazios,
   erroDeAnexo,
   erroDeImagem,
+  erroDeImagemEscolhida,
   filtrarCodigoManual,
   filtrarDecimal,
   filtrarInteiro,
@@ -78,6 +81,36 @@ const metadados = (arquivo: File) => ({
   tipo: arquivo.type,
 })
 
+/** Aviso (o mesmo `Alert` do "Salvar") enquanto as imagens escolhidas são reduzidas e convertidas. */
+const TEXTO_PREPARANDO = 'Preparando as imagens…'
+
+type ImagemPreparada = { ok: true; arquivo: File } | { ok: false; motivo: string }
+
+/**
+ * Confere a imagem escolhida, reduz ao limite e converte para WebP (ver `REDUCAO_DE_IMAGEM`). Devolve a
+ * imagem pronta ou o motivo de recusar: se a conversão falhar, o arquivo original NÃO segue adiante.
+ */
+async function prepararImagem(
+  arquivo: File,
+  reducao: (typeof REDUCAO_DE_IMAGEM)[keyof typeof REDUCAO_DE_IMAGEM],
+): Promise<ImagemPreparada> {
+  const erroInicial = erroDeImagemEscolhida(metadados(arquivo))
+  if (erroInicial) return { ok: false, motivo: erroInicial }
+  try {
+    const pronto = await reduzirImagem(arquivo, reducao)
+    // O limite de 2 MB vale para o arquivo que vai ao Storage, não para o que foi escolhido.
+    const erro = erroDeImagem(metadados(pronto))
+    if (!erro) return { ok: true, arquivo: pronto }
+    return {
+      ok: false,
+      motivo: pronto === arquivo ? erro : `${erro.replace(/\.$/, '')} mesmo depois de reduzida.`,
+    }
+  } catch (erro) {
+    const motivo = erro instanceof AppError ? erro.message : 'Não foi possível preparar a imagem.'
+    return { ok: false, motivo }
+  }
+}
+
 const novoItemVazio = (itens: readonly ItemDaPlanta[]): ItemDaPlanta => ({
   id: novoId(),
   nome: '',
@@ -111,6 +144,8 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     linhas: LinhaColada[]
   } | null>(null)
   const urlsDePrevia = useRef(new Set<string>())
+  /** Quantas escolhas de imagem ainda estão sendo reduzidas (o "Salvar" espera por elas). */
+  const preparando = useRef(0)
 
   // Libera da memória as prévias locais das imagens ao sair da tela.
   useEffect(() => {
@@ -238,19 +273,39 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     if (urlsDePrevia.current.delete(url)) URL.revokeObjectURL(url)
   }
 
-  /** Confere cada imagem escolhida: as boas entram, as ruins viram aviso com o motivo. */
-  function enviarImagens(chave: CampoDeImagem, arquivos: File[]) {
+  /** Roda o preparo das imagens mostrando o aviso "Preparando as imagens…" até o último terminar. */
+  async function comAvisoDePreparo<T>(tarefa: () => Promise<T>): Promise<T> {
+    preparando.current += 1
+    setProgresso(TEXTO_PREPARANDO)
+    try {
+      return await tarefa()
+    } finally {
+      preparando.current -= 1
+      if (preparando.current === 0) {
+        setProgresso((atual) => (atual === TEXTO_PREPARANDO ? null : atual))
+      }
+    }
+  }
+
+  /**
+   * Confere cada imagem escolhida, reduz a 1920 px e converte para WebP: as boas entram, as ruins viram
+   * aviso com o motivo. Uma de cada vez, para não encher a memória do navegador.
+   */
+  async function enviarImagens(chave: CampoDeImagem, arquivos: File[]) {
     const recebidos = chave === 'imagemPrincipal' ? arquivos.slice(0, 1) : arquivos
     const aceitas: ImagemProjeto[] = []
     const recusas: string[] = []
-    for (const arquivo of recebidos) {
-      const erro = erroDeImagem(metadados(arquivo))
-      if (erro) {
-        recusas.push(`${arquivo.name}: ${erro}`)
-      } else {
-        aceitas.push({ id: novoId(), ...metadados(arquivo), arquivo, url: criarPrevia(arquivo) })
+    await comAvisoDePreparo(async () => {
+      for (const arquivo of recebidos) {
+        const preparada = await prepararImagem(arquivo, REDUCAO_DE_IMAGEM.foto)
+        if (!preparada.ok) {
+          recusas.push(`${arquivo.name}: ${preparada.motivo}`)
+          continue
+        }
+        const pronta = preparada.arquivo
+        aceitas.push({ id: novoId(), ...metadados(pronta), arquivo: pronta, url: criarPrevia(pronta) })
       }
-    }
+    })
     guardarAvisosDeArquivo(chave, recusas)
     tocar(chave)
     if (aceitas.length === 0) return
@@ -400,17 +455,24 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     })
   }
 
-  function enviarImagemDoPavimento(pavimentoId: string, arquivos: File[]) {
+  /** Planta humanizada: reduzida a 2400 px (mais que a foto, para a leitura e o zoom) e em WebP. */
+  async function enviarImagemDoPavimento(pavimentoId: string, arquivos: File[]) {
     const arquivo = arquivos[0]
     if (!arquivo) return
-    const erro = erroDeImagem(metadados(arquivo))
-    guardarAvisosDeArquivo(`pavimento-${pavimentoId}`, erro ? [`${arquivo.name}: ${erro}`] : [])
-    if (erro) return
+    const preparada = await comAvisoDePreparo(() =>
+      prepararImagem(arquivo, REDUCAO_DE_IMAGEM.planta),
+    )
+    guardarAvisosDeArquivo(
+      `pavimento-${pavimentoId}`,
+      preparada.ok ? [] : [`${arquivo.name}: ${preparada.motivo}`],
+    )
+    if (!preparada.ok) return
+    const pronta = preparada.arquivo
     const nova: ImagemProjeto = {
       id: novoId(),
-      ...metadados(arquivo),
-      arquivo,
-      url: criarPrevia(arquivo),
+      ...metadados(pronta),
+      arquivo: pronta,
+      url: criarPrevia(pronta),
     }
     setDados((atual) => ({
       ...atual,
@@ -783,6 +845,11 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
 
   /** "Salvar rascunho" confere só o título; "Salvar" confere todas as abas e abre a primeira com erro. */
   async function salvar(modo: ModoSalvar) {
+    // As imagens escolhidas ainda estão sendo reduzidas: salvar agora as deixaria de fora.
+    if (preparando.current > 0) {
+      setAviso({ tipo: 'erro', mensagem: 'Aguarde: as imagens ainda estão sendo preparadas.', dados })
+      return
+    }
     if (modo === 'rascunho') {
       const errosDoRascunho = validarRascunho(dados)
       if (Object.keys(errosDoRascunho).length > 0) {

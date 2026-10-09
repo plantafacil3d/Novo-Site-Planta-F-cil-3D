@@ -11,10 +11,12 @@ type ProjetosDestaqueProps = {
   projetos: Projeto[]
   /** Muda as colunas quando a grade divide a tela com outra coisa (ex.: `lg:grid-cols-2`). */
   className?: string
+  /** Largura real da foto de cada card quando `className` muda as colunas (atributo `sizes`). */
+  imageSizes?: string
 }
 
 /** Grade de cards de projeto: 1 coluna no celular, 2 no tablet e 4 no desktop (padrão). */
-export function ProjetosDestaque({ projetos, className }: ProjetosDestaqueProps) {
+export function ProjetosDestaque({ projetos, className, imageSizes }: ProjetosDestaqueProps) {
   return (
     <ul className={cn('grid gap-6 sm:grid-cols-2 lg:grid-cols-4', className)}>
       {projetos.map((projeto) => {
@@ -27,6 +29,7 @@ export function ProjetosDestaque({ projetos, className }: ProjetosDestaqueProps)
               code={projeto.codigoYoutube}
               projectCode={projeto.codigoYoutube ?? projeto.codigo}
               image={projeto.imagem}
+              imageSizes={imageSizes}
               badge={projeto.selo}
               specs={especificacoesDoCard(projeto)}
               price={preco.atual}

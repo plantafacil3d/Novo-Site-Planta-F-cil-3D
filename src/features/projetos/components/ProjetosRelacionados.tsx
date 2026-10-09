@@ -8,6 +8,9 @@ import { exibirPreco, hrefProjeto } from '../rules'
 import type { Projeto } from '../types'
 import { especificacoesDoCard } from './especificacoes'
 
+/** Cada card do carrossel tem largura fixa: `w-72` (288px) e, a partir de 640px, `sm:w-80` (320px). */
+const SIZES_DO_CARROSSEL = '(min-width: 640px) 320px, 288px'
+
 /** Carrossel de projetos parecidos, com o mesmo card da home. */
 export function ProjetosRelacionados({ projetos }: { projetos: Projeto[] }) {
   if (projetos.length === 0) return null
@@ -28,6 +31,7 @@ export function ProjetosRelacionados({ projetos }: { projetos: Projeto[] }) {
               code={projeto.codigoYoutube}
               projectCode={projeto.codigoYoutube ?? projeto.codigo}
               image={projeto.imagem}
+              imageSizes={SIZES_DO_CARROSSEL}
               badge="Similar"
               specs={especificacoesDoCard(projeto)}
               price={preco.atual}
