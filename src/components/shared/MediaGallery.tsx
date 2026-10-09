@@ -23,6 +23,10 @@ type MediaGalleryProps = {
 // Quantas miniaturas aparecem; o resto fica atrás do "+N".
 const MAX_THUMBNAILS = 6
 
+// Largura real de cada miniatura: 4 por linha até 639px, 7 por linha até 1023px e, a partir daí,
+// 7 dentro da coluna de 568px (≈74px).
+const SIZES_DA_MINIATURA = '(min-width: 1024px) 74px, (min-width: 640px) 13vw, 23vw'
+
 /**
  * Galeria do topo da página: foto grande com setas, miniaturas, "+N" para ver todas em tela
  * cheia e botão de vídeo. A primeira foto carrega com prioridade (é a maior da página).
@@ -55,10 +59,11 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
           src={current.src}
           alt={current.alt}
           fill
-          priority={index === 0}
-          // Sem otimização: a foto já vem pronta do Storage, e passar pelo proxy de resize do
-          // Next a cada troca (busca remota + processamento) é o que travava a navegação nas setas.
-          unoptimized
+          // A primeira foto é a maior da página (LCP): sem carregamento adiado e com pré-carga no <head>.
+          preload={index === 0}
+          // Largura real da foto: a coluna inteira menos as margens (2rem) até 1023px; a partir daí
+          // é a metade do container de 1200px (568px). Sem isto o Next supõe 100vw e entrega a maior.
+          sizes="(min-width: 1024px) 568px, calc(100vw - 2rem)"
           className="object-cover"
         />
 
@@ -135,7 +140,7 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
                 src={image.src}
                 alt=""
                 fill
-                sizes="(min-width: 640px) 8vw, 25vw"
+                sizes={SIZES_DA_MINIATURA}
                 className="object-cover transition-transform duration-250 ease-standard group-hover:scale-105"
               />
             </button>
@@ -154,7 +159,7 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
                 src={firstHidden.src}
                 alt=""
                 fill
-                sizes="(min-width: 640px) 8vw, 25vw"
+                sizes={SIZES_DA_MINIATURA}
                 className="object-cover transition-transform duration-250 ease-standard group-hover:scale-105"
               />
               <span className="absolute inset-0 flex items-center justify-center bg-inverse/70 transition-colors duration-150 ease-standard group-hover:bg-inverse/60">
