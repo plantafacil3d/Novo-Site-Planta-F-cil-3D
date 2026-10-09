@@ -12,7 +12,8 @@ import { ProjetoView } from '@/views/ProjetoView'
 type ProjetoPageProps = { params: Promise<{ slug: string }> }
 
 // Rede de segurança, igual à da home: sem prazo, a página é gerada só no build e ficaria com as
-// imagens antigas se o banco mudar fora do painel. O painel também renova na hora (invalidarCatalogo).
+// imagens antigas se o banco mudar fora do painel. O painel também renova na hora: `invalidarCatalogo`
+// derruba a etiqueta usada por `buscarProjeto`, que está guardada nesta página.
 export const revalidate = 600
 
 export async function generateStaticParams() {

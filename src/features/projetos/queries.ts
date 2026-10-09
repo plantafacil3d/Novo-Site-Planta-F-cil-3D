@@ -28,14 +28,29 @@ const buscarLimitesEmCache = unstable_cache(
   { tags: [TAG_CATALOGO], revalidate: SEGUNDOS_DE_CACHE },
 )
 
+// A página de cada projeto é estática (`generateStaticParams`) e guarda as etiquetas dos dados que
+// usou. Por isso `buscarProjeto` e os relacionados passam pelo cache com a etiqueta do catálogo: um
+// só `revalidateTag` renova todas as páginas de projeto (inclusive os "relacionados" de cada uma e a
+// página de quem saiu do ar). `revalidatePath('/projetos/[slug]', 'page')` NÃO faz isso: no Next
+// instalado ele não renova as páginas já geradas (testado com `next start`).
+const buscarProjetoEmCache = unstable_cache(
+  (slug: string) => projetoRepository.buscarPorSlug(slug),
+  ['projeto-por-slug'],
+  { tags: [TAG_CATALOGO], revalidate: SEGUNDOS_DE_CACHE },
+)
+
+const listarRelacionadosEmCache = unstable_cache(
+  (id: string, categoria: string) => projetoRepository.listarRelacionados(id, categoria),
+  ['projetos-relacionados'],
+  { tags: [TAG_CATALOGO], revalidate: SEGUNDOS_DE_CACHE },
+)
+
 /** Chamar depois de criar, editar, publicar, despublicar ou excluir projetos (Server Actions). */
 export function invalidarCatalogo() {
   revalidateTag(TAG_CATALOGO, { expire: 0 })
-  // A vitrine da home é uma página estática; sem isto ela só atualizaria no prazo do `revalidate`.
+  // A vitrine da home é uma página estática que não usa as consultas acima; sem isto ela só
+  // atualizaria no prazo do `revalidate`.
   revalidatePath('/')
-  // A página de cada projeto também é estática (`generateStaticParams`): sem isto ela guarda os
-  // endereços das imagens de antes e, depois de trocar as imagens, mostra as antigas (já apagadas).
-  revalidatePath('/projetos/[slug]', 'page')
 }
 
 /** Uma página do catálogo para os parâmetros da URL (já validados por `lerParametrosListagem`). */
@@ -64,7 +79,7 @@ export function listarLimitesDeFiltro() {
  * `null` quando o slug não existe (a rota responde 404). Com `cache`, a página e o
  * `generateMetadata` compartilham uma única busca por requisição.
  */
-export const buscarProjeto = cache((slug: string) => projetoRepository.buscarPorSlug(slug))
+export const buscarProjeto = cache((slug: string) => buscarProjetoEmCache(slug))
 
 export function listarSlugsProjetos() {
   return projetoRepository.listarSlugs()
@@ -72,5 +87,5 @@ export function listarSlugsProjetos() {
 
 /** Recebe o projeto já carregado (não busca de novo id/categoria, que a página já tem). */
 export function listarProjetosRelacionados(projeto: ProjetoDetalhe) {
-  return projetoRepository.listarRelacionados(projeto.id, projeto.categoriaRotulo)
+  return listarRelacionadosEmCache(projeto.id, projeto.categoriaRotulo)
 }
