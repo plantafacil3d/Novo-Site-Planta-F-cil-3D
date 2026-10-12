@@ -61,6 +61,11 @@ export interface ProjetoAdminRepository {
    */
   listarArquivosDeProjetos(ids: string[]): Promise<ArquivoDeProjeto[]>
   registrarArquivo(arquivo: NovoArquivoProjeto): Promise<void>
+  /** Muda só a posição (`ordem`) de arquivos já gravados do projeto; ignora ids de outro projeto. */
+  atualizarOrdemDosArquivos(
+    projetoId: string,
+    itens: { id: string; ordem: number }[],
+  ): Promise<void>
   removerArquivos(ids: string[]): Promise<void>
   /** `null` se o projeto não existe. */
   lerParaPublicar(id: string): Promise<EstadoParaPublicar | null>

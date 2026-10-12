@@ -80,14 +80,12 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
           className="object-cover"
         />
 
-        <Button
-          variant="primary"
-          iconLeft="maximize"
+        <IconButton
+          icon="maximize"
+          label="Ver em tela cheia"
           onClick={() => abrirTelaCheia(index)}
           className="absolute top-3 left-3"
-        >
-          Ver em tela cheia
-        </Button>
+        />
 
         {video && (
           <Button

@@ -263,3 +263,8 @@ Formato: `AAAA-MM-DD · o quê · por quê`
 - Novos componentes: `Table` e `SidebarNav`. Variantes novas do `Badge` (`success`, `draft`), prop `hideLabel` no `Checkbox` e `defaultValue` no `SearchBar`. Ícones novos: copy, dashboard, file-pen, folder, chart, log-out.
 - Nenhum token novo: os tokens de badge e de notificação que já existiam cobriram o painel.
 - Layout do painel separado do site (route groups `(site)` e `admin`), porque o painel usa menu lateral e não tem cabeçalho nem rodapé públicos.
+
+## 2026-10-12 (planta humanizada no celular)
+
+- `GaleriaPlantaHumanizada`: no celular a planta já aparece girada 90° e "em pé", ocupando a largura toda, para não obrigar a abrir a tela cheia (a planta ficava pequena na caixa 4:3). A caixa usa a proporção real da imagem; a partir de `lg` volta à caixa 4:3 sem giro. Botão de tela cheia e setas continuam.
+- `MediaGallery`: o botão "Ver em tela cheia" (preto, com texto) virou só o ícone (`IconButton`), igual ao da planta humanizada. Por quê: pedido do usuário, o texto poluía a foto; agora as duas galerias usam o mesmo botão discreto.

@@ -81,6 +81,8 @@ export function EtapaImagens({ form }: { form: FormularioProjetoApi }) {
           imagens={dados.imagens}
           rotuloDeRemover={(_imagem, indice) => `Remover a imagem ${indice + 1}`}
           aoRemover={(id) => form.removerImagem('imagens', id)}
+          aoReordenar={form.reordenarImagens}
+          aoMoverParaInicio={form.moverImagensParaInicio}
         />
       </Grupo>
     </PainelDaEtapa>

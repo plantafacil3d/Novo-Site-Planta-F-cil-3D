@@ -303,7 +303,12 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
           continue
         }
         const pronta = preparada.arquivo
-        aceitas.push({ id: novoId(), ...metadados(pronta), arquivo: pronta, url: criarPrevia(pronta) })
+        aceitas.push({
+          id: novoId(),
+          ...metadados(pronta),
+          arquivo: pronta,
+          url: criarPrevia(pronta),
+        })
       }
     })
     guardarAvisosDeArquivo(chave, recusas)
@@ -330,6 +335,33 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     }
     guardarAvisosDeArquivo(chave, [])
     tocar(chave)
+  }
+
+  /** Muda a ordem das imagens do projeto: a que saiu de `idOrigem` passa a ocupar o lugar de `idDestino`. */
+  function reordenarImagens(idOrigem: string, idDestino: string) {
+    if (idOrigem === idDestino) return
+    setDados((atual) => {
+      const imagens = [...atual.imagens]
+      const origem = imagens.findIndex((imagem) => imagem.id === idOrigem)
+      const destino = imagens.findIndex((imagem) => imagem.id === idDestino)
+      if (origem === -1 || destino === -1) return atual
+      const [movida] = imagens.splice(origem, 1)
+      if (!movida) return atual
+      imagens.splice(destino, 0, movida)
+      return { ...atual, imagens }
+    })
+  }
+
+  /** As imagens de `ids` vão para o início, na ordem de `ids`; as demais seguem atrás, como estavam. */
+  function moverImagensParaInicio(ids: string[]) {
+    setDados((atual) => {
+      const porId = new Map(atual.imagens.map((imagem) => [imagem.id, imagem]))
+      const escolhidas = ids.flatMap((id) => porId.get(id) ?? [])
+      if (escolhidas.length === 0) return atual
+      const escolhidasIds = new Set(escolhidas.map((imagem) => imagem.id))
+      const resto = atual.imagens.filter((imagem) => !escolhidasIds.has(imagem.id))
+      return { ...atual, imagens: [...escolhidas, ...resto] }
+    })
   }
 
   /** Arquivos da entrega (PDF, ZIP, RAR): a soma deles não pode passar de 20 MB. */
@@ -847,7 +879,11 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
   async function salvar(modo: ModoSalvar) {
     // As imagens escolhidas ainda estão sendo reduzidas: salvar agora as deixaria de fora.
     if (preparando.current > 0) {
-      setAviso({ tipo: 'erro', mensagem: 'Aguarde: as imagens ainda estão sendo preparadas.', dados })
+      setAviso({
+        tipo: 'erro',
+        mensagem: 'Aguarde: as imagens ainda estão sendo preparadas.',
+        dados,
+      })
       return
     }
     if (modo === 'rascunho') {
@@ -896,6 +932,8 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     avisosDeArquivo,
     enviarImagens,
     removerImagem,
+    reordenarImagens,
+    moverImagensParaInicio,
     adicionarPavimento,
     renomearPavimento,
     duplicarPavimento,

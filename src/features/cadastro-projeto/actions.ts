@@ -280,7 +280,8 @@ async function criarComSlugLivre(cadastro: CadastroGravavel): Promise<ProjetoCri
 
 /**
  * Deixa os arquivos gravados iguais aos do formulário: o que o usuário tirou da tela sai do banco e
- * do Storage. O que o formulário ainda não enviou não conta aqui (só entra em `confirmarEnvio`).
+ * do Storage, e o que mudou de posição ganha a nova `ordem`. O que o formulário ainda não enviou não
+ * conta aqui (só entra em `confirmarEnvio`).
  */
 async function sincronizarArquivos(projetoId: string, payload: PayloadProjeto) {
   const gravados = await projetoAdminRepository.listarArquivos(projetoId)
@@ -310,6 +311,16 @@ async function sincronizarArquivos(projetoId: string, payload: PayloadProjeto) {
   } catch {
     // A linha já saiu do banco; se o arquivo ficar no Storage, é só espaço ocupado (limpeza futura).
   }
+
+  // Quem ficou pode ter mudado de lugar na lista (ex.: foto arrastada na galeria): grava a nova posição.
+  const idsRemovidos = new Set(sobrando.map((gravado) => gravado.id))
+  const ordemGravada = new Map(gravados.map((gravado) => [gravado.id, gravado.ordem]))
+  const mudaram = doFormulario.flatMap(({ arquivo, ordem }) =>
+    arquivo.salvo && !idsRemovidos.has(arquivo.id) && ordemGravada.get(arquivo.id) !== ordem
+      ? [{ id: arquivo.id, ordem }]
+      : [],
+  )
+  await projetoAdminRepository.atualizarOrdemDosArquivos(projetoId, mudaram)
 }
 
 /**

@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useState, type TouchEvent } from 'react'
+import { useState, type CSSProperties, type TouchEvent } from 'react'
 
 import { Section } from '@/components/layout/Section'
 import { Tabs } from '@/components/navigation/Tabs'
@@ -58,6 +58,8 @@ function PainelDoPavimento({
   aoAmpliar,
 }: PainelDoPavimentoProps) {
   const [inicioDoToque, setInicioDoToque] = useState<number | null>(null)
+  // Proporção real da imagem (vem do `onLoad`); 4:3 enquanto não carrega.
+  const [proporcao, setProporcao] = useState({ largura: 4, altura: 3 })
 
   function aoTocarInicio(evento: TouchEvent) {
     const toque = evento.touches[0]
@@ -76,18 +78,36 @@ function PainelDoPavimento({
   return (
     <div className={cn('grid gap-6', reservarPainel && 'lg:grid-cols-[1fr_20rem]')}>
       <div>
+        {/* No celular a caixa é "em pé" e a planta fica girada 90° dentro dela (como no visualizador
+            em tela cheia), ocupando a largura toda sem precisar ampliar. A caixa copia a proporção
+            real da imagem, girada; no desktop (lg) volta à caixa 4:3 sem giro. */}
         <div
-          className="relative aspect-4/3 overflow-hidden rounded-lg bg-subtle"
+          className="relative aspect-(--proporcao-em-pe) overflow-hidden rounded-lg bg-subtle lg:aspect-4/3"
+          style={
+            {
+              '--proporcao-em-pe': `${proporcao.altura} / ${proporcao.largura}`,
+              '--proporcao-deitada': `${proporcao.largura} / ${proporcao.altura}`,
+              '--fator-deitada': proporcao.largura / proporcao.altura,
+            } as CSSProperties
+          }
           onTouchStart={aoTocarInicio}
           onTouchEnd={aoTocarFim}
         >
-          <Image
-            src={pavimento.imagem.src}
-            alt={pavimento.imagem.alt}
-            fill
-            unoptimized
-            className="object-contain"
-          />
+          <div className="absolute top-1/2 left-1/2 aspect-(--proporcao-deitada) w-[calc(100%*var(--fator-deitada))] -translate-1/2 rotate-90 lg:inset-0 lg:aspect-auto lg:w-auto lg:translate-none lg:rotate-0">
+            <Image
+              src={pavimento.imagem.src}
+              alt={pavimento.imagem.alt}
+              fill
+              unoptimized
+              className="object-contain"
+              onLoad={(evento) => {
+                const { naturalWidth, naturalHeight } = evento.currentTarget
+                if (naturalWidth > 0 && naturalHeight > 0) {
+                  setProporcao({ largura: naturalWidth, altura: naturalHeight })
+                }
+              }}
+            />
+          </div>
           <IconButton
             icon="maximize"
             label={`Ver em tela cheia: ${pavimento.nome}`}

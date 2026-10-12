@@ -32,7 +32,8 @@ import type { ProjetoAdminRepository } from './ProjetoAdminRepository'
 const POR_PAGINA_MAXIMO = 100
 
 /** Só as colunas que a tabela usa; nada de `select('*')`. */
-const COLUNAS = 'id, codigo, codigo_youtube, slug, titulo, categoria, preco_centavos, status, criado_em'
+const COLUNAS =
+  'id, codigo, codigo_youtube, slug, titulo, categoria, preco_centavos, status, criado_em'
 
 type Linha = {
   id: string
@@ -140,6 +141,7 @@ type LinhaDeArquivo = {
   pavimento_id: string | null
   caminho: string
   tamanho_bytes: number
+  ordem: number
 }
 
 /** Só o que a limpeza do Storage precisa saber de um arquivo, com o projeto a que ele pertence. */
@@ -633,7 +635,7 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
     const supabase = await criarClienteServidor()
     const { data, error } = await supabase
       .from('projeto_arquivos')
-      .select('id, papel, complementar_id, pavimento_id, caminho, tamanho_bytes')
+      .select('id, papel, complementar_id, pavimento_id, caminho, tamanho_bytes, ordem')
       .eq('projeto_id', projetoId)
       .overrideTypes<LinhaDeArquivo[], { merge: false }>()
     if (error) throw traduzir(error)
@@ -644,7 +646,25 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
       pavimentoId: linha.pavimento_id,
       caminho: linha.caminho,
       tamanhoBytes: linha.tamanho_bytes,
+      ordem: linha.ordem,
     }))
+  }
+
+  async atualizarOrdemDosArquivos(
+    projetoId: string,
+    itens: { id: string; ordem: number }[],
+  ): Promise<void> {
+    await Promise.all(
+      itens.map(async ({ id, ordem }) => {
+        const supabase = await criarClienteServidor()
+        const { error } = await supabase
+          .from('projeto_arquivos')
+          .update({ ordem })
+          .eq('id', id)
+          .eq('projeto_id', projetoId)
+        if (error) throw traduzir(error)
+      }),
+    )
   }
 
   async listarArquivosDeProjetos(ids: string[]): Promise<ArquivoDeProjeto[]> {

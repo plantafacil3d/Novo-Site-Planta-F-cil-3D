@@ -279,6 +279,7 @@ export type ArquivoGravado = {
   pavimentoId: string | null
   caminho: string
   tamanhoBytes: number
+  ordem: number
 }
 
 export type NovoArquivoProjeto = {

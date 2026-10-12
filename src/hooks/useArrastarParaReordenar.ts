@@ -26,6 +26,8 @@ export function useArrastarParaReordenar({ aoReordenar }: Opcoes) {
       draggable: true,
       onDragStart: (evento: DragEvent) => {
         evento.dataTransfer.effectAllowed = 'move'
+        // O Firefox só inicia o arraste se houver algum dado associado.
+        evento.dataTransfer.setData('text/plain', id)
         setArrastando(id)
       },
       onDragEnd: () => setArrastando(null),
