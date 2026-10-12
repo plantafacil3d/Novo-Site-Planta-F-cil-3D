@@ -1,6 +1,7 @@
 import { CTABanner } from '@/components/shared/CTABanner'
 import { FeatureItem } from '@/components/shared/FeatureItem'
 import { Section } from '@/components/layout/Section'
+import { Button } from '@/components/ui/Button'
 import type { IconName } from '@/components/ui/Icon'
 import {
   CategoriasGrid,
@@ -65,6 +66,11 @@ export async function HomeView() {
           action={{ label: 'Ver todos os projetos', href: '/projetos' }}
         >
           <ProjetosDestaque projetos={destaques} />
+          <div className="mt-8 flex justify-center">
+            <Button variant="secondary" href="/projetos" iconRight="arrow-right">
+              Ver todos os projetos
+            </Button>
+          </div>
         </Section>
       )}
 

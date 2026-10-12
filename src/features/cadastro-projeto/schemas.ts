@@ -305,6 +305,7 @@ const schemaComplementar = z
       .refine(semSimbolos, SEM_SIMBOLOS),
     entrega: z.enum(['link', 'pdf'], 'Escolha como o cliente recebe.'),
     link: linkOpcional,
+    checkoutUrl: linkHttpsOpcional,
     pdf: z.object(dadosDoArquivo).nullable(),
   })
   .superRefine((complementar, ctx) => {
@@ -467,6 +468,7 @@ const schemaPayload = z
         descricao: textoLivre(LIMITES.complementarDescricaoMax),
         entrega: z.enum(['', 'link', 'pdf'], 'Escolha como o cliente recebe.'),
         link: linkHttpsOpcional,
+        checkoutUrl: linkHttpsOpcional,
         pdf: arquivoDoPayload.nullable(),
       }),
     ),

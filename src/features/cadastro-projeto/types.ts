@@ -64,6 +64,8 @@ export type ComplementarProjeto = {
   descricao: string
   entrega: EntregaComplementar
   link: string
+  /** Link de venda (Hotmart ou outra plataforma), opcional; não é o link de entrega. */
+  checkoutUrl: string
   pdf: AnexoProjeto | null
 }
 
@@ -205,6 +207,7 @@ export type ComplementarGravavel = {
   descricao: string | null
   entrega: 'link' | 'pdf' | null
   link: string | null
+  checkoutUrl: string | null
   ordem: number
 }
 

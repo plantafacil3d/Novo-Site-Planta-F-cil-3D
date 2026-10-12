@@ -6,6 +6,7 @@ import { VideoBanner } from '@/components/shared/VideoBanner'
 import { Breadcrumb } from '@/components/navigation/Breadcrumb'
 import {
   BarraCompraMobile,
+  ComplementaresDoProjeto,
   EspecificacoesTecnicas,
   GaleriaCompleta,
   GaleriaPlantaHumanizada,
@@ -78,6 +79,7 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
       <GaleriaPlantaHumanizada pavimentos={projeto.plantaHumanizada} />
       <SobreProjeto sobre={projeto.sobre} imagem={projeto.imagem} />
       <IncluidoNoProjeto itens={projeto.itensInclusos} />
+      <ComplementaresDoProjeto complementares={projeto.complementares} />
       <GaleriaCompleta itens={projeto.galeria} />
       {projeto.video && (
         <VideoBanner

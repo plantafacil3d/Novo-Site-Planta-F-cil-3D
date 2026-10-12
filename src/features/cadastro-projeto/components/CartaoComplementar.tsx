@@ -16,7 +16,7 @@ import { ARQUIVOS_DE_PDF, LIMITES, filtrarPreco } from '../rules'
 import type { ComplementarProjeto, EntregaComplementar } from '../types'
 import { ListaDeAnexos } from './ListaDeAnexos'
 
-const CAMPOS = ['titulo', 'valor', 'descricao', 'entrega', 'link', 'pdf'] as const
+const CAMPOS = ['titulo', 'valor', 'descricao', 'checkoutUrl', 'entrega', 'link', 'pdf'] as const
 
 type CartaoComplementarProps = {
   form: FormularioProjetoApi
@@ -114,6 +114,25 @@ export function CartaoComplementar({ form, complementar, indice }: CartaoComplem
             maxLength={LIMITES.complementarDescricaoMax}
             onChange={(evento) =>
               form.atualizarComplementar(complementar.id, { descricao: evento.target.value })
+            }
+          />
+        </Field>
+
+        <Field
+          label="Link de checkout"
+          htmlFor={campo(chave('checkoutUrl')).id}
+          error={erroDe(chave('checkoutUrl'))}
+          hint="Opcional. Link de checkout externo (Hotmart ou outra plataforma) para onde o botão 'Comprar' leva o cliente. Sem ele, o botão não aparece."
+        >
+          <Input
+            {...campo(chave('checkoutUrl'))}
+            value={complementar.checkoutUrl}
+            type="url"
+            inputMode="url"
+            maxLength={LIMITES.linkMax}
+            placeholder="https://"
+            onChange={(evento) =>
+              form.atualizarComplementar(complementar.id, { checkoutUrl: evento.target.value })
             }
           />
         </Field>

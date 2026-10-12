@@ -97,6 +97,17 @@ export type ConteudoSobre = {
   aplicacoes: string
 }
 
+/** Cadastro: aba "Complementares". Só o que a página mostra; o link/PDF de entrega fica de fora. */
+export type ComplementarDoProjeto = {
+  id: string
+  titulo: string
+  descricao: string
+  /** `null` quando o complementar foi cadastrado sem valor. */
+  precoCentavos: number | null
+  /** Checkout externo (Hotmart ou outra plataforma); vazio = sem botão de compra. */
+  checkoutUrl: string
+}
+
 /** Página completa de um projeto: o `Projeto` do card mais tudo que só a página mostra. */
 export type ProjetoDetalhe = Projeto & {
   /** Categoria como cadastrada (texto puro), usada só para exibir no breadcrumb. */
@@ -115,6 +126,8 @@ export type ProjetoDetalhe = Projeto & {
   video?: VideoProjeto
   /** Cadastro: coluna `itens` (aba 4, "Itens Incluídos"). Alimenta a seção "O que está incluso". */
   itensInclusos: string[]
+  /** Lista vazia = a seção "Projetos complementares" não aparece na página. */
+  complementares: ComplementarDoProjeto[]
   perfil: PerfilDoProjeto
 }
 

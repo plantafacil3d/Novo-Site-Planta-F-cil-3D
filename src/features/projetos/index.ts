@@ -1,5 +1,6 @@
 export { BarraCompraMobile } from './components/BarraCompraMobile'
 export { CategoriasGrid } from './components/CategoriasGrid'
+export { ComplementaresDoProjeto } from './components/ComplementaresDoProjeto'
 export { ComplementaresGrid } from './components/ComplementaresGrid'
 export { EspecificacoesTecnicas } from './components/EspecificacoesTecnicas'
 export { GaleriaCompleta } from './components/GaleriaCompleta'
@@ -56,6 +57,7 @@ export type {
   Categoria,
   CategoriaSlug,
   Complementar,
+  ComplementarDoProjeto,
   ConsultaProjetos,
   ConteudoSobre,
   Diferencial,
