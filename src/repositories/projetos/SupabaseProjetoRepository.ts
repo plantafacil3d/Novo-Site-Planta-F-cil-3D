@@ -5,6 +5,7 @@ import {
   formatarFamiliaIndicada,
   type Categoria,
   type Complementar,
+  type ComplementarDoProjeto,
   type ConsultaProjetos,
   type Diferencial,
   type ItemGaleria,
@@ -75,7 +76,9 @@ const COLUNAS_DETALHE =
   'checkout_url, resumo, descricao, ambientes, indicado_para, aplicacoes, ' +
   'perfil_terreno, familia_capacidade, itens, video_url, ' +
   'projeto_arquivos (caminho, papel, ordem, pavimento_id), ' +
-  'projeto_pavimentos (id, nome, ordem, pavimento_itens (id, nome, metragem_m2, numero_bolinha, ordem))'
+  'projeto_pavimentos (id, nome, ordem, pavimento_itens (id, nome, metragem_m2, numero_bolinha, ordem)), ' +
+  // Só as colunas liberadas ao público (`entrega` e `link` são conteúdo pago).
+  'projeto_complementares (id, titulo, valor_centavos, descricao, checkout_url, ordem)'
 
 type LinhaLimite = {
   preco_efetivo_centavos: number
@@ -110,9 +113,19 @@ type LinhaPavimento = {
   }[]
 }
 
+type LinhaComplementar = {
+  id: string
+  titulo: string | null
+  valor_centavos: number | null
+  descricao: string | null
+  checkout_url: string | null
+  ordem: number
+}
+
 type LinhaDetalhe = Omit<LinhaResumo, 'projeto_arquivos'> & {
   projeto_arquivos: LinhaArquivoDetalhe[]
   projeto_pavimentos: LinhaPavimento[]
+  projeto_complementares: LinhaComplementar[]
   checkout_url: string | null
   resumo: string | null
   descricao: string | null
@@ -278,6 +291,18 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
     )
   ).filter((pavimento): pavimento is PavimentoPublico => pavimento !== null)
 
+  // Complementar sem título é rascunho do cadastro: não tem o que mostrar.
+  const complementares: ComplementarDoProjeto[] = linha.projeto_complementares
+    .filter((complementar) => Boolean(complementar.titulo))
+    .sort((a, b) => a.ordem - b.ordem)
+    .map((complementar) => ({
+      id: complementar.id,
+      titulo: complementar.titulo ?? '',
+      descricao: complementar.descricao ?? '',
+      precoCentavos: complementar.valor_centavos,
+      checkoutUrl: complementar.checkout_url ?? '',
+    }))
+
   return {
     ...base,
     categoriaRotulo: linha.categoria ?? '',
@@ -293,6 +318,7 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
     plantaHumanizada,
     video: linha.video_url ? { src: linha.video_url } : undefined,
     itensInclusos: linha.itens,
+    complementares,
     perfil: {
       terrenoMinimo: `${linha.largura_m ?? 0}x${linha.profundidade_m ?? 0}m`,
       perfilDoTerreno: linha.perfil_terreno ?? '',

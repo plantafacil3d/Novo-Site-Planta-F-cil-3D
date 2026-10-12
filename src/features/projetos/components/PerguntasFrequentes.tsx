@@ -18,8 +18,8 @@ type PerguntasFrequentesProps = {
 
 /**
  * Perguntas frequentes em duas colunas (uma no celular), cada pergunta abre e fecha. A primeira
- * resposta resume, numa frase, os itens inclusos do cadastro; sem itens, usa o texto padrão. O
- * último item, "Tem outra dúvida?", abre com o botão que chama no WhatsApp.
+ * resposta resume, numa frase, os itens inclusos do cadastro; sem itens, usa o texto padrão. Abaixo
+ * das perguntas, fora da sanfona, fica o convite "Tem outra dúvida?" com o botão do WhatsApp.
  */
 export function PerguntasFrequentes({ projeto, linkWhatsapp }: PerguntasFrequentesProps) {
   const { itensInclusos, larguraM, profundidadeM } = projeto
@@ -49,17 +49,6 @@ export function PerguntasFrequentes({ projeto, linkWhatsapp }: PerguntasFrequent
         ),
       }
     }),
-    {
-      title: 'Tem outra dúvida?',
-      content: (
-        <div className="flex flex-col items-start gap-3">
-          <p>Fale com a gente agora e a gente esclarece rapidinho.</p>
-          <Button variant="whatsapp" href={linkWhatsapp}>
-            Chamar no WhatsApp
-          </Button>
-        </div>
-      ),
-    },
   ]
   const metade = Math.ceil(itens.length / 2)
 
@@ -68,6 +57,15 @@ export function PerguntasFrequentes({ projeto, linkWhatsapp }: PerguntasFrequent
       <div className="grid items-start gap-3 lg:grid-cols-2 lg:gap-6">
         <Accordion items={itens.slice(0, metade)} />
         <Accordion items={itens.slice(metade)} />
+      </div>
+      <div className="mt-6 flex flex-col items-start gap-4 rounded-lg bg-subtle p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="font-semibold">Tem outra dúvida?</p>
+          <p className="text-fg-muted">Fale com a gente agora e a gente esclarece rapidinho.</p>
+        </div>
+        <Button variant="whatsapp" href={linkWhatsapp}>
+          Chamar no WhatsApp
+        </Button>
       </div>
     </Section>
   )
