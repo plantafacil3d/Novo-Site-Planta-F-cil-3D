@@ -300,6 +300,10 @@ Lista com marcador de check: círculo `--color-accent` (só preenchimento) com o
 
 Injeta dados estruturados (schema.org) para o Google. Escapa o `<` para o conteúdo nunca fechar a tag `<script>`. É o único uso permitido de `dangerouslySetInnerHTML` no projeto.
 
+### ShareButton
+
+`'use client'`. Botão pequeno só com ícone de compartilhar (`IconButton` `quiet`, 44px de área de toque). Props: `url` (endereço completo), `title`, `label` (nome acessível, ex.: "Compartilhar Casa Térrea Moderna"). Com menu de compartilhar do aparelho (celular), abre o menu nativo (`navigator.share`); sem ele (computador), copia o link e troca o ícone por um check por 2 segundos, avisando "Link copiado" a leitores de tela (`role="status"`). Usado na linha do `Breadcrumb` da página do projeto, no canto direito. Sem token novo.
+
 ## Backlog (criar só quando uma tela pedir)
 
 Toast, chip selecionável (liga/desliga).

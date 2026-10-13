@@ -49,7 +49,7 @@ export const redesSociais = [
   {
     icone: 'facebook',
     label: 'Facebook',
-    href: 'https://www.facebook.com/people/Planta-F%C3%A1cil-3D/100063632335156/?locale=pt_BR',
+    href: 'https://www.facebook.com/profile.php?id=61594930243825&locale=pt_BR',
   },
 ] as const
 
