@@ -85,7 +85,8 @@ export const ARQUIVOS_DE_IMAGEM = {
 /**
  * Como as imagens públicas são reduzidas ANTES de ir ao Storage: lado maior máximo (px) e qualidade do
  * WebP (0 a 1). Fotos e plantas separadas: planta tem linhas finas e texto, e ainda recebe zoom na tela
- * cheia. Nunca amplia: imagem menor que o limite segue como está.
+ * cheia. Nunca amplia: imagem menor que o limite mantém as dimensões, mas JPG e PNG sempre viram WebP
+ * (só um WebP que já cabe no limite segue como está).
  * Os mesmos números estão em `scripts/reduzir-fotos-storage.mjs` (as fotos antigas): mudou aqui, mude lá.
  */
 export const REDUCAO_DE_IMAGEM = {

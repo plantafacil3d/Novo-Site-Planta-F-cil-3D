@@ -28,9 +28,11 @@ export function dimensoesReduzidas(largura: number, altura: number, ladoMaximo: 
 const nomeEmWebp = (nome: string) => `${nome.replace(/\.[^./]+$/, '') || 'imagem'}.webp`
 
 /**
- * Reduz a imagem ao limite e converte para WebP. Se ela já cabe no limite, devolve o MESMO arquivo, sem
- * recomprimir (nada de perda de qualidade à toa). A orientação da foto (EXIF) é respeitada, e o WebP
- * sai sem metadados. Se a conversão falhar, lança `AppError` com a explicação: o arquivo original NUNCA
+ * Converte a imagem para WebP e, se passar do limite, reduz o tamanho (sem ampliar nunca). JPG e PNG
+ * viram WebP MESMO quando já cabem no limite: o formato é que pesa (um JPG de 1,4 MB vira ~140 KB com
+ * as mesmas dimensões). Só um arquivo que JÁ é WebP e cabe no limite segue como está, sem recomprimir
+ * (nada de perda de qualidade à toa). A orientação da foto (EXIF) é respeitada, e o WebP sai sem
+ * metadados. Se a conversão falhar, lança `AppError` com a explicação: o arquivo original NUNCA
  * segue adiante no lugar do convertido.
  */
 export async function reduzirImagem(arquivo: File, { ladoMaximo, qualidade }: Opcoes): Promise<File> {
@@ -43,7 +45,7 @@ export async function reduzirImagem(arquivo: File, { ladoMaximo, qualidade }: Op
 
   try {
     const { largura, altura, reduzir } = dimensoesReduzidas(imagem.width, imagem.height, ladoMaximo)
-    if (!reduzir) return arquivo
+    if (!reduzir && arquivo.type === 'image/webp') return arquivo
 
     const canvas = document.createElement('canvas')
     canvas.width = largura
