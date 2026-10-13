@@ -35,7 +35,8 @@ type Gesto = {
 const PASSO_DE_ZOOM = 0.0015
 
 /**
- * Planta em tela cheia. No celular fica girada na horizontal (`rotate(90deg)`, sem depender da
+ * Planta em tela cheia, no mesmo visual do `Lightbox` (fundo escurecido e desfocado, sem caixa
+ * fixa). No celular fica girada na horizontal (`rotate(90deg)`, sem depender da
  * Screen Orientation API, inconsistente no Safari) e aceita zoom por pinça e arraste com o dedo;
  * sem zoom, arrastar na horizontal troca de pavimento. No desktop (a partir de `lg`), sem giro, e
  * o zoom vem do scroll do mouse, ancorado no ponteiro (o ponto sob o cursor fica fixo, então o
@@ -143,29 +144,35 @@ export function VisualizadorPlantaFullscreen({
   }
 
   return (
-    <Modal open={index !== null} onClose={onClose} label={label}>
+    <Modal open={index !== null} onClose={onClose} label={label} immersive>
       {current && index !== null && (
         <div
-          className="relative aspect-square w-full touch-none overflow-hidden bg-inverse-strong lg:aspect-video"
+          className="relative h-full touch-none overflow-hidden"
           onTouchStart={aoTocarInicio}
           onTouchMove={aoMoverToque}
           onTouchEnd={aoSoltarToque}
           onWheel={aoRolarMouse}
         >
-          <div className="absolute inset-0 rotate-90 lg:rotate-0">
+          {/* Mesmo visual do `Lightbox`: a planta ocupa a tela toda. No celular a caixa girada tem
+              largura e altura trocadas (100dvh × 100dvw) para, depois do giro, caber na tela em pé.
+              O recuo do lado "esquerdo" da caixa girada vira o topo da tela e reserva a faixa do
+              contador e do botão de fechar. */}
+          <div className="absolute top-1/2 left-1/2 h-[100dvw] w-[100dvh] -translate-1/2 rotate-90 lg:inset-0 lg:h-auto lg:w-auto lg:translate-none lg:rotate-0">
             <div
-              className="absolute inset-0"
+              className="absolute inset-0 py-4 pr-4 pl-16 lg:px-24 lg:pt-16 lg:pb-6"
               style={{
                 transform: `scale(${escala}) translate(${deslocamento.x}px, ${deslocamento.y}px)`,
               }}
             >
-              <Image
-                src={current.src}
-                alt={current.alt}
-                fill
-                unoptimized
-                className="object-contain"
-              />
+              <div className="relative size-full">
+                <Image
+                  src={current.src}
+                  alt={current.alt}
+                  fill
+                  unoptimized
+                  className="object-contain"
+                />
+              </div>
             </div>
           </div>
 
@@ -185,7 +192,7 @@ export function VisualizadorPlantaFullscreen({
               />
               <p
                 aria-live="polite"
-                className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-sm bg-inverse/70 px-2.5 py-1 text-xs font-medium text-fg-inverse"
+                className="absolute top-2 left-1/2 flex h-11 -translate-x-1/2 items-center rounded-sm bg-inverse/70 px-3 text-sm font-medium text-fg-inverse"
               >
                 {index + 1} de {total}
               </p>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
+import { cn } from '../ui/cn'
 import { IconButton } from '../ui/IconButton'
 
 type ShareButtonProps = {
@@ -16,8 +17,9 @@ type ShareButtonProps = {
 }
 
 /**
- * Botão pequeno só com ícone. Onde o aparelho tem menu de compartilhar (celular), abre esse menu;
- * nos demais (computador), copia o link e mostra um check por 2 segundos.
+ * Botão redondo com contorno e só ícone. Onde o aparelho tem menu de compartilhar (celular), abre
+ * esse menu; nos demais (computador), copia o link, troca o ícone por um check e mostra um
+ * balãozinho "Link copiado!" por 2 segundos.
  */
 export function ShareButton({ url, title, label, className }: ShareButtonProps) {
   const [copiado, setCopiado] = useState(false)
@@ -46,17 +48,32 @@ export function ShareButton({ url, title, label, className }: ShareButtonProps) 
   }
 
   return (
-    <>
+    <span className={cn('relative inline-flex', className)}>
       <IconButton
         icon={copiado ? 'check' : 'share'}
         label={copiado ? 'Link copiado' : label}
-        tone="quiet"
-        className={className}
+        tone="outline"
+        // Círculo de 32px; o `after` estica a área de toque para 44px sem aumentar o desenho.
+        className={cn(
+          'relative size-8 after:absolute after:-inset-1.5',
+          copiado && 'bg-tint text-primary hover:bg-tint',
+        )}
         onClick={compartilhar}
       />
+      {/* Balão só visual (o aviso para leitor de tela é o `role="status"` logo abaixo). */}
+      <span
+        aria-hidden="true"
+        className={cn(
+          'pointer-events-none absolute top-full right-0 z-10 mt-2 rounded-md bg-inverse px-3 py-1.5 text-xs font-medium whitespace-nowrap text-fg-inverse shadow-md',
+          'transition duration-150 ease-standard',
+          copiado ? 'translate-y-0 opacity-100' : '-translate-y-1 opacity-0',
+        )}
+      >
+        Link copiado!
+      </span>
       <span role="status" className="sr-only">
         {copiado ? 'Link copiado' : ''}
       </span>
-    </>
+    </span>
   )
 }

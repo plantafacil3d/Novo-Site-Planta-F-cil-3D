@@ -19,7 +19,7 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ### IconButton
 
 - **Propósito:** botão redondo só com ícone (setas de galeria e carrossel, fechar, play). `label` é obrigatório: vira o `aria-label`.
-- **Variantes:** `tone` `surface` (branco com sombra, padrão) e `inverse` (escuro translúcido, para cima de fotos) e `quiet` (sem fundo nem sombra, cinza; ação discreta de apoio em tabela, ex.: copiar mensagem de venda; ícone de 16px, área de toque continua 44px); `size` `md` (44px) e `lg` (64px, play do banner de vídeo).
+- **Variantes:** `tone` `surface` (branco com sombra, padrão) e `inverse` (escuro translúcido, para cima de fotos) e `quiet` (sem fundo nem sombra, cinza; ação discreta de apoio em tabela, ex.: copiar mensagem de venda; ícone de 16px, área de toque continua 44px) e `outline` (mesmo visual do `Button` `secondary`: borda `--color-border`, fundo `--color-surface`, hover `--color-subtle` — para ação isolada sobre fundo claro que não pode parecer "chapada", ex.: compartilhar; ícone de 16px como no `quiet`); `size` `md` (44px) e `lg` (64px, play do banner de vídeo).
 - **Estados:** repouso, hover, foco, disabled.
 - **Tokens:** `--color-surface`, `--color-inverse`, `--color-fg`, `--color-fg-muted`, `--color-subtle`, `--color-fg-inverse`, `--shadow-md`.
 
@@ -35,9 +35,10 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ### Modal
 
 - **Propósito:** janela por cima da página (fotos em tela cheia, vídeo, diálogos). `'use client'`, feita com `<dialog>` nativo: foco preso, Esc e clique no fundo fecham, botão "Fechar" embutido. O conteúdo só existe enquanto aberto (o vídeo para de tocar) e a página de trás não rola.
-- **Props:** `open`, `onClose`, `label` (nome acessível), `tone`, `className` (moldura interna).
+- **Props:** `open`, `onClose`, `label` (nome acessível), `tone`, `immersive`, `className` (moldura interna).
 - **`tone`:** `inverse` (padrão) é a moldura escura de foto e vídeo; `surface` é a clara, para diálogo de texto (nasceu com o `DialogoDeConfirmacao`). O botão "Fechar" acompanha o tom.
-- **Tokens:** `--color-overlay` (fundo), `--color-inverse-strong`, `--color-surface`, `--radius-lg`.
+- **`immersive`:** tela cheia sem moldura nem limite de largura; a página de trás fica escurecida e desfocada (`backdrop-blur-md`) e o conteúdo decide o próprio tamanho. Nasceu com o `Lightbox`. O clique no escuro em volta do conteúdo deve ser tratado por quem usa (a moldura cobre a tela toda).
+- **Tokens:** `--color-overlay` (fundo), `--color-overlay-strong` (fundo do `immersive`), `--color-inverse-strong`, `--color-surface`, `--radius-lg`.
 
 ### Accordion
 
@@ -278,7 +279,7 @@ Lista com marcador de check: círculo `--color-accent` (só preenchimento) com o
 
 ### Lightbox
 
-`'use client'`. Visualizador de fotos em tela cheia dentro de um `Modal`: setas Anterior/Próxima, teclas ← →, contador "3 de 21". Controlado por `index` (`null` = fechado).
+`'use client'`. Visualizador de fotos em tela cheia dentro de um `Modal` `immersive`: setas Anterior/Próxima, teclas ← →, contador "3 de 21" no topo. Controlado por `index` (`null` = fechado). Sem caixa de proporção fixa: cada foto cresce até encostar na altura ou na largura da tela, mantendo a proporção (foto em pé não fica mais espremida entre faixas pretas). Clicar no escuro em volta da foto fecha.
 
 ### MediaGallery
 
@@ -286,7 +287,7 @@ Lista com marcador de check: círculo `--color-accent` (só preenchimento) com o
 
 ### VisualizadorPlantaFullscreen
 
-- **Propósito:** planta humanizada em tela cheia, dentro de um `Modal` (`tone="inverse"`, implícito): setas Anterior/Próxima e contador "X de Y" com 2+ pavimentos (mesmo padrão do `Lightbox`, mas plantas costumam ser paisagem — não cabem retas no `Lightbox`, que é feito para fotos). Até `lg`, gira 90° (`rotate-90`, sem depender da Screen Orientation API, inconsistente no Safari) para aproveitar a tela do celular na vertical; a partir de `lg`, sem giro (`lg:aspect-video`).
+- **Propósito:** planta humanizada em tela cheia, dentro de um `Modal` `immersive` (mesmo visual do `Lightbox`: tela cheia, fundo escurecido e desfocado, contador "X de Y" no topo com 2+ pavimentos, setas Anterior/Próxima). Não usa o `Lightbox` em si porque a planta precisa de zoom e de giro no celular, que fotos não precisam. Até `lg`, gira 90° (`rotate-90`, sem depender da Screen Orientation API, inconsistente no Safari) numa caixa com largura e altura trocadas (`100dvh × 100dvw`) para ocupar a tela em pé; a partir de `lg`, sem giro.
 - **Zoom:** pinça no celular (arraste sem zoom troca de pavimento); no desktop, scroll do mouse, ancorado no ponteiro (o ponto sob o cursor fica fixo, o zoom cresce na direção do mouse). Sempre entre 1x e 4x, reinicia ao trocar de pavimento.
 - **Props:** `images`, `index` (`null` = fechado), `onIndexChange`, `onClose`, `label`.
 - **Usado em:** `GaleriaPlantaHumanizada` (feature `projetos`), acionado por um `IconButton` (ícone `maximize`, canto superior esquerdo da imagem) — não o `Button` com texto do `MediaGallery`: sobre a planta (fundo claro, poucos elementos), o botão preto sólido chamava mais atenção que a própria planta; o círculo branco discreto, no mesmo estilo das setas que já ficam sobre essa imagem, resolveu.
@@ -302,7 +303,7 @@ Injeta dados estruturados (schema.org) para o Google. Escapa o `<` para o conte�
 
 ### ShareButton
 
-`'use client'`. Botão pequeno só com ícone de compartilhar (`IconButton` `quiet`, 44px de área de toque). Props: `url` (endereço completo), `title`, `label` (nome acessível, ex.: "Compartilhar Casa Térrea Moderna"). Com menu de compartilhar do aparelho (celular), abre o menu nativo (`navigator.share`); sem ele (computador), copia o link e troca o ícone por um check por 2 segundos, avisando "Link copiado" a leitores de tela (`role="status"`). Usado na linha do `Breadcrumb` da página do projeto, no canto direito. Sem token novo.
+`'use client'`. Botão redondo só com ícone de compartilhar (`IconButton` `outline`, círculo de 32px com ícone de 16px, como o coração do card; a área de toque continua 44px, esticada por um `after:-inset-1.5` invisível). Props: `url` (endereço completo), `title`, `label` (nome acessível, ex.: "Compartilhar Casa Térrea Moderna"), `className` (posição, ex.: `ml-auto`). Com menu de compartilhar do aparelho (celular), abre o menu nativo (`navigator.share`); sem ele (computador), copia o link e, por 2 segundos: o ícone vira check, o botão ganha fundo `--color-tint` e ícone `--color-primary`, e um balão escuro "Link copiado!" (`--color-inverse`, `--shadow-md`) aparece logo abaixo; leitores de tela ouvem o mesmo aviso (`role="status"`). Usado na linha do código e das tags do `ProjetoHero`, no canto direito. Sem token novo (o balão é só deste botão; um toast global continua no backlog).
 
 ## Backlog (criar só quando uma tela pedir)
 

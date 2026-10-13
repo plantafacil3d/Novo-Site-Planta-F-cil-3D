@@ -15,6 +15,11 @@ type ModalProps = {
    * claro, para diálogos de texto.
    */
   tone?: 'inverse' | 'surface'
+  /**
+   * Tela cheia sem moldura: a janela ocupa a tela toda, com a página de trás escurecida e
+   * desfocada. Para visualizadores de foto, que decidem sozinhos o tamanho do conteúdo.
+   */
+  immersive?: boolean
   children: ReactNode
   className?: string
 }
@@ -23,7 +28,15 @@ type ModalProps = {
  * Janela por cima da página, feita com o `<dialog>` nativo: o foco fica preso dentro, Esc fecha
  * e o clique no fundo escuro também. O conteúdo só existe enquanto aberto (vídeo para de tocar).
  */
-export function Modal({ open, onClose, label, tone = 'inverse', children, className }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  label,
+  tone = 'inverse',
+  immersive = false,
+  children,
+  className,
+}: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -56,13 +69,23 @@ export function Modal({ open, onClose, label, tone = 'inverse', children, classN
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose()
       }}
-      className="m-auto max-h-dvh w-full max-w-5xl bg-transparent p-0 backdrop:bg-overlay"
+      className={cn(
+        'bg-transparent p-0',
+        immersive
+          ? 'm-0 h-dvh max-h-dvh w-dvw max-w-none backdrop:bg-overlay-strong backdrop:backdrop-blur-md'
+          : 'm-auto max-h-dvh w-full max-w-5xl backdrop:bg-overlay',
+      )}
     >
       {open && (
         <div
           className={cn(
-            'relative overflow-hidden rounded-lg',
-            tone === 'inverse' ? 'bg-inverse-strong' : 'bg-surface',
+            'relative',
+            immersive
+              ? 'h-full'
+              : cn(
+                  'overflow-hidden rounded-lg',
+                  tone === 'inverse' ? 'bg-inverse-strong' : 'bg-surface',
+                ),
             className,
           )}
         >

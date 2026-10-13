@@ -4,6 +4,14 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-10-13 (Lightbox sem caixa fixa, estilo Airbnb, com fundo escurecido e desfocado)
+
+- `Lightbox` deixou de usar a caixa de proporção fixa (4:3 / 16:9): cada foto cresce até encostar na altura ou na largura da tela, mantendo a proporção. Por quê: foto em pé aparecia pequena, espremida entre faixas pretas, mesmo com tela sobrando.
+- `Modal` ganhou a opção `immersive` (extensão compatível; os demais usos seguem idênticos): tela cheia sem moldura, com a página de trás escurecida e desfocada. Por quê: o usuário não quer fundo branco como o do Airbnb (cansa a vista) e prefere o fundo escuro com a página desfocada, para não tirar o foco da foto.
+- Token novo: `--color-overlay-strong` (`rgb(11 20 16 / 0.75)`), um tom acima do `--color-overlay`, porque o desfoque deixa o fundo mais claro e a foto precisa de contraste.
+- `VisualizadorPlantaFullscreen` (plantas) ganhou o mesmo visual (`Modal` `immersive`, sem caixa quadrada/16:9, contador no topo), mas continua um componente à parte: o `Lightbox` não tem zoom por scroll/pinça nem o giro de 90° no celular, funções que as plantas precisam e que o usuário pediu antes.
+- Contador "3 de 48" foi para o topo (alinhado ao botão de fechar). Vale para todos os usos do `Lightbox`: galeria do topo, `GaleriaCompleta` e mosaico do curso Unreal.
+
 ## 2026-09-28 (correção: texto traduzido parecia "selecionado" ao passar o mouse)
 
 - Usuário reportou que, com o site traduzido, passar o mouse por cima de um texto fazia ele parecer selecionado. Causa: o Google embrulha todo trecho traduzido num `<font>` e, ao passar o mouse por cima, aplica a classe `.goog-text-highlight` (o "grifado" que mostra o texto original) — já estava com fundo/borda/sombra zerados, mas faltava travar o próprio hover.

@@ -43,17 +43,30 @@ export function Lightbox({ images, index, onIndexChange, onClose, label }: Light
   }
 
   return (
-    <Modal open={index !== null} onClose={fechar} label={label}>
+    <Modal open={index !== null} onClose={fechar} label={label} immersive>
       {current && index !== null && (
-        <div className="relative" onKeyDown={handleKeyDown}>
-          <div className="relative aspect-4/3 md:aspect-video">
+        <div className="relative h-full" onKeyDown={handleKeyDown}>
+          {/* Sem caixa de proporção fixa: a foto cresce até encostar na altura ou na largura da tela,
+              mantendo a proporção original. Foto em pé usa a altura toda; foto deitada, a largura.
+              O recuo do topo reserva a faixa do contador e do botão de fechar. Clicar no escuro em
+              volta da foto fecha o visualizador. */}
+          <div
+            className="flex h-full items-center justify-center px-4 pt-16 pb-6 md:px-24"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) fechar()
+            }}
+          >
             <Image
               src={current.src}
               alt={current.alt}
-              fill
+              // Tamanho real vem do arquivo: `width`/`height` 0 só satisfazem o componente e o CSS
+              // (`w-auto h-auto`) deixa o navegador usar a proporção da própria foto.
+              width={0}
+              height={0}
+              sizes="100vw"
               // Sem otimização: evita o proxy de resize do Next a cada troca de foto (ver MediaGallery).
               unoptimized
-              className="object-contain"
+              className="h-auto max-h-full w-auto max-w-full rounded-lg object-contain"
             />
           </div>
 
@@ -91,7 +104,7 @@ export function Lightbox({ images, index, onIndexChange, onClose, label }: Light
 
           <p
             aria-live="polite"
-            className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-sm bg-inverse/70 px-2.5 py-1 text-xs font-medium text-fg-inverse"
+            className="absolute top-2 left-1/2 flex h-11 -translate-x-1/2 items-center rounded-sm bg-inverse/70 px-3 text-sm font-medium text-fg-inverse"
           >
             {index + 1} de {total}
           </p>

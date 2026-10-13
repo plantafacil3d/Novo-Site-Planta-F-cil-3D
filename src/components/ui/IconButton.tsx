@@ -13,6 +13,8 @@ const iconButtonStyles = cva(
         inverse: 'bg-inverse/70 text-fg-inverse hover:bg-inverse',
         // Discreto, sem fundo nem sombra: para ação de apoio dentro de tabela.
         quiet: 'text-fg-muted hover:bg-subtle hover:text-fg',
+        // Mesmo visual do `Button` `secondary` (borda cinza clara, fundo branco, hover cinza suave).
+        outline: 'border border-border bg-surface text-fg hover:bg-subtle',
       },
       size: {
         md: 'size-11',
@@ -41,7 +43,7 @@ export function IconButton({ icon, label, tone, size, className, ...props }: Ico
     >
       <Icon
         name={icon}
-        className={size === 'lg' ? 'size-7' : tone === 'quiet' ? 'size-4' : 'size-5'}
+        className={size === 'lg' ? 'size-7' : tone === 'quiet' || tone === 'outline' ? 'size-4' : 'size-5'}
       />
     </button>
   )

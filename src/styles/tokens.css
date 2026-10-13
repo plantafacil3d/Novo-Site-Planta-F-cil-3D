@@ -71,6 +71,7 @@
   --color-border-strong: var(--gray-300);
   --color-link: var(--blue-600);
   --color-overlay: rgb(11 20 16 / 0.55);
+  --color-overlay-strong: rgb(11 20 16 / 0.75);
   --color-bg-disabled: var(--gray-100);
   --color-fg-disabled: var(--gray-400);
 
