@@ -4,12 +4,23 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-10-13 (vídeo da galeria no mesmo visual do Lightbox)
+
+- Novo componente `VisualizadorDeVideo` (`shared/`): o vídeo do "Assistir vídeo" abre em `Modal` `immersive` (fundo escurecido e desfocado), com o botão de fechar fora de cima do vídeo e o player limpo, sem os controles do YouTube. Por quê: pedido do usuário, para o vídeo seguir o padrão dos visualizadores de foto.
+- `VideoBanner` ("Conheça o projeto em detalhes") passou a usar o mesmo `VisualizadorDeVideo`, no lugar do `Modal` com moldura. Por quê: pedido do usuário, para os dois botões de vídeo da página terem o mesmo visual.
+- `embedDeVideo` ganhou a opção `mute` (padrão `true` com `hideControls`, então o uso do curso Unreal não mudou). Por quê: o modo limpo mutava o vídeo porque autoplay sem clique só toca mudo; aqui o vídeo abre depois de um clique, então toca com som.
+
 ## 2026-10-13 (Lightbox sem caixa fixa, estilo Airbnb, com fundo escurecido e desfocado)
 
 - `Lightbox` deixou de usar a caixa de proporção fixa (4:3 / 16:9): cada foto cresce até encostar na altura ou na largura da tela, mantendo a proporção. Por quê: foto em pé aparecia pequena, espremida entre faixas pretas, mesmo com tela sobrando.
 - `Modal` ganhou a opção `immersive` (extensão compatível; os demais usos seguem idênticos): tela cheia sem moldura, com a página de trás escurecida e desfocada. Por quê: o usuário não quer fundo branco como o do Airbnb (cansa a vista) e prefere o fundo escuro com a página desfocada, para não tirar o foco da foto.
 - Token novo: `--color-overlay-strong` (`rgb(11 20 16 / 0.75)`), um tom acima do `--color-overlay`, porque o desfoque deixa o fundo mais claro e a foto precisa de contraste.
 - `VisualizadorPlantaFullscreen` (plantas) ganhou o mesmo visual (`Modal` `immersive`, sem caixa quadrada/16:9, contador no topo), mas continua um componente à parte: o `Lightbox` não tem zoom por scroll/pinça nem o giro de 90° no celular, funções que as plantas precisam e que o usuário pediu antes.
+- Novo componente `AreaComZoom` (`shared/`): zoom (pinça e scroll), arrastar com zoom e deslizar o dedo para trocar de foto, a pedido do usuário ("em todos os lightbox"). Por quê num componente só: `Lightbox` e `VisualizadorPlantaFullscreen` precisavam do mesmo comportamento, e a lógica de gestos que só existia nas plantas passou a viver em um único lugar (migrou de eventos de toque para Pointer Events, então mouse e dedo seguem o mesmo caminho).
+- Slide ao deslizar o dedo: a foto acompanha o dedo e, ao trocar, a atual sai deslizando e a nova entra pelo lado oposto (`AreaComZoom`, prop `entrada`). Tokens novos: `--animate-entrar-pela-direita` e `--animate-entrar-pela-esquerda` (250 ms, `--ease-standard`). Só a foto atual se move durante o arraste (a vizinha não é baixada antes da hora), por isso o lado de onde o dedo puxou fica com o fundo desfocado até a troca.
+- Novo componente `SetasDoVisualizador` (`shared/`): no celular as setas saem de cima da foto e ficam fixas na base da tela, juntas, como o contador e o "Fechar" no topo; a partir de `lg` voltam às laterais. Por quê: sobre a foto elas atrapalhavam a visão e pareciam se mexer junto com ela. Também tirou a cópia do mesmo trecho que existia no `Lightbox` e nas plantas.
+- `ShareButton` ganhou a variante `visualizador` (extensão compatível: o uso do topo da página não mudou) e o tipo `DadosDeCompartilhamento`; `Lightbox` e `VisualizadorPlantaFullscreen` ganharam a prop opcional `compartilhar`, que mostra o botão no canto inferior direito, a pedido do usuário. Por quê a variante: o botão padrão (32px, branco, balão abaixo) destoava dos controles escuros de 44px e o balão sairia da tela colado na base. Sem token novo. O espaço de baixo reservado para as setas também passa a valer quando só há o botão de compartilhar.
+- Plantas e fotos agora têm cantos arredondados (`rounded-lg`): a imagem usa seu tamanho real em vez de `fill`, o que permite arredondar a própria foto.
 - Contador "3 de 48" foi para o topo (alinhado ao botão de fechar). Vale para todos os usos do `Lightbox`: galeria do topo, `GaleriaCompleta` e mosaico do curso Unreal.
 
 ## 2026-09-28 (correção: texto traduzido parecia "selecionado" ao passar o mouse)

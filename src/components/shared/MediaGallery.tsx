@@ -6,9 +6,9 @@ import { useState } from 'react'
 import { Button } from '../ui/Button'
 import { cn } from '../ui/cn'
 import { IconButton } from '../ui/IconButton'
-import { Modal } from '../ui/Modal'
 import { Lightbox } from './Lightbox'
-import { embedDeVideo } from './videoEmbed'
+import type { DadosDeCompartilhamento } from './ShareButton'
+import { VisualizadorDeVideo } from './VisualizadorDeVideo'
 
 type Media = { src: string; alt: string }
 
@@ -18,6 +18,8 @@ type MediaGalleryProps = {
   video?: { src: string }
   /** Nome acessível da galeria (ex.: "Fotos do Sobrado Moderno 7x20"). */
   label: string
+  /** Repassado ao visualizador em tela cheia: botão de compartilhar no canto inferior direito. */
+  compartilhar?: DadosDeCompartilhamento
 }
 
 // Quantas miniaturas aparecem; o resto fica atrás do "+N".
@@ -31,7 +33,7 @@ const SIZES_DA_MINIATURA = '(min-width: 1024px) 74px, (min-width: 640px) 13vw, 2
  * Galeria do topo da página: foto grande com setas, miniaturas, "+N" para ver todas em tela
  * cheia e botão de vídeo. A primeira foto carrega com prioridade (é a maior da página).
  */
-export function MediaGallery({ images, video, label }: MediaGalleryProps) {
+export function MediaGallery({ images, video, label, compartilhar }: MediaGalleryProps) {
   const [index, setIndex] = useState(0)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [videoOpen, setVideoOpen] = useState(false)
@@ -183,18 +185,16 @@ export function MediaGallery({ images, video, label }: MediaGalleryProps) {
         onIndexChange={setLightboxIndex}
         onClose={closeLightbox}
         label={label}
+        compartilhar={compartilhar}
       />
 
       {video && (
-        <Modal open={videoOpen} onClose={() => setVideoOpen(false)} label="Vídeo do projeto">
-          <iframe
-            src={embedDeVideo(video.src)}
-            title="Vídeo do projeto"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-            className="aspect-video w-full"
-          />
-        </Modal>
+        <VisualizadorDeVideo
+          src={video.src}
+          open={videoOpen}
+          onClose={() => setVideoOpen(false)}
+          label="Vídeo do projeto"
+        />
       )}
     </div>
   )

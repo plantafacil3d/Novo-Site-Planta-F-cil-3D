@@ -171,6 +171,32 @@
   /* Layout e movimento */
   --container-content: 1200px;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Foto nova entrando no visualizador depois de uma troca (a que sai já deslizou para fora). */
+  --animate-entrar-pela-direita: entrar-pela-direita 250ms var(--ease-standard);
+  --animate-entrar-pela-esquerda: entrar-pela-esquerda 250ms var(--ease-standard);
+
+  @keyframes entrar-pela-direita {
+    from {
+      transform: translateX(40%);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  @keyframes entrar-pela-esquerda {
+    from {
+      transform: translateX(-40%);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
 }
 
 /* Famílias: variáveis criadas pelo next/font no <html> (ver app/layout.tsx). */

@@ -3,8 +3,11 @@
 import Image from 'next/image'
 import { useState, type KeyboardEvent } from 'react'
 
-import { IconButton } from '../ui/IconButton'
+import { cn } from '../ui/cn'
 import { Modal } from '../ui/Modal'
+import { AreaComZoom } from './AreaComZoom'
+import { SetasDoVisualizador } from './SetasDoVisualizador'
+import { ShareButton, type DadosDeCompartilhamento } from './ShareButton'
 
 type LightboxProps = {
   images: { src: string; alt: string }[]
@@ -14,26 +17,40 @@ type LightboxProps = {
   onClose: () => void
   /** Nome acessível da janela (ex.: "Fotos do projeto"). */
   label: string
+  /** Com isto, aparece o botão de compartilhar no canto inferior direito. Sem, fica sem o botão. */
+  compartilhar?: DadosDeCompartilhamento
 }
 
 /** Visualizador de fotos em tela cheia, com setas do teclado e contador. */
-export function Lightbox({ images, index, onIndexChange, onClose, label }: LightboxProps) {
+export function Lightbox({
+  images,
+  index,
+  onIndexChange,
+  onClose,
+  label,
+  compartilhar,
+}: LightboxProps) {
   // A pré-carga da próxima foto só começa depois da primeira interação (seta ou teclado): quem só
   // abre a foto e olha não baixa nada além dela. Volta a zero ao fechar.
   const [interagiu, setInteragiu] = useState(false)
+  // Para que lado foi a última troca: a foto nova entra deslizando pelo lado oposto. `null` na
+  // primeira foto aberta (sem animação).
+  const [direcao, setDirecao] = useState<1 | -1 | null>(null)
 
   const total = images.length
   const current = index === null ? undefined : images[index]
   const proxima = interagiu && index !== null && total > 1 ? images[(index + 1) % total] : null
 
-  function go(step: number) {
+  function go(step: 1 | -1) {
     if (index === null) return
     setInteragiu(true)
+    setDirecao(step)
     onIndexChange((index + step + total) % total)
   }
 
   function fechar() {
     setInteragiu(false)
+    setDirecao(null)
     onClose()
   }
 
@@ -48,13 +65,16 @@ export function Lightbox({ images, index, onIndexChange, onClose, label }: Light
         <div className="relative h-full" onKeyDown={handleKeyDown}>
           {/* Sem caixa de proporção fixa: a foto cresce até encostar na altura ou na largura da tela,
               mantendo a proporção original. Foto em pé usa a altura toda; foto deitada, a largura.
-              O recuo do topo reserva a faixa do contador e do botão de fechar. Clicar no escuro em
-              volta da foto fecha o visualizador. */}
-          <div
-            className="flex h-full items-center justify-center px-4 pt-16 pb-6 md:px-24"
-            onClick={(event) => {
-              if (event.target === event.currentTarget) fechar()
-            }}
+              O recuo reserva a faixa do contador e do botão de fechar (topo) e, no celular com mais
+              de uma foto, a das setas (base). Clicar no escuro em volta da foto fecha o
+              visualizador. Zoom (pinça ou scroll), arrastar com zoom e o slide de deslizar o dedo
+              para o lado vêm da `AreaComZoom`; a `key` zera o zoom a cada foto. */}
+          <AreaComZoom
+            key={index}
+            recuo={cn('px-4 pt-16 lg:px-24 lg:pb-6', total > 1 || compartilhar ? 'pb-24' : 'pb-6')}
+            aoDeslizar={total > 1 ? go : undefined}
+            aoClicarNoFundo={fechar}
+            entrada={direcao}
           >
             <Image
               src={current.src}
@@ -66,9 +86,10 @@ export function Lightbox({ images, index, onIndexChange, onClose, label }: Light
               sizes="100vw"
               // Sem otimização: evita o proxy de resize do Next a cada troca de foto (ver MediaGallery).
               unoptimized
-              className="h-auto max-h-full w-auto max-w-full rounded-lg object-contain"
+              draggable={false}
+              className="h-auto max-h-full w-auto max-w-full rounded-lg object-contain select-none"
             />
-          </div>
+          </AreaComZoom>
 
           {/* Pré-carrega só a PRÓXIMA foto, e só depois da primeira interação, para a seta trocar
               sem espera. É o original, com o MESMO endereço que a foto exibida usa (`unoptimized`),
@@ -86,20 +107,20 @@ export function Lightbox({ images, index, onIndexChange, onClose, label }: Light
           )}
 
           {total > 1 && (
-            <>
-              <IconButton
-                icon="chevron-left"
-                label="Foto anterior"
-                onClick={() => go(-1)}
-                className="absolute top-1/2 left-2 -translate-y-1/2"
-              />
-              <IconButton
-                icon="chevron-right"
-                label="Próxima foto"
-                onClick={() => go(1)}
-                className="absolute top-1/2 right-2 -translate-y-1/2"
-              />
-            </>
+            <SetasDoVisualizador
+              aoAnterior={() => go(-1)}
+              aoProxima={() => go(1)}
+              labelAnterior="Foto anterior"
+              labelProxima="Próxima foto"
+            />
+          )}
+
+          {compartilhar && (
+            <ShareButton
+              {...compartilhar}
+              variant="visualizador"
+              className="absolute right-4 bottom-4"
+            />
           )}
 
           <p

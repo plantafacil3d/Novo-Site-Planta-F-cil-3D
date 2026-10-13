@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 
 import { CTABanner } from '@/components/shared/CTABanner'
 import { JsonLd } from '@/components/shared/JsonLd'
+import type { DadosDeCompartilhamento } from '@/components/shared/ShareButton'
 import { VideoBanner } from '@/components/shared/VideoBanner'
 import { Breadcrumb } from '@/components/navigation/Breadcrumb'
 import {
@@ -36,9 +37,14 @@ async function SecaoRelacionados({ projeto }: { projeto: ProjetoDetalhe }) {
 export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
   const preco = exibirPreco(projeto)
   const checkoutUrl = checkoutSeguro(projeto.checkoutUrl)
-  const linkWhatsapp = urlWhatsapp(
-    mensagemDuvidaProjeto(projeto.titulo, `${siteUrl}${hrefProjeto(projeto)}`),
-  )
+  const urlDoProjeto = `${siteUrl}${hrefProjeto(projeto)}`
+  const linkWhatsapp = urlWhatsapp(mensagemDuvidaProjeto(projeto.titulo, urlDoProjeto))
+  // Mesmo link em todos os botões de compartilhar da página (topo e visualizadores em tela cheia).
+  const compartilhar: DadosDeCompartilhamento = {
+    url: urlDoProjeto,
+    title: projeto.titulo,
+    label: `Compartilhar ${projeto.titulo}`,
+  }
 
   return (
     <div>
@@ -73,14 +79,19 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
         />
       </div>
 
-      <ProjetoHero projeto={projeto} preco={preco} checkoutUrl={checkoutUrl} />
+      <ProjetoHero
+        projeto={projeto}
+        preco={preco}
+        checkoutUrl={checkoutUrl}
+        compartilhar={compartilhar}
+      />
       <EspecificacoesTecnicas projeto={projeto} />
       <GlossarioEspecificacoes projeto={projeto} />
-      <GaleriaPlantaHumanizada pavimentos={projeto.plantaHumanizada} />
+      <GaleriaPlantaHumanizada pavimentos={projeto.plantaHumanizada} compartilhar={compartilhar} />
       <SobreProjeto sobre={projeto.sobre} imagem={projeto.imagem} />
       <IncluidoNoProjeto itens={projeto.itensInclusos} />
       <ComplementaresDoProjeto complementares={projeto.complementares} />
-      <GaleriaCompleta itens={projeto.galeria} />
+      <GaleriaCompleta itens={projeto.galeria} compartilhar={compartilhar} />
       {projeto.video && (
         <VideoBanner
           title="Conheça o projeto em detalhes"

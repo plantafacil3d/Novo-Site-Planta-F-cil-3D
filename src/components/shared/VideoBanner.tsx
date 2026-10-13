@@ -4,8 +4,7 @@ import Image from 'next/image'
 import { useId, useState } from 'react'
 
 import { IconButton } from '../ui/IconButton'
-import { Modal } from '../ui/Modal'
-import { embedDeVideo } from './videoEmbed'
+import { VisualizadorDeVideo } from './VisualizadorDeVideo'
 
 type VideoBannerProps = {
   title: string
@@ -53,15 +52,12 @@ export function VideoBanner({ title, description, image, videoSrc }: VideoBanner
         </div>
       </div>
 
-      <Modal open={open} onClose={() => setOpen(false)} label="Vídeo do projeto">
-        <iframe
-          src={embedDeVideo(videoSrc)}
-          title="Vídeo do projeto"
-          allow="autoplay; encrypted-media; picture-in-picture"
-          allowFullScreen
-          className="aspect-video w-full"
-        />
-      </Modal>
+      <VisualizadorDeVideo
+        src={videoSrc}
+        open={open}
+        onClose={() => setOpen(false)}
+        label="Vídeo do projeto"
+      />
     </section>
   )
 }

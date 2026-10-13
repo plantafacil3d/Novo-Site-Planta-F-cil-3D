@@ -5,11 +5,19 @@ import { useState } from 'react'
 
 import { Section } from '@/components/layout/Section'
 import { Lightbox } from '@/components/shared/Lightbox'
+import type { DadosDeCompartilhamento } from '@/components/shared/ShareButton'
 
 import type { ItemGaleria } from '../types'
 
 /** "Galeria completa": grade de fotos; clicar em uma abre o visualizador em tela cheia. */
-export function GaleriaCompleta({ itens }: { itens: ItemGaleria[] }) {
+export function GaleriaCompleta({
+  itens,
+  compartilhar,
+}: {
+  itens: ItemGaleria[]
+  /** Link do projeto: ativa o botão de compartilhar dentro do visualizador. */
+  compartilhar: DadosDeCompartilhamento
+}) {
   const [aberta, setAberta] = useState<number | null>(null)
 
   return (
@@ -41,6 +49,7 @@ export function GaleriaCompleta({ itens }: { itens: ItemGaleria[] }) {
         onIndexChange={setAberta}
         onClose={() => setAberta(null)}
         label="Fotos do projeto"
+        compartilhar={compartilhar}
       />
     </Section>
   )

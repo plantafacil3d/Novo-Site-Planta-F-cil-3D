@@ -5,6 +5,7 @@ import { useState, type CSSProperties, type TouchEvent } from 'react'
 
 import { Section } from '@/components/layout/Section'
 import { Tabs } from '@/components/navigation/Tabs'
+import type { DadosDeCompartilhamento } from '@/components/shared/ShareButton'
 import { VisualizadorPlantaFullscreen } from '@/components/shared/VisualizadorPlantaFullscreen'
 import { cn } from '@/components/ui/cn'
 import { IconButton } from '@/components/ui/IconButton'
@@ -158,7 +159,14 @@ function PainelDoPavimento({
  * Com 1 pavimento só, sem abas nem setas. Com 2+, abas no topo (reaproveita `Tabs`, que já cuida
  * do teclado) + setas sobre a imagem, sincronizadas com a aba ativa.
  */
-export function GaleriaPlantaHumanizada({ pavimentos }: { pavimentos: PavimentoPublico[] }) {
+export function GaleriaPlantaHumanizada({
+  pavimentos,
+  compartilhar,
+}: {
+  pavimentos: PavimentoPublico[]
+  /** Link do projeto: ativa o botão de compartilhar dentro do visualizador em tela cheia. */
+  compartilhar: DadosDeCompartilhamento
+}) {
   const [indiceAtivo, setIndiceAtivo] = useState(0)
   const [indiceEmTelaCheia, setIndiceEmTelaCheia] = useState<number | null>(null)
   const total = pavimentos.length
@@ -213,6 +221,7 @@ export function GaleriaPlantaHumanizada({ pavimentos }: { pavimentos: PavimentoP
         }}
         onClose={() => setIndiceEmTelaCheia(null)}
         label="Planta humanizada em tela cheia"
+        compartilhar={compartilhar}
       />
     </Section>
   )

@@ -1,6 +1,11 @@
 /** Converte um link do YouTube ou do Vimeo no endereço de embed (para usar em `<iframe>`). */
 export type EmbedOptions = {
   hideControls?: boolean
+  /**
+   * Começa sem som. Padrão: `true` com `hideControls` (autoplay sem clique só toca mudo). Passe
+   * `false` quando o vídeo abre depois de um clique do usuário e pode tocar com som.
+   */
+  mute?: boolean
 }
 
 /**
@@ -9,9 +14,9 @@ export type EmbedOptions = {
  * autoplay não pega por causa do som — navegadores só deixam autoplay tocar sem interação do
  * usuário se o vídeo começar mudo.
  */
-function aplicarModoLimpo(params: URLSearchParams): void {
+function aplicarModoLimpo(params: URLSearchParams, mute: boolean): void {
   params.set('controls', '0')
-  params.set('mute', '1')
+  if (mute) params.set('mute', '1')
   params.set('modestbranding', '1')
   params.set('rel', '0')
   params.set('iv_load_policy', '3')
@@ -24,19 +29,20 @@ export function embedDeVideo(url: string, options?: EmbedOptions): string {
     const alvo = new URL(url)
     const host = alvo.hostname.toLowerCase().replace(/^www\.|^m\.|^player\./, '')
     const hideControls = options?.hideControls
+    const mute = options?.mute ?? true
 
     if (host === 'youtu.be') {
       const id = alvo.pathname.slice(1)
       const params = new URLSearchParams()
       params.set('autoplay', '1')
-      if (hideControls) aplicarModoLimpo(params)
+      if (hideControls) aplicarModoLimpo(params, mute)
       return `https://www.youtube.com/embed/${id}?${params.toString()}`
     }
     if (host === 'youtube.com') {
       const id = alvo.searchParams.get('v') ?? alvo.pathname.split('/').pop()
       const params = new URLSearchParams()
       params.set('autoplay', '1')
-      if (hideControls) aplicarModoLimpo(params)
+      if (hideControls) aplicarModoLimpo(params, mute)
       return `https://www.youtube.com/embed/${id}?${params.toString()}`
     }
     if (host === 'vimeo.com') {

@@ -277,25 +277,42 @@ Lista com marcador de check: círculo `--color-accent` (só preenchimento) com o
 
 `'use client'`. Faixa horizontal rolável com encaixe item a item. No celular rola com o dedo; a partir de `md` aparecem setas Anterior/Próximo (`IconButton`) só quando há mais itens para aquele lado. Respeita `prefers-reduced-motion`. Props: `label`, `itemClassName` (largura de cada item, ex.: `w-72`; use `grid` para itens de mesma altura) e os itens como `children`.
 
+### AreaComZoom
+
+`'use client'`. Área de gestos usada pelo `Lightbox` e pelo `VisualizadorPlantaFullscreen` (a lógica existe só aqui). Ocupa o espaço do pai (`absolute inset-0`) e centraliza o conteúdo dentro de um recuo.
+
+- **Props:** `children`, `recuo` (classes de padding que reservam a faixa de contador e botões), `aoDeslizar(passo)` (`1` próxima, `-1` anterior; omita com uma foto só), `aoClicarNoFundo`, `entrada` (`1`/`-1`/`null`: de que lado a foto nova entra), `girarNoCelular`.
+- **Efeito de slide:** sem zoom, a foto acompanha o dedo; soltando além do limiar ela desliza para fora (200 ms) e só então troca, e a nova entra deslizando pelo lado oposto (animações `--animate-entrar-pela-direita/esquerda`); soltando antes, volta ao lugar. Quem usa guarda a direção da última troca e passa em `entrada` (zera ao fechar). Respeita `prefers-reduced-motion` (regra global).
+- **Gestos:** zoom de 1x a 4x por pinça (celular) ou scroll do mouse/pinça do trackpad, ancorado no ponteiro; com zoom, arrastar move a foto (sem deixá-la sair da tela); sem zoom, arrastar para o lado (≥ 50px) chama `aoDeslizar`. Usa Pointer Events, então mouse e dedo seguem o mesmo caminho. Botões dentro da área (setas, fechar) ficam de fora dos gestos.
+- **Regras:** use `key` para zerar o zoom a cada foto. Clicar na foto, ou terminar um arraste, não chama `aoClicarNoFundo`. Com `girarNoCelular`, até `lg` o conteúdo gira 90° numa caixa de `100dvh × 100dvw`, e o arraste/zoom acompanham o giro.
+
+### SetasDoVisualizador
+
+Setas Anterior/Próxima dos visualizadores em tela cheia (`Lightbox`, `VisualizadorPlantaFullscreen`), com `IconButton`. No celular ficam juntas num lugar fixo, na base da tela, como o contador e o "Fechar" no topo: não cobrem a foto nem se mexem com o zoom. A partir de `lg` vão para as laterais, no meio da altura. Props: `aoAnterior`, `aoProxima`, `labelAnterior`, `labelProxima`. Posiciona-se em relação ao pai (`relative`, tela cheia); o conteúdo precisa de recuo na base (`pb-24`) para não ficar sob as setas.
+
 ### Lightbox
 
-`'use client'`. Visualizador de fotos em tela cheia dentro de um `Modal` `immersive`: setas Anterior/Próxima, teclas ← →, contador "3 de 21" no topo. Controlado por `index` (`null` = fechado). Sem caixa de proporção fixa: cada foto cresce até encostar na altura ou na largura da tela, mantendo a proporção (foto em pé não fica mais espremida entre faixas pretas). Clicar no escuro em volta da foto fecha.
+`'use client'`. Visualizador de fotos em tela cheia dentro de um `Modal` `immersive`: setas Anterior/Próxima, teclas ← →, contador "3 de 21" no topo. Controlado por `index` (`null` = fechado). Zoom, arrastar e deslizar o dedo para trocar de foto vêm da `AreaComZoom`. Cantos arredondados na foto. Sem caixa de proporção fixa: cada foto cresce até encostar na altura ou na largura da tela, mantendo a proporção (foto em pé não fica mais espremida entre faixas pretas). Clicar no escuro em volta da foto fecha.
+
+### VisualizadorDeVideo
+
+`'use client'`. Vídeo (YouTube/Vimeo) em tela cheia dentro de um `Modal` `immersive`, no mesmo visual do `Lightbox`: fundo escurecido e desfocado, player centralizado (16:9, até `max-w-5xl`, cantos arredondados) e botão de fechar no canto da tela, fora de cima do vídeo. Clicar no escuro em volta fecha. Props: `src`, `open`, `onClose`, `label`. O player entra "limpo" (`embedDeVideo` com `hideControls`: sem barra de controles, sem sugestões e com a marca reduzida) e **com som**, porque só nasce depois do clique em "Assistir vídeo" (`mute: false`). Usado por `MediaGallery` e `VideoBanner`.
 
 ### MediaGallery
 
-`'use client'`. Galeria do topo da página: foto grande com setas, ícone de tela cheia no canto (`IconButton`, sem texto; abre o `Lightbox`), botão "Assistir vídeo" (abre `Modal` com `<video>`, só se houver vídeo), até 6 miniaturas e um bloco "+N" que abre o visualizador na primeira foto escondida. A foto inicial carrega com `priority`.
+`'use client'`. Galeria do topo da página: foto grande com setas, ícone de tela cheia no canto (`IconButton`, sem texto; abre o `Lightbox`), botão "Assistir vídeo" (abre o `VisualizadorDeVideo`, só se houver vídeo), até 6 miniaturas e um bloco "+N" que abre o visualizador na primeira foto escondida. A foto inicial carrega com `priority`.
 
 ### VisualizadorPlantaFullscreen
 
 - **Propósito:** planta humanizada em tela cheia, dentro de um `Modal` `immersive` (mesmo visual do `Lightbox`: tela cheia, fundo escurecido e desfocado, contador "X de Y" no topo com 2+ pavimentos, setas Anterior/Próxima). Não usa o `Lightbox` em si porque a planta precisa de zoom e de giro no celular, que fotos não precisam. Até `lg`, gira 90° (`rotate-90`, sem depender da Screen Orientation API, inconsistente no Safari) numa caixa com largura e altura trocadas (`100dvh × 100dvw`) para ocupar a tela em pé; a partir de `lg`, sem giro.
-- **Zoom:** pinça no celular (arraste sem zoom troca de pavimento); no desktop, scroll do mouse, ancorado no ponteiro (o ponto sob o cursor fica fixo, o zoom cresce na direção do mouse). Sempre entre 1x e 4x, reinicia ao trocar de pavimento.
+- **Zoom e gestos:** vêm da `AreaComZoom` (pinça no celular, scroll do mouse no desktop, arraste com zoom, deslizar o dedo sem zoom troca de pavimento). Entre 1x e 4x, reinicia ao trocar de pavimento. A planta tem cantos arredondados (`rounded-lg`), como as fotos.
 - **Props:** `images`, `index` (`null` = fechado), `onIndexChange`, `onClose`, `label`.
 - **Usado em:** `GaleriaPlantaHumanizada` (feature `projetos`), acionado por um `IconButton` (ícone `maximize`, canto superior esquerdo da imagem) — não o `Button` com texto do `MediaGallery`: sobre a planta (fundo claro, poucos elementos), o botão preto sólido chamava mais atenção que a própria planta; o círculo branco discreto, no mesmo estilo das setas que já ficam sobre essa imagem, resolveu.
 - **Tokens:** `--color-inverse-strong`, `--color-inverse`, `--color-fg-inverse`.
 
 ### VideoBanner
 
-`'use client'`. Bloco escuro arredondado com imagem ao fundo, título, texto e um grande play (`IconButton` `lg`) que abre o vídeo num `Modal`. Selo de duração opcional (`Badge`). Hover: imagem de fundo dá zoom leve (`scale-105`), mesmo padrão dos cards de projeto.
+`'use client'`. Bloco escuro arredondado com imagem ao fundo, título, texto e um grande play (`IconButton` `lg`) que abre o vídeo no `VisualizadorDeVideo`. Selo de duração opcional (`Badge`). Hover: imagem de fundo dá zoom leve (`scale-105`), mesmo padrão dos cards de projeto.
 
 ### JsonLd
 
@@ -303,7 +320,7 @@ Injeta dados estruturados (schema.org) para o Google. Escapa o `<` para o conte�
 
 ### ShareButton
 
-`'use client'`. Botão redondo só com ícone de compartilhar (`IconButton` `outline`, círculo de 32px com ícone de 16px, como o coração do card; a área de toque continua 44px, esticada por um `after:-inset-1.5` invisível). Props: `url` (endereço completo), `title`, `label` (nome acessível, ex.: "Compartilhar Casa Térrea Moderna"), `className` (posição, ex.: `ml-auto`). Com menu de compartilhar do aparelho (celular), abre o menu nativo (`navigator.share`); sem ele (computador), copia o link e, por 2 segundos: o ícone vira check, o botão ganha fundo `--color-tint` e ícone `--color-primary`, e um balão escuro "Link copiado!" (`--color-inverse`, `--shadow-md`) aparece logo abaixo; leitores de tela ouvem o mesmo aviso (`role="status"`). Usado na linha do código e das tags do `ProjetoHero`, no canto direito. Sem token novo (o balão é só deste botão; um toast global continua no backlog).
+`'use client'`. Botão redondo só com ícone de compartilhar (`IconButton` `outline`, círculo de 32px com ícone de 16px, como o coração do card; a área de toque continua 44px, esticada por um `after:-inset-1.5` invisível). Props: `url` (endereço completo), `title`, `label` (nome acessível, ex.: "Compartilhar Casa Térrea Moderna"), `className` (posição, ex.: `ml-auto`). Com menu de compartilhar do aparelho (celular), abre o menu nativo (`navigator.share`); sem ele (computador), copia o link e, por 2 segundos: o ícone vira check, o botão ganha fundo `--color-tint` e ícone `--color-primary`, e um balão escuro "Link copiado!" (`--color-inverse`, `--shadow-md`) aparece logo abaixo; leitores de tela ouvem o mesmo aviso (`role="status"`). Usado na linha do código e das tags do `ProjetoHero`, no canto direito. **Variante `visualizador`:** para dentro do `Lightbox` e do `VisualizadorPlantaFullscreen`, no canto inferior direito (`right-4 bottom-4`, posição de quem usa): `IconButton` `inverse` de 44px, igual aos outros controles de lá, e o balão "Link copiado!" abre **acima** do botão (abaixo sairia da tela). O tipo `DadosDeCompartilhamento` (`url`, `title`, `label`) é montado uma vez pela página e passado ao botão do topo e aos visualizadores (prop opcional `compartilhar`; sem ela, sem botão — caso do mosaico do curso Unreal). Sem token novo (o balão é só deste botão; um toast global continua no backlog).
 
 ## Backlog (criar só quando uma tela pedir)
 

@@ -5,13 +5,23 @@ import { useEffect, useState } from 'react'
 import { cn } from '../ui/cn'
 import { IconButton } from '../ui/IconButton'
 
-type ShareButtonProps = {
+/** O que é compartilhado: quem tem o projeto monta uma vez e entrega aos botões e visualizadores. */
+export type DadosDeCompartilhamento = {
   /** Endereço completo (com `https://`) que será compartilhado ou copiado. */
   url: string
   /** Título enviado junto ao compartilhamento nativo, ex.: nome do projeto. */
   title: string
   /** Nome acessível, ex.: "Compartilhar Casa Térrea Moderna". */
   label: string
+}
+
+type ShareButtonProps = DadosDeCompartilhamento & {
+  /**
+   * `visualizador`: para os visualizadores em tela cheia (`Lightbox`, plantas). Mesmo botão escuro
+   * de 44px dos outros controles de lá, e o balão "Link copiado!" aparece acima, porque o botão
+   * fica colado na base da tela.
+   */
+  variant?: 'default' | 'visualizador'
   /** Posicionamento feito por quem usa, ex.: `ml-auto` para ir ao canto direito da linha. */
   className?: string
 }
@@ -21,8 +31,15 @@ type ShareButtonProps = {
  * esse menu; nos demais (computador), copia o link, troca o ícone por um check e mostra um
  * balãozinho "Link copiado!" por 2 segundos.
  */
-export function ShareButton({ url, title, label, className }: ShareButtonProps) {
+export function ShareButton({
+  url,
+  title,
+  label,
+  variant = 'default',
+  className,
+}: ShareButtonProps) {
   const [copiado, setCopiado] = useState(false)
+  const noVisualizador = variant === 'visualizador'
 
   useEffect(() => {
     if (!copiado) return
@@ -52,10 +69,12 @@ export function ShareButton({ url, title, label, className }: ShareButtonProps) 
       <IconButton
         icon={copiado ? 'check' : 'share'}
         label={copiado ? 'Link copiado' : label}
-        tone="outline"
-        // Círculo de 32px; o `after` estica a área de toque para 44px sem aumentar o desenho.
+        tone={noVisualizador ? 'inverse' : 'outline'}
+        // Padrão: círculo de 32px; o `after` estica a área de toque para 44px sem aumentar o
+        // desenho. No visualizador, o 44px do próprio `IconButton`.
         className={cn(
-          'relative size-8 after:absolute after:-inset-1.5',
+          'relative',
+          !noVisualizador && 'size-8 after:absolute after:-inset-1.5',
           copiado && 'bg-tint text-primary hover:bg-tint',
         )}
         onClick={compartilhar}
@@ -64,9 +83,12 @@ export function ShareButton({ url, title, label, className }: ShareButtonProps) 
       <span
         aria-hidden="true"
         className={cn(
-          'pointer-events-none absolute top-full right-0 z-10 mt-2 rounded-md bg-inverse px-3 py-1.5 text-xs font-medium whitespace-nowrap text-fg-inverse shadow-md',
+          'pointer-events-none absolute right-0 z-10 rounded-md bg-inverse px-3 py-1.5 text-xs font-medium whitespace-nowrap text-fg-inverse shadow-md',
           'transition duration-150 ease-standard',
-          copiado ? 'translate-y-0 opacity-100' : '-translate-y-1 opacity-0',
+          noVisualizador ? 'bottom-full mb-2' : 'top-full mt-2',
+          copiado
+            ? 'translate-y-0 opacity-100'
+            : cn('opacity-0', noVisualizador ? 'translate-y-1' : '-translate-y-1'),
         )}
       >
         Link copiado!

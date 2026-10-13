@@ -7,13 +7,13 @@ import { Icon, type IconName } from '@/components/ui/Icon'
 import { FeatureItem } from '@/components/shared/FeatureItem'
 import { MediaGallery } from '@/components/shared/MediaGallery'
 import { PriceTag } from '@/components/shared/PriceTag'
-import { ShareButton } from '@/components/shared/ShareButton'
+import { ShareButton, type DadosDeCompartilhamento } from '@/components/shared/ShareButton'
 import { TextoExpansivel } from '@/components/shared/TextoExpansivel'
 import { entrarComGoogle } from '@/features/conta'
 import { FavoriteToggle } from '@/features/favoritos'
-import { selosDeConfianca, siteUrl } from '@/features/site'
+import { selosDeConfianca } from '@/features/site'
 
-import { descreverProjeto, hrefProjeto, type PrecoExibido } from '../rules'
+import { descreverProjeto, type PrecoExibido } from '../rules'
 import type { ProjetoDetalhe } from '../types'
 
 type ProjetoHeroProps = {
@@ -21,10 +21,12 @@ type ProjetoHeroProps = {
   preco: PrecoExibido
   /** Checkout já validado (`checkoutSeguro`); `null` = compra indisponível. */
   checkoutUrl: string | null
+  /** Link do projeto, usado no botão de compartilhar da página e no do visualizador de fotos. */
+  compartilhar: DadosDeCompartilhamento
 }
 
 /** Topo da página: galeria à esquerda, dados e compra à direita. */
-export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
+export function ProjetoHero({ projeto, preco, checkoutUrl, compartilhar }: ProjetoHeroProps) {
   const headingId = useId()
   const resumo = descreverProjeto(projeto)
   const specs: { icon: IconName; label: string }[] = [
@@ -42,6 +44,7 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
             images={projeto.galeria.map((item) => item.imagem)}
             video={projeto.video}
             label={`Fotos do ${projeto.titulo}`}
+            compartilhar={compartilhar}
           />
         </div>
 
@@ -59,12 +62,7 @@ export function ProjetoHero({ projeto, preco, checkoutUrl }: ProjetoHeroProps) {
               <Badge variant="neutral">{projeto.perfil.categoria}</Badge>
             )}
             {projeto.perfil.estilo && <Badge variant="neutral">{projeto.perfil.estilo}</Badge>}
-            <ShareButton
-              url={`${siteUrl}${hrefProjeto(projeto)}`}
-              title={projeto.titulo}
-              label={`Compartilhar ${projeto.titulo}`}
-              className="ml-auto"
-            />
+            <ShareButton {...compartilhar} className="ml-auto" />
           </div>
           <h1 id={headingId} className="text-3xl">
             {projeto.titulo}

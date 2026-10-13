@@ -1,10 +1,13 @@
 'use client'
 
 import Image from 'next/image'
-import { useRef, useState, type Touch, type TouchEvent, type WheelEvent } from 'react'
+import { useState } from 'react'
 
-import { IconButton } from '../ui/IconButton'
+import { cn } from '../ui/cn'
 import { Modal } from '../ui/Modal'
+import { AreaComZoom } from './AreaComZoom'
+import { SetasDoVisualizador } from './SetasDoVisualizador'
+import { ShareButton, type DadosDeCompartilhamento } from './ShareButton'
 
 type VisualizadorPlantaFullscreenProps = {
   images: { src: string; alt: string }[]
@@ -14,34 +17,16 @@ type VisualizadorPlantaFullscreenProps = {
   onClose: () => void
   /** Nome acessível da janela (ex.: "Planta humanizada do projeto X"). */
   label: string
+  /** Com isto, aparece o botão de compartilhar no canto inferior direito. Sem, fica sem o botão. */
+  compartilhar?: DadosDeCompartilhamento
 }
-
-const ESCALA_MIN = 1
-const ESCALA_MAX = 4
-/** Arraste horizontal mínimo (px), sem zoom, para trocar de pavimento. */
-const LIMIAR_DE_SWIPE = 50
-
-const distanciaEntre = (a: Touch, b: Touch) =>
-  Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
-
-type Gesto = {
-  distanciaInicial: number
-  escalaInicial: number
-  pontoInicial: { x: number; y: number }
-  deslocamentoInicial: { x: number; y: number }
-}
-
-/** Cada "clique" do scroll do mouse altera o zoom por esta fração. */
-const PASSO_DE_ZOOM = 0.0015
 
 /**
  * Planta em tela cheia, no mesmo visual do `Lightbox` (fundo escurecido e desfocado, sem caixa
- * fixa). No celular fica girada na horizontal (`rotate(90deg)`, sem depender da
- * Screen Orientation API, inconsistente no Safari) e aceita zoom por pinça e arraste com o dedo;
- * sem zoom, arrastar na horizontal troca de pavimento. No desktop (a partir de `lg`), sem giro, e
- * o zoom vem do scroll do mouse, ancorado no ponteiro (o ponto sob o cursor fica fixo, então o
- * zoom "cresce" na direção para onde o mouse aponta, não a partir do centro). Setas e "X de Y" só
- * com 2+ pavimentos.
+ * fixa, cantos arredondados). Os gestos vêm da `AreaComZoom`: zoom por pinça (celular) ou scroll
+ * do mouse, arrastar com zoom e, sem zoom, deslizar o dedo para trocar de pavimento. No celular a
+ * planta fica girada na horizontal (`rotate(90deg)`, sem depender da Screen Orientation API,
+ * inconsistente no Safari); a partir de `lg`, sem giro. Setas e "X de Y" só com 2+ pavimentos.
  */
 export function VisualizadorPlantaFullscreen({
   images,
@@ -49,146 +34,64 @@ export function VisualizadorPlantaFullscreen({
   onIndexChange,
   onClose,
   label,
+  compartilhar,
 }: VisualizadorPlantaFullscreenProps) {
   const total = images.length
   const current = index === null ? undefined : images[index]
-  const [escala, setEscala] = useState(1)
-  const [deslocamento, setDeslocamento] = useState({ x: 0, y: 0 })
-  const gesto = useRef<Gesto | null>(null)
 
-  function reiniciarZoom() {
-    setEscala(1)
-    setDeslocamento({ x: 0, y: 0 })
-  }
+  // Para que lado foi a última troca: o pavimento novo entra deslizando pelo lado oposto.
+  const [direcao, setDirecao] = useState<1 | -1 | null>(null)
 
-  function go(step: number) {
+  function go(step: 1 | -1) {
     if (index === null || total === 0) return
-    reiniciarZoom()
+    setDirecao(step)
     onIndexChange((index + step + total) % total)
   }
 
-  function aoTocarInicio(evento: TouchEvent) {
-    const t0 = evento.touches.item(0)
-    const t1 = evento.touches.item(1)
-    if (t1 && t0) {
-      gesto.current = {
-        distanciaInicial: distanciaEntre(t0, t1),
-        escalaInicial: escala,
-        pontoInicial: { x: 0, y: 0 },
-        deslocamentoInicial: deslocamento,
-      }
-    } else if (t0) {
-      gesto.current = {
-        distanciaInicial: 0,
-        escalaInicial: escala,
-        pontoInicial: { x: t0.clientX, y: t0.clientY },
-        deslocamentoInicial: deslocamento,
-      }
-    }
-  }
-
-  function aoMoverToque(evento: TouchEvent) {
-    if (!gesto.current) return
-    const t0 = evento.touches.item(0)
-    const t1 = evento.touches.item(1)
-    if (t1 && t0) {
-      const fator = distanciaEntre(t0, t1) / gesto.current.distanciaInicial
-      setEscala(Math.min(ESCALA_MAX, Math.max(ESCALA_MIN, gesto.current.escalaInicial * fator)))
-      evento.preventDefault()
-    } else if (t0 && escala > 1) {
-      // A imagem está girada: um arraste na tela (x, y) move o conteúdo no eixo local trocado.
-      const dxTela = t0.clientX - gesto.current.pontoInicial.x
-      const dyTela = t0.clientY - gesto.current.pontoInicial.y
-      setDeslocamento({
-        x: gesto.current.deslocamentoInicial.x + dyTela,
-        y: gesto.current.deslocamentoInicial.y - dxTela,
-      })
-      evento.preventDefault()
-    }
-  }
-
-  function aoSoltarToque(evento: TouchEvent) {
-    const t0 = evento.changedTouches[0]
-    if (escala === 1 && gesto.current && evento.changedTouches.length === 1 && t0) {
-      const deltaX = t0.clientX - gesto.current.pontoInicial.x
-      if (Math.abs(deltaX) > LIMIAR_DE_SWIPE) go(deltaX < 0 ? 1 : -1)
-    }
-    gesto.current = null
-  }
-
-  function aoRolarMouse(evento: WheelEvent<HTMLDivElement>) {
-    evento.preventDefault()
-    const novaEscala = Math.min(
-      ESCALA_MAX,
-      Math.max(ESCALA_MIN, escala - evento.deltaY * PASSO_DE_ZOOM),
-    )
-    if (novaEscala === escala) return
-
-    if (novaEscala === ESCALA_MIN) {
-      setEscala(novaEscala)
-      setDeslocamento({ x: 0, y: 0 })
-      return
-    }
-
-    // Mantém o ponto sob o cursor fixo na tela: o zoom "cresce" na direção do mouse, não do centro.
-    const retangulo = evento.currentTarget.getBoundingClientRect()
-    const mouseX = evento.clientX - retangulo.left - retangulo.width / 2
-    const mouseY = evento.clientY - retangulo.top - retangulo.height / 2
-    const fator = 1 / novaEscala - 1 / escala
-
-    setEscala(novaEscala)
-    setDeslocamento({
-      x: deslocamento.x + mouseX * fator,
-      y: deslocamento.y + mouseY * fator,
-    })
+  function fechar() {
+    setDirecao(null)
+    onClose()
   }
 
   return (
-    <Modal open={index !== null} onClose={onClose} label={label} immersive>
+    <Modal open={index !== null} onClose={fechar} label={label} immersive>
       {current && index !== null && (
-        <div
-          className="relative h-full touch-none overflow-hidden"
-          onTouchStart={aoTocarInicio}
-          onTouchMove={aoMoverToque}
-          onTouchEnd={aoSoltarToque}
-          onWheel={aoRolarMouse}
-        >
-          {/* Mesmo visual do `Lightbox`: a planta ocupa a tela toda. No celular a caixa girada tem
-              largura e altura trocadas (100dvh × 100dvw) para, depois do giro, caber na tela em pé.
-              O recuo do lado "esquerdo" da caixa girada vira o topo da tela e reserva a faixa do
-              contador e do botão de fechar. */}
-          <div className="absolute top-1/2 left-1/2 h-[100dvw] w-[100dvh] -translate-1/2 rotate-90 lg:inset-0 lg:h-auto lg:w-auto lg:translate-none lg:rotate-0">
-            <div
-              className="absolute inset-0 py-4 pr-4 pl-16 lg:px-24 lg:pt-16 lg:pb-6"
-              style={{
-                transform: `scale(${escala}) translate(${deslocamento.x}px, ${deslocamento.y}px)`,
-              }}
-            >
-              <div className="relative size-full">
-                <Image
-                  src={current.src}
-                  alt={current.alt}
-                  fill
-                  unoptimized
-                  className="object-contain"
-                />
-              </div>
-            </div>
-          </div>
+        <div className="relative h-full">
+          {/* O recuo, no eixo girado do celular, reserva a faixa do contador e do botão de fechar
+              (o lado "esquerdo" da caixa girada vira o topo da tela) e, com mais de um pavimento,
+              a das setas (o lado "direito" vira a base). A `key` zera o zoom a cada pavimento. */}
+          <AreaComZoom
+            key={index}
+            girarNoCelular
+            recuo={cn(
+              'py-4 pl-16 lg:px-24 lg:pt-16 lg:pb-6',
+              total > 1 || compartilhar ? 'pr-20' : 'pr-4',
+            )}
+            aoDeslizar={total > 1 ? go : undefined}
+            aoClicarNoFundo={fechar}
+            entrada={direcao}
+          >
+            <Image
+              src={current.src}
+              alt={current.alt}
+              // Tamanho real vem do arquivo (ver `Lightbox`): é o que permite arredondar o canto
+              // da própria planta, e não da caixa em volta.
+              width={0}
+              height={0}
+              sizes="100vw"
+              unoptimized
+              draggable={false}
+              className="h-auto max-h-full w-auto max-w-full rounded-lg object-contain select-none"
+            />
+          </AreaComZoom>
 
           {total > 1 && (
             <>
-              <IconButton
-                icon="chevron-left"
-                label="Pavimento anterior"
-                onClick={() => go(-1)}
-                className="absolute top-1/2 left-2 -translate-y-1/2"
-              />
-              <IconButton
-                icon="chevron-right"
-                label="Próximo pavimento"
-                onClick={() => go(1)}
-                className="absolute top-1/2 right-2 -translate-y-1/2"
+              <SetasDoVisualizador
+                aoAnterior={() => go(-1)}
+                aoProxima={() => go(1)}
+                labelAnterior="Pavimento anterior"
+                labelProxima="Próximo pavimento"
               />
               <p
                 aria-live="polite"
@@ -197,6 +100,14 @@ export function VisualizadorPlantaFullscreen({
                 {index + 1} de {total}
               </p>
             </>
+          )}
+
+          {compartilhar && (
+            <ShareButton
+              {...compartilhar}
+              variant="visualizador"
+              className="absolute right-4 bottom-4"
+            />
           )}
         </div>
       )}
