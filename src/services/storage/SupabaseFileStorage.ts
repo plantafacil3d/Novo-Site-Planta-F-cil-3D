@@ -6,7 +6,12 @@ import { AppError } from '@/types/erro'
 import type { AcessoDoArquivo, DestinoDeArquivo, EnvioAutorizado } from '@/types/envio'
 
 import { bucketDoAcesso } from './buckets'
-import type { ArquivoNoStorage, FileStorage } from './FileStorage'
+import type { ArquivoNoStorage, ArquivoPublico, FileStorage } from './FileStorage'
+
+/** Quanto tempo (segundos) a cópia de um arquivo público fica guardada no servidor: 1 ano. */
+const CACHE_DA_COPIA_SEGUNDOS = 31_536_000
+/** Acima disso o arquivo público não é entregue (as fotos reduzidas ficam bem abaixo). */
+const TAMANHO_MAXIMO_PUBLICO = 8 * 1024 * 1024
 
 /** Quantos bytes do começo do arquivo o servidor lê para conferir o formato. */
 const BYTES_DE_INICIO = 16
@@ -95,6 +100,23 @@ export class SupabaseFileStorage implements FileStorage {
     // cookies porque este método também roda em build time (`generateStaticParams`).
     const supabase = criarClientePublico()
     return supabase.storage.from(bucketDoAcesso[acesso]).getPublicUrl(caminho).data.publicUrl
+  }
+
+  async lerPublico({ acesso, caminho }: DestinoDeArquivo): Promise<ArquivoPublico | null> {
+    if (acesso === 'privado') return null
+    const url = await this.urlPublica({ acesso, caminho })
+    // `force-cache` guarda a resposta no servidor (só as de status 200): cada foto sai do Storage uma
+    // vez e os pedidos seguintes, de qualquer visitante, vêm da cópia. Os arquivos têm nome único, então
+    // um prazo de 1 ano não serve foto velha no lugar da nova.
+    const resposta = await fetch(url, {
+      cache: 'force-cache',
+      next: { revalidate: CACHE_DA_COPIA_SEGUNDOS },
+      signal: AbortSignal.timeout(PRAZO_DA_LEITURA_MS),
+    })
+    if (!resposta.ok) return null
+    const conteudo = await resposta.arrayBuffer()
+    if (conteudo.byteLength > TAMANHO_MAXIMO_PUBLICO) return null
+    return { conteudo, tipo: resposta.headers.get('content-type') ?? 'application/octet-stream' }
   }
 
   async remover(destinos: DestinoDeArquivo[]): Promise<void> {

@@ -1,8 +1,9 @@
 // Endereço do SITE para a foto original (a que as telas cheias mostram sem reprocessar).
 //
-// O `next.config.mjs` repassa `/fotos/<bucket>/<arquivo>` ao Storage dos buckets públicos. Quem entrega
-// é o nosso domínio, então a Hostinger guarda a cópia e os próximos visitantes não gastam banda do
-// Supabase. O arquivo sai idêntico ao original (nada de recompressão). Mudou o prefixo aqui, mude lá.
+// A rota `src/app/fotos/[bucket]/[...caminho]` entrega `/fotos/<bucket>/<arquivo>` a partir do Storage
+// dos buckets públicos. Quem entrega é o nosso domínio, que guarda a cópia no servidor, então os
+// próximos visitantes não gastam banda do Supabase. O arquivo sai idêntico ao original (nada de
+// recompressão). Mudou o prefixo aqui, mude lá.
 
 const PREFIXO_DO_STORAGE = '/storage/v1/object/public/'
 

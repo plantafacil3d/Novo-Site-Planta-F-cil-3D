@@ -8,6 +8,13 @@ export type ArquivoNoStorage = {
   inicio: Uint8Array
 }
 
+/** Arquivo público lido por inteiro, para o servidor entregá-lo sem alterar. */
+export type ArquivoPublico = {
+  conteudo: ArrayBuffer
+  /** `Content-Type` que o Storage informou. */
+  tipo: string
+}
+
 /** Armazenamento de arquivos, usado só no servidor. O navegador envia por `FileUploader`. */
 export interface FileStorage {
   /** Autoriza o navegador a enviar UM arquivo para o caminho e o tipo dados. */
@@ -16,5 +23,11 @@ export interface FileStorage {
   inspecionar(destino: DestinoDeArquivo): Promise<ArquivoNoStorage | null>
   /** URL pública e estável de um arquivo já gravado (só serve para acesso "publico"). */
   urlPublica(destino: DestinoDeArquivo): Promise<string>
+  /**
+   * Lê um arquivo PÚBLICO inteiro e guarda a cópia no servidor, para os próximos pedidos não irem ao
+   * Storage. `null` se o arquivo não existe (ou não cabe no limite de tamanho). Só para acesso "publico"
+   * e "biblioteca".
+   */
+  lerPublico(destino: DestinoDeArquivo): Promise<ArquivoPublico | null>
   remover(destinos: DestinoDeArquivo[]): Promise<void>
 }
