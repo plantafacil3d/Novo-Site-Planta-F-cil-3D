@@ -8,7 +8,6 @@ import {
   formatarMetros,
   listarChavesDeEspecificacao,
   simNao,
-  totalDeQuartos,
   type ChaveEspecificacao,
 } from '../rules'
 import type { ProjetoDetalhe } from '../types'
@@ -37,7 +36,7 @@ function valorDe(chave: ChaveEspecificacao, projeto: ProjetoDetalhe): string {
     case 'areaConstruida':
       return formatarArea(projeto.areaConstruidaM2)
     case 'quartos':
-      return String(totalDeQuartos(projeto))
+      return String(projeto.quartos)
     case 'suites':
       return String(projeto.suites)
     case 'suiteMaster':

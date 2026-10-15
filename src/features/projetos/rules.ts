@@ -122,13 +122,6 @@ export function formatarFamiliaIndicada(capacidade: number): string {
   return `Até ${contar(capacidade, 'pessoa', 'pessoas')}`
 }
 
-/** `quartos` do projeto são os que sobram além das suítes; o total é a soma de todos. */
-export function totalDeQuartos(
-  projeto: Pick<Projeto, 'suites' | 'suiteMaster' | 'quartos'>,
-): number {
-  return projeto.suites + projeto.suiteMaster + projeto.quartos
-}
-
 /** Especificações técnicas exibidas na página do projeto (`EspecificacoesTecnicas` e `GlossarioEspecificacoes`). */
 export type ChaveEspecificacao =
   | 'larguraTerreno'
@@ -160,7 +153,7 @@ export function listarChavesDeEspecificacao(projeto: CamposDeEspecificacao): Cha
     'larguraTerreno',
     'profundidadeTerreno',
     'areaConstruida',
-    totalDeQuartos(projeto) > 0 && 'quartos',
+    projeto.quartos > 0 && 'quartos',
     projeto.suites > 0 && 'suites',
     projeto.suiteMaster > 0 && 'suiteMaster',
     projeto.banheiros > 0 && 'banheiros',
