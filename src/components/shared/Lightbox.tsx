@@ -6,6 +6,7 @@ import { useState, type KeyboardEvent } from 'react'
 import { cn } from '../ui/cn'
 import { Modal } from '../ui/Modal'
 import { AreaComZoom } from './AreaComZoom'
+import { enderecoDaFotoOriginal } from './fotoOriginal'
 import { SetasDoVisualizador } from './SetasDoVisualizador'
 import { ShareButton, type DadosDeCompartilhamento } from './ShareButton'
 
@@ -77,7 +78,7 @@ export function Lightbox({
             entrada={direcao}
           >
             <Image
-              src={current.src}
+              src={enderecoDaFotoOriginal(current.src)}
               alt={current.alt}
               // Tamanho real vem do arquivo: `width`/`height` 0 só satisfazem o componente e o CSS
               // (`w-auto h-auto`) deixa o navegador usar a proporção da própria foto.
@@ -101,7 +102,13 @@ export function Lightbox({
               className="pointer-events-none absolute size-px overflow-hidden opacity-0"
             >
               <div className="relative aspect-4/3">
-                <Image src={proxima.src} alt="" fill unoptimized loading="eager" />
+                <Image
+                  src={enderecoDaFotoOriginal(proxima.src)}
+                  alt=""
+                  fill
+                  unoptimized
+                  loading="eager"
+                />
               </div>
             </div>
           )}

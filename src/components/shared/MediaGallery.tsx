@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { Button } from '../ui/Button'
 import { cn } from '../ui/cn'
 import { IconButton } from '../ui/IconButton'
+import { enderecoDaFotoOriginal } from './fotoOriginal'
 import { Lightbox } from './Lightbox'
 import type { DadosDeCompartilhamento } from './ShareButton'
 import { VisualizadorDeVideo } from './VisualizadorDeVideo'
@@ -70,14 +71,15 @@ export function MediaGallery({ images, video, label, compartilhar }: MediaGaller
     <div role="group" aria-label={label}>
       <div className="relative aspect-4/3 overflow-hidden rounded-lg bg-subtle">
         <Image
-          src={current.src}
+          src={enderecoDaFotoOriginal(current.src)}
           alt={current.alt}
           fill
           // A primeira foto é a maior da página (LCP): sem carregamento adiado e com pré-carga no <head>.
           preload={index === 0}
           // Sem otimização, de propósito: a foto grande é o original do Storage, o mesmo arquivo
           // que o visualizador em tela cheia mostra. A versão redimensionada pelo Next ficava
-          // desfocada ao lado dele; aqui a nitidez vem antes da economia de banda.
+          // desfocada ao lado dele; aqui a nitidez vem antes da economia de banda. O endereço é o do
+          // nosso site (`/fotos/...`), que repassa o arquivo sem mexer e deixa a cópia na Hostinger.
           unoptimized
           className="object-cover"
         />
@@ -125,7 +127,13 @@ export function MediaGallery({ images, video, label, compartilhar }: MediaGaller
       {interagiu && proxima && (
         <div aria-hidden className="pointer-events-none absolute size-px overflow-hidden opacity-0">
           <div className="relative aspect-4/3">
-            <Image src={proxima.src} alt="" fill unoptimized loading="eager" />
+            <Image
+              src={enderecoDaFotoOriginal(proxima.src)}
+              alt=""
+              fill
+              unoptimized
+              loading="eager"
+            />
           </div>
         </div>
       )}

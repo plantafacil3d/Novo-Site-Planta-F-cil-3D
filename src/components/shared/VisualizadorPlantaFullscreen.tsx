@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { cn } from '../ui/cn'
 import { Modal } from '../ui/Modal'
 import { AreaComZoom } from './AreaComZoom'
+import { enderecoDaFotoOriginal } from './fotoOriginal'
 import { SetasDoVisualizador } from './SetasDoVisualizador'
 import { ShareButton, type DadosDeCompartilhamento } from './ShareButton'
 
@@ -72,7 +73,7 @@ export function VisualizadorPlantaFullscreen({
             entrada={direcao}
           >
             <Image
-              src={current.src}
+              src={enderecoDaFotoOriginal(current.src)}
               alt={current.alt}
               // Tamanho real vem do arquivo (ver `Lightbox`): é o que permite arredondar o canto
               // da própria planta, e não da caixa em volta.

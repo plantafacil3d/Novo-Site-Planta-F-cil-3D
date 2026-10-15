@@ -26,6 +26,9 @@ const semCopiaNaCdn = [
   { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
 ]
 
+// Origem do Storage (https://<projeto>.supabase.co), para o repasse `/fotos/...` abaixo.
+const origemDoStorage = hostDoStorage ? `https://${hostDoStorage}` : null
+
 const nextConfig = {
   poweredByHeader: false,
   images: {
@@ -55,9 +58,27 @@ const nextConfig = {
     // URL antiga do curso: mantém links e posição no Google.
     return [{ source: '/3d-unreal', destination: '/curso-unreal-engine', permanent: true }]
   },
+  // Fotos originais das telas cheias: o visitante pede ao nosso domínio e o site repassa o arquivo do
+  // Storage SEM mexer nele (mesma qualidade). A cópia fica na Hostinger e o Supabase não é consultado a
+  // cada visitante. Só os dois buckets PÚBLICOS entram (o privado e qualquer outro caminho dão 404).
+  // O endereço do lado do código está em `src/components/shared/fotoOriginal.ts`.
+  async rewrites() {
+    if (!origemDoStorage) return []
+    return [
+      {
+        source: '/fotos/:bucket(projetos-publico|biblioteca-exemplos)/:caminho*',
+        destination: `${origemDoStorage}/storage/v1/object/public/:bucket/:caminho*`,
+      },
+    ]
+  },
   async headers() {
     return [
       { source: '/(.*)', headers: securityHeaders },
+      // Mesmo cache de 1 ano dos arquivos no Storage (seguro: cada foto nova tem nome único).
+      {
+        source: '/fotos/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000' }],
+      },
       { source: '/', headers: semCopiaNaCdn },
       { source: '/projetos/:slug', headers: semCopiaNaCdn },
     ]

@@ -5,6 +5,7 @@ import { useState, type CSSProperties, type TouchEvent } from 'react'
 
 import { Section } from '@/components/layout/Section'
 import { Tabs } from '@/components/navigation/Tabs'
+import { enderecoDaFotoOriginal } from '@/components/shared/fotoOriginal'
 import type { DadosDeCompartilhamento } from '@/components/shared/ShareButton'
 import { VisualizadorPlantaFullscreen } from '@/components/shared/VisualizadorPlantaFullscreen'
 import { cn } from '@/components/ui/cn'
@@ -96,7 +97,7 @@ function PainelDoPavimento({
         >
           <div className="absolute top-1/2 left-1/2 aspect-(--proporcao-deitada) w-[calc(100%*var(--fator-deitada))] -translate-1/2 rotate-90 lg:inset-0 lg:aspect-auto lg:w-auto lg:translate-none lg:rotate-0">
             <Image
-              src={pavimento.imagem.src}
+              src={enderecoDaFotoOriginal(pavimento.imagem.src)}
               alt={pavimento.imagem.alt}
               fill
               unoptimized
