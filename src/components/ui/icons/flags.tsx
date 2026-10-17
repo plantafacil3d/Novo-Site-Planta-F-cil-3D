@@ -65,6 +65,16 @@ export function FlagDE(props: FlagIconProps) {
   )
 }
 
+export function FlagRU(props: FlagIconProps) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" {...props}>
+      <rect width="30" height="20" fill="#fff" />
+      <rect y="6.67" width="30" height="13.33" fill="#0039A6" />
+      <rect y="13.34" width="30" height="6.66" fill="#D52B1E" />
+    </svg>
+  )
+}
+
 export function FlagJP(props: FlagIconProps) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" {...props}>

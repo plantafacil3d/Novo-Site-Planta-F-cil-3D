@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react'
 import {
   CHAVE_LOCALSTORAGE_IDIOMA,
   IDIOMA_ORIGINAL,
+  idiomaPreferido,
   triggerTranslation,
   type LanguageCode,
 } from '@/services/translate'
@@ -18,8 +19,7 @@ const ATRASO_RESTAURACAO_MS = 1500
 const EVENTO_IDIOMA_ALTERADO = 'pf3d:idioma-alterado'
 
 function getSnapshot(): LanguageCode {
-  const salvo = localStorage.getItem(CHAVE_LOCALSTORAGE_IDIOMA)
-  return (salvo as LanguageCode | null) ?? IDIOMA_ORIGINAL
+  return idiomaPreferido()
 }
 
 function getServerSnapshot(): LanguageCode {
@@ -32,9 +32,10 @@ function subscribe(callback: () => void) {
 }
 
 /**
- * Idioma ativo da interface, lido do localStorage com `useSyncExternalStore`: o servidor sempre
- * "vê" `pt` e o cliente sincroniza com o valor salvo assim que hidrata, sem setState em efeito (o
- * jeito recomendado pelo React para ler um valor só do navegador sem erro de hidratação).
+ * Idioma ativo da interface (escolha salva ou, sem escolha, o idioma do navegador; ver
+ * `idiomaPreferido`), lido com `useSyncExternalStore`: o servidor sempre "vê" `pt` e o cliente
+ * sincroniza assim que hidrata, sem setState em efeito (o jeito recomendado pelo React para ler um
+ * valor só do navegador sem erro de hidratação).
  * `trocarIdioma` grava a escolha, avisa o store e comanda o widget do Google Translate.
  */
 export function useIdioma() {

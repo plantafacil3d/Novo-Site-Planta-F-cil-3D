@@ -53,7 +53,7 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 
 - **Propósito:** único ponto que conhece a biblioteca de ícones (`lucide-react`). `<Icon name="search" />`, decorativo (`aria-hidden`), 20px por padrão (`className="size-6"` para mudar).
 - **Marcas** (WhatsApp, Instagram, YouTube, Facebook) não existem no Lucide: SVG próprio em `ui/icons/brand.tsx`, mesmo formato de traço.
-- **Bandeiras** (`flag-us`, `flag-br`, `flag-es`) também são SVG próprio, em `ui/icons/flags.tsx`: cor própria (não `currentColor`), como o "G" do Google — emoji de bandeira não renderiza como cor no Chrome/Windows, some e vira sigla (ex.: "US").
+- **Bandeiras** (`flag-us`, `flag-br`, `flag-es`, `flag-fr`, `flag-it`, `flag-de`, `flag-ru`, `flag-jp`, `flag-cn`) também são SVG próprio, em `ui/icons/flags.tsx`: cor própria (não `currentColor`), como o "G" do Google — emoji de bandeira não renderiza como cor no Chrome/Windows, some e vira sigla (ex.: "US").
 - **Novo ícone:** adicione ao registro em `Icon.tsx`; o tipo `IconName` se atualiza sozinho.
 
 ### Badge
@@ -380,11 +380,11 @@ Grava e envia de verdade (Supabase + Storage). A tela de criar é montada em `vi
 
 Site traduzido pelo widget gratuito do Google Translate (Website Translator), escondido, comandado por um seletor com a cara do site — sem API paga, sem reload de página, sem cookie `googtrans`. Serviço puro (leitura/gravação do `<select>` que o Google injeta) em `services/translate`; o estado do idioma ativo vem do hook `useIdioma` (`hooks/`), que usa `useSyncExternalStore` para ler o `localStorage` sem erro de hidratação (servidor sempre renderiza `pt`).
 
-- `SeletorDeIdioma`: dropdown no `Header`, com bandeira + código do idioma ativo (ex.: 🇧🇷 PT) e um painel com os 8 idiomas (pt, en, es, fr, it, de, ja, zh-CN). Mesma técnica de posicionamento do `DropdownMenu` (`popover` nativo), com gatilho e itens próprios (bandeira, texto e um check no idioma atual, em vez de ícone/link/ação). `notranslate` no elemento inteiro, para o Google não tentar traduzir o próprio seletor.
+- `SeletorDeIdioma`: dropdown no `Header`, com bandeira + código do idioma ativo (ex.: 🇧🇷 PT) e um painel com os 9 idiomas (pt, en, es, fr, it, de, ru, ja, zh-CN). O idioma inicial vem do navegador (`idiomaPreferido`, em `services/translate`) quando a pessoa ainda não escolheu; a escolha manual sempre vence. Mesma técnica de posicionamento do `DropdownMenu` (`popover` nativo), com gatilho e itens próprios (bandeira, texto e um check no idioma atual, em vez de ícone/link/ação). `notranslate` no elemento inteiro, para o Google não tentar traduzir o próprio seletor.
 - `GoogleTranslateWidget`: sem interface, monta a `<div id="google_translate_element">` escondida (fora da tela, não só `display:none`, porque o widget do Google pode falhar ao montar se o container nunca tiver layout) e os dois `<Script>` (a função de callback do Google e o `element.js` dele). A UI visual do widget (banner, balão, destaque de texto) é escondida globalmente em `styles/globals.css`, com `!important` (o Google usa estilo inline).
 - `ReaplicarTraducaoNaRota`: sem interface. O Next troca de rota sem recarregar a página, então o Google só traduziu o HTML da rota anterior; a cada mudança de caminho ou busca (`usePathname`/`useSearchParams`), reaplica o idioma salvo ao conteúdo novo.
 - Os três são montados uma vez no `SiteShell` (não no layout raiz): a tradução é só para as páginas públicas, o painel do administrador (layout próprio) não carrega o widget.
-- **Sem token novo.** 5 bandeiras novas no registro do `Icon` (`flag-fr`, `flag-it`, `flag-de`, `flag-jp`, `flag-cn`), mesmo estilo SVG das 3 que já existiam — emoji de bandeira não renderiza como cor no Chrome/Windows (nota já registrada no `Icon` acima).
+- **Sem token novo.** 6 bandeiras novas no registro do `Icon` (`flag-fr`, `flag-it`, `flag-de`, `flag-ru`, `flag-jp`, `flag-cn`), mesmo estilo SVG das 3 que já existiam — emoji de bandeira não renderiza como cor no Chrome/Windows (nota já registrada no `Icon` acima).
 
 ## Registro
 

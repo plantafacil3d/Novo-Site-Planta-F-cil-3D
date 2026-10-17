@@ -24,7 +24,7 @@ export const navegacaoPrincipal: LinkNavegacao[] = [
   { label: 'Início', href: '/' },
   { label: 'Projetos', href: '/projetos' },
   { label: 'Curso Unreal 5', href: '/curso-unreal-engine' },
-  { label: 'Sobre', href: '/sobre' },
+  { label: 'Sobre nós', href: '/sobre' },
 ]
 
 export const navegacaoRodape: LinkNavegacao[] = [...navegacaoPrincipal]

@@ -4,6 +4,13 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-10-17 (idioma automático pelo navegador + russo no seletor)
+
+- `SeletorDeIdioma` ganhou o russo (`ru`, "Русский"), agora com 9 idiomas. Nova bandeira `flag-ru` no registro do `Icon` (SVG próprio, mesmo estilo das outras). Por quê: pedido do usuário.
+- Na primeira visita, o idioma vem do navegador da pessoa (`idiomaPreferido`, em `services/translate`); idioma não oferecido cai em inglês, robôs de busca ficam em português, e a escolha manual no seletor sempre vence. Sem mudança visual além do código do idioma (ex.: EN) que o seletor já mostrava.
+- Menu "Sobre" virou "Sobre nós": o Google traduzia a palavra solta como "On".
+- Sem token novo.
+
 ## 2026-10-13 (vídeo da galeria no mesmo visual do Lightbox)
 
 - Novo componente `VisualizadorDeVideo` (`shared/`): o vídeo do "Assistir vídeo" abre em `Modal` `immersive` (fundo escurecido e desfocado), com o botão de fechar fora de cima do vídeo e o player limpo, sem os controles do YouTube. Por quê: pedido do usuário, para o vídeo seguir o padrão dos visualizadores de foto.

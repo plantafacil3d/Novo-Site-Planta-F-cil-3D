@@ -16,6 +16,7 @@ const IDIOMAS: Idioma[] = [
   { code: 'fr', label: 'Français', flag: 'flag-fr' },
   { code: 'it', label: 'Italiano', flag: 'flag-it' },
   { code: 'de', label: 'Deutsch', flag: 'flag-de' },
+  { code: 'ru', label: 'Русский', flag: 'flag-ru' },
   { code: 'ja', label: '日本語', flag: 'flag-jp' },
   { code: 'zh-CN', label: '中文', flag: 'flag-cn' },
 ]
