@@ -1,5 +1,6 @@
 import { cn } from '../ui/cn'
 import { Icon, type IconName } from '../ui/Icon'
+import { IconeEmBloco } from '../ui/IconeEmBloco'
 
 type FeatureItemProps = {
   icon: IconName
@@ -27,10 +28,8 @@ export function FeatureItem({
 }: FeatureItemProps) {
   if (tone === 'card') {
     return (
-      <div className={cn('flex h-full items-start gap-3 rounded-lg bg-tint p-4', className)}>
-        <span className="inline-flex size-10.5 shrink-0 items-center justify-center rounded-md bg-feature-icon-bg text-fg-inverse">
-          <Icon name={icon} className="size-5" />
-        </span>
+      <div className={cn('flex h-full items-start gap-2.5 rounded-lg bg-tint p-3', className)}>
+        <IconeEmBloco icon={icon} tone="green" size="md" />
         <div>
           <Title className="font-body text-base leading-snug font-semibold">{title}</Title>
           <p className="text-sm leading-snug text-fg-muted">{description}</p>

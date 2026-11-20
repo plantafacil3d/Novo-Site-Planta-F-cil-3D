@@ -33,6 +33,7 @@ A marca é preto e branco, minimalista; o verde vivo é a única cor de destaque
 | `--gray-900`                                      | texto principal                                                                                                          |
 | `--gray-100` / `--gray-300` / `--gray-400`        | fundo desabilitado / borda de campo / texto desabilitado                                                                 |
 | `--green-300`                                     | só texto verde sobre fundo escuro ou foto (situação da obra no selo das fotos de "Do projeto à obra"); medido no layout |
+| `--tile-slate` / `-red` / `-orange` / `-pink` / `-cyan` / `-teal` | só os quadrados do `IconeEmBloco` (ícones dos projetos complementares e dos selos em cartão)                            |
 | `--violet-50`                                     | só o fundo lilás da faixa de prova social (topo da página do projeto); medido no layout                                    |
 | `--violet-600`                                    | só o destaque de seção (contorno tracejado e selo); branco sobre ele dá 5,7:1                                            |
 | `--avatar-green` / `--avatar-blue` / `--avatar-amber` | só os avatares com iniciais dos depoimentos (decorativos; o nome aparece em texto ao lado)                            |
@@ -66,7 +67,7 @@ Cinzas e pretos com leve tom esverdeado, para combinar com a marca. Exceção in
 | `--color-bg-disabled` / `--color-fg-disabled` | `--gray-100` / `--gray-400` | controles desabilitados (isento de AA)                                                                                          |
 | `--color-highlight` / `--color-highlight-fg`  | `--violet-600` / `--white`  | destaque de seção: contorno tracejado e selo (ex.: `PreviasDoProjeto`)                                                          |
 | `--color-highlight-subtle`                    | `--violet-50`               | fundo da faixa `ProvaSocial` ("N clientes já compraram este projeto")                                                           |
-| `--color-feature-icon-bg`                     | `--avatar-green`            | quadrado verde atrás do ícone branco do `FeatureItem` `tone="card"` (medido no layout)                                          |
+| `--color-tile-*` (amber, blue, green, violet, slate, red, orange, pink, cyan, teal) | `--avatar-*`, `--violet-600`, `--tile-*` | fundo do `IconeEmBloco` (ícone branco decorativo); ardósia e vermelho medidos no layout dos complementares |
 | `--color-avatar-green` / `-blue` / `-amber`   | `--avatar-*`                | fundo do `Avatar` (iniciais brancas, decorativas)                                                                               |
 | `--color-avatar-instagram-from` / `-via` / `-to` | `--instagram-*`          | degradê do `Avatar` `instagram` (de baixo-esquerda a cima-direita)                                                              |
 | `--color-rating`                              | `--amber-500`               | estrelas da nota de um comentário (ícone, não texto)                                                                            |

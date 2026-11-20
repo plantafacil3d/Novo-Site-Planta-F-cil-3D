@@ -24,6 +24,15 @@
   --violet-600: #7c3aed;
   /* Fundo lilás da faixa "N clientes já compraram este projeto". Medido no layout (2026-11-20). */
   --violet-50: #f3edff;
+  /* Fundos do `IconeEmBloco` (ícone branco em quadrado colorido, ex.: projetos complementares).
+     Ardósia e vermelho medidos no layout enviado pelo usuário (2026-11-20); os outros completam a
+     paleta de ícones do cadastro. Decorativos: o nome do complementar aparece em texto ao lado. */
+  --tile-slate: #64748b;
+  --tile-red: #ef4444;
+  --tile-orange: #f97316;
+  --tile-pink: #ec4899;
+  --tile-cyan: #06b6d4;
+  --tile-teal: #14b8a6;
   /* Avatares com iniciais (depoimentos de clientes) e o degradê do Instagram. Medidos no layout enviado
      pelo usuário (2026-11-20). Decorativos: as iniciais repetem o nome que aparece ao lado. */
   --avatar-green: #1fae4b;
@@ -96,8 +105,17 @@
   --color-highlight-fg: var(--white);
   /* Fundo suave do destaque (faixa de prova social no topo da página do projeto). */
   --color-highlight-subtle: var(--violet-50);
-  /* Quadrado verde atrás do ícone branco dos selos em cartão (Compra segura...). Medido no layout. */
-  --color-feature-icon-bg: var(--avatar-green);
+  /* Tons do `IconeEmBloco` (quadrado colorido com ícone branco). */
+  --color-tile-amber: var(--avatar-amber);
+  --color-tile-blue: var(--avatar-blue);
+  --color-tile-green: var(--avatar-green);
+  --color-tile-violet: var(--violet-600);
+  --color-tile-slate: var(--tile-slate);
+  --color-tile-red: var(--tile-red);
+  --color-tile-orange: var(--tile-orange);
+  --color-tile-pink: var(--tile-pink);
+  --color-tile-cyan: var(--tile-cyan);
+  --color-tile-teal: var(--tile-teal);
 
   /* Avatar com iniciais: 3 tons que se alternam e o degradê do Instagram (de baixo-esquerda a cima-direita). */
   --color-avatar-green: var(--avatar-green);

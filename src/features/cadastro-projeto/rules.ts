@@ -830,6 +830,7 @@ export function montarComplementares(dados: DadosValidaveis): ComplementarGravav
     entrega: complementar.entrega === '' ? null : complementar.entrega,
     link: complementar.entrega === 'link' ? textoOuNulo(complementar.link) : null,
     checkoutUrl: textoOuNulo(complementar.checkoutUrl),
+    icone: textoOuNulo(complementar.icone),
     ordem: indice,
   }))
 }
@@ -936,6 +937,7 @@ export function paraDadosProjeto(
         entrega: complementar.entrega ?? '',
         link: complementar.link ?? '',
         checkoutUrl: complementar.checkoutUrl ?? '',
+        icone: complementar.icone ?? '',
         pdf: pdf ? paraArquivoEscolhido(pdf) : null,
       }
     })

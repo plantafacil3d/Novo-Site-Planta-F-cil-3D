@@ -4,6 +4,16 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-11-20 (selos em cartão menos quadrados)
+
+- Os cartões Compra segura / Entrega imediata / Suporte ficavam estreitos (~180px) e quadrados: o site tem 1200px de largura, menos que o print. No `xl`, a coluna de informações do topo passa a 6/11 da largura (fotos 5/11) e o cartão fica mais justo (`p-3`, `gap-2.5`, cartões com `gap-2`): ~200px por cartão, o texto quebra em 3, 3 e 4 linhas como em `referencias/adicionar isso.png`. Por quê: pedido do usuário.
+
+## 2026-11-20 (projetos complementares em destaque, com ícone)
+
+- "Projetos complementares" passa para a `SecaoDestacada` e vira cartões com ícone colorido, preço em destaque e "Comprar" preto, como `referencias/padrão projetos complementares.png`. A descrição fica em uma linha e abre pela setinha quando é longa. Por quê: o usuário quis o mesmo destaque das outras seções.
+- O ícone é escolhido no cadastro, entre 12 (os 5 do print + luminotécnico, paisagismo, interiores, climatização, gás, orçamento e documento, o padrão). Banco: migration `complementares_icone` (coluna `icone` + leitura pública só dela).
+- Componente novo `IconeEmBloco` (`ui/`) e tokens `--tile-*` / `--color-tile-*`. O `FeatureItem` `card` passou a usá-lo, e o token `--color-feature-icon-bg` (criado hoje, mesmo verde) saiu. Ícones novos no `Icon`: calculator, droplet, flame, landmark, lightbulb, snowflake.
+
 ## 2026-11-20 (celular: prévias, depoimentos e obras sem faixa de deslizar)
 
 - No celular, a pedido do usuário (referências `versão celular (1)` e `(2)`): "Prévias do projeto" vira uma coluna com todas as fotos à mostra e centralizadas; os prints de "O que nossos clientes dizem" ficam em 2 colunas; "Do projeto à obra" mostra a 1ª foto na largura toda e as outras em 2 colunas. Por quê: na faixa de deslizar não dava para ver quantas fotos havia e a foto ficava fora do centro. Os comentários dos depoimentos continuam na faixa. Computador sem mudança.
@@ -12,7 +22,7 @@ Formato: `AAAA-MM-DD · o quê · por quê`
 
 - Faixa nova `ProvaSocial` ("★★★★★ 4,9 · 128 clientes já compraram este projeto"), abaixo de "Adicionar aos favoritos", configurada na aba Marketing (quantidade de clientes e nota decimal; textos fixos; avatares sorteados por projeto, estáveis). Opcional: sem quantidade, some. Banco: migration `marketing_prova_social` (`prova_social_clientes`, `prova_social_nota`). Cache de `buscarProjeto` em `v4`.
 - Selos "Compra segura / Entrega imediata / Suporte especializado" viram 3 cartões lado a lado dentro da coluna de compra (`FeatureItem` `tone="card"`, variante nova); a coluna lateral de selos no `xl` saiu e galeria e informações ficam em duas metades iguais, como `referencias/imagem aberta para Ia entender como vai ficar.png`. "Entrega imediata" usa o ícone `zap` (novo no `Icon`), também na página inicial (decisão do usuário).
-- Tokens novos: `--violet-50` / `--color-highlight-subtle` (fundo lilás, medido) e `--color-feature-icon-bg` (`--avatar-green`, o verde do quadrado do ícone no layout). `Avatar` ganhou o tom `highlight` (círculo "+").
+- Tokens novos: `--violet-50` / `--color-highlight-subtle` (fundo lilás, medido) e `--color-feature-icon-bg` (`--avatar-green`, o verde do quadrado do ícone no layout; depois trocado pelo `IconeEmBloco`). `Avatar` ganhou o tom `highlight` (círculo "+").
 
 ## 2026-11-20 (Galeria completa com 8 fotos)
 

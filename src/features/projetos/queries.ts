@@ -38,7 +38,8 @@ const buscarProjetoEmCache = unstable_cache(
   // A versão na chave muda quando `ProjetoDetalhe` ganha um campo novo: o cache guardado (inclusive o
   // de um build anterior) teria o formato velho, e a página quebraria lendo o campo que falta.
   // v2: `depoimentos` (aba Marketing). v3: `obras`. v4: `provaSocial` (as duas também da aba Marketing).
-  ['projeto-por-slug', 'v4'],
+  // v5: `icone` nos complementares.
+  ['projeto-por-slug', 'v5'],
   { tags: [TAG_CATALOGO], revalidate: SEGUNDOS_DE_CACHE },
 )
 

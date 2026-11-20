@@ -77,6 +77,12 @@ import {
   Wrench,
   X,
   Zap,
+  Calculator,
+  Droplet,
+  Flame,
+  Landmark,
+  Lightbulb,
+  Snowflake,
 } from 'lucide-react'
 import type { ComponentType, SVGProps } from 'react'
 
@@ -173,6 +179,12 @@ const icons = {
   waves: Waves,
   wrench: Wrench,
   zap: Zap,
+  calculator: Calculator,
+  droplet: Droplet,
+  flame: Flame,
+  landmark: Landmark,
+  lightbulb: Lightbulb,
+  snowflake: Snowflake,
   close: X,
   facebook: Facebook,
   google: Google,

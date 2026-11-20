@@ -7,6 +7,7 @@ import {
   categoriasDoCadastro,
   estilosDoCadastro,
   etapasDaObra,
+  iconesDeComplementar,
   etapasDoCadastro,
   perfisDeTerrenoDoCadastro,
 } from './catalogo'
@@ -393,6 +394,7 @@ const schemaComplementar = z
     entrega: z.enum(['link', 'pdf'], 'Escolha como o cliente recebe.'),
     link: linkOpcional,
     checkoutUrl: linkHttpsOpcional,
+    icone: escolhaOpcional(iconesDeComplementar),
     pdf: z.object(dadosDoArquivo).nullable(),
   })
   .superRefine((complementar, ctx) => {
@@ -576,6 +578,7 @@ const schemaPayload = z
         entrega: z.enum(['', 'link', 'pdf'], 'Escolha como o cliente recebe.'),
         link: linkHttpsOpcional,
         checkoutUrl: linkHttpsOpcional,
+        icone: escolhaOpcional(iconesDeComplementar),
         pdf: arquivoDoPayload.nullable(),
       }),
     ),

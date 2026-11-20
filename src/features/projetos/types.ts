@@ -1,3 +1,5 @@
+import type { IconName } from '@/components/ui/Icon'
+import type { TomDoIconeEmBloco } from '@/components/ui/IconeEmBloco'
 import type { CategoriaDoCadastro, EstiloDoCadastro } from '@/features/cadastro-projeto'
 
 import type { OrdenacaoProjetos } from './catalogo'
@@ -147,6 +149,8 @@ export type ComplementarDoProjeto = {
   precoCentavos: number | null
   /** Checkout externo (Hotmart ou outra plataforma); vazio = sem botão de compra. */
   checkoutUrl: string
+  /** Ícone do cartão, já resolvido do cadastro (sem escolha = documento cinza). */
+  icone: { nome: IconName; tom: TomDoIconeEmBloco }
 }
 
 /** Página completa de um projeto: o `Projeto` do card mais tudo que só a página mostra. */

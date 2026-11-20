@@ -699,6 +699,7 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
       entrega: '',
       link: '',
       checkoutUrl: '',
+      icone: '',
       pdf: null,
     }
     setDados((atual) => ({ ...atual, complementares: [...atual.complementares, novo] }))

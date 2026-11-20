@@ -68,6 +68,8 @@ export type ComplementarProjeto = {
   link: string
   /** Link de venda (Hotmart ou outra plataforma), opcional; não é o link de entrega. */
   checkoutUrl: string
+  /** Ícone escolhido (valor de `iconesDeComplementar`, catalogo.ts); '' = o padrão (documento). */
+  icone: string
   pdf: AnexoProjeto | null
 }
 
@@ -276,6 +278,8 @@ export type ComplementarGravavel = {
   entrega: 'link' | 'pdf' | null
   link: string | null
   checkoutUrl: string | null
+  /** `null` = ícone padrão. */
+  icone: string | null
   ordem: number
 }
 

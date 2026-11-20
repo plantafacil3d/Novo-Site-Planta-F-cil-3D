@@ -128,6 +128,7 @@ function paraColunasDoComplementar(complementar: ComplementarGravavel) {
     entrega: complementar.entrega,
     link: complementar.link,
     checkout_url: complementar.checkoutUrl,
+    icone: complementar.icone,
     ordem: complementar.ordem,
   }
 }
@@ -176,7 +177,7 @@ const COLUNAS_DO_CADASTRO_COMPLETO =
   'largura_m, profundidade_m, area_construida_m2, quartos, suites, ' +
   'suite_master, banheiros, lavabo, vagas, pavimentos, piscina, area_gourmet, itens, entrega_link, ' +
   'comentarios_clientes, obras_clientes, prova_social_clientes, prova_social_nota, ' +
-  'projeto_complementares (id, titulo, valor_centavos, descricao, entrega, link, checkout_url, ordem), ' +
+  'projeto_complementares (id, titulo, valor_centavos, descricao, entrega, link, checkout_url, icone, ordem), ' +
   'projeto_pavimentos (id, nome, ordem, pavimento_itens (id, nome, metragem_m2, numero_bolinha, ordem)), ' +
   'projeto_arquivos (id, papel, complementar_id, pavimento_id, caminho, nome_original, tamanho_bytes, tipo_mime, ordem), ' +
   'projeto_arquivos_exemplo (arquivo_id)'
@@ -227,6 +228,7 @@ type LinhaCadastroCompleto = {
     entrega: 'link' | 'pdf' | null
     link: string | null
     checkout_url: string | null
+    icone: string | null
     ordem: number
   }[]
   projeto_pavimentos: {
@@ -301,6 +303,7 @@ function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoB
       entrega: complementar.entrega,
       link: complementar.link,
       checkoutUrl: complementar.checkout_url,
+      icone: complementar.icone,
       ordem: complementar.ordem,
     })),
     plantaHumanizada: linha.projeto_pavimentos.map((pavimento): PavimentoDoBanco => ({

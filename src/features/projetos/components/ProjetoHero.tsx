@@ -38,7 +38,9 @@ export function ProjetoHero({ projeto, preco, checkoutUrl, compartilhar }: Proje
 
   return (
     <section aria-labelledby={headingId} className="mx-auto max-w-content px-4 py-6 md:py-8">
-      <div className="grid gap-8 lg:grid-cols-2">
+      {/* No `xl`, a coluna de informações um pouco mais larga (6/11): é o que deixa cada selo em cartão
+          com ~200px, para o texto caber ao lado do ícone como no layout (3, 3 e 4 linhas). */}
+      <div className="grid gap-8 lg:grid-cols-2 xl:grid-cols-[5fr_6fr]">
         <div>
           <MediaGallery
             images={projeto.galeria.map((item) => item.imagem)}
@@ -114,7 +116,7 @@ export function ProjetoHero({ projeto, preco, checkoutUrl, compartilhar }: Proje
 
           <ProvaSocial provaSocial={projeto.provaSocial} semente={projeto.slug} />
 
-          <ul className="grid gap-3 sm:grid-cols-3">
+          <ul className="grid gap-2 sm:grid-cols-3">
             {selosDeConfianca.map((selo) => (
               <li key={selo.title}>
                 <FeatureItem tone="card" {...selo} />

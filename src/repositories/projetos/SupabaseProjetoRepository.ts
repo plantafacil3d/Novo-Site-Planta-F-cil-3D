@@ -1,6 +1,7 @@
 import 'server-only'
 
 import {
+  iconeDoComplementar,
   rotuloDaEtapaDaObra,
   textoAlternativoDaImagem,
   type DadosDoNomeDaImagem,
@@ -87,7 +88,7 @@ const COLUNAS_DETALHE =
   'projeto_arquivos (id, caminho, papel, ordem, pavimento_id), ' +
   'projeto_pavimentos (id, nome, ordem, pavimento_itens (id, nome, metragem_m2, numero_bolinha, ordem)), ' +
   // Só as colunas liberadas ao público (`entrega` e `link` são conteúdo pago).
-  'projeto_complementares (id, titulo, valor_centavos, descricao, checkout_url, ordem)'
+  'projeto_complementares (id, titulo, valor_centavos, descricao, checkout_url, icone, ordem)'
 
 type LinhaLimite = {
   preco_efetivo_centavos: number
@@ -128,6 +129,7 @@ type LinhaComplementar = {
   valor_centavos: number | null
   descricao: string | null
   checkout_url: string | null
+  icone: string | null
   ordem: number
 }
 
@@ -190,6 +192,12 @@ function lerComentarios(valor: unknown, slug: string): ComentarioDeCliente[] {
     if (!lido.texto || !lido.nome || !lido.cidade) return []
     return [{ id: `${slug}-comentario-${indice}`, nota, ...lido }]
   })
+}
+
+/** Ícone do cartão de um complementar: o escolhido no cadastro, ou o padrão. */
+function iconeDoCartao(valor: string | null): ComplementarDoProjeto['icone'] {
+  const { icone, tom } = iconeDoComplementar(valor)
+  return { nome: icone, tom }
 }
 
 /** Nome de coluna real de cada ordenação da URL. */
@@ -408,6 +416,7 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
       descricao: complementar.descricao ?? '',
       precoCentavos: complementar.valor_centavos,
       checkoutUrl: complementar.checkout_url ?? '',
+      icone: iconeDoCartao(complementar.icone),
     }))
 
   return {

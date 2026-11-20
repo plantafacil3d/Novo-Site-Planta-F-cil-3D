@@ -1,5 +1,10 @@
 export { FormularioProjeto } from './components/FormularioProjeto'
-export { categoriasDoCadastro, estilosDoCadastro, rotuloDaEtapaDaObra } from './catalogo'
+export {
+  categoriasDoCadastro,
+  estilosDoCadastro,
+  iconeDoComplementar,
+  rotuloDaEtapaDaObra,
+} from './catalogo'
 export { publicarProjeto } from './actions'
 export { buscarProjetoParaEditar } from './queries'
 export { acessoDoPapel, nomePadraoPavimento, textoAlternativoDaImagem } from './rules'

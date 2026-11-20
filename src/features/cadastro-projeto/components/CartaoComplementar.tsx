@@ -4,13 +4,17 @@ import { useState } from 'react'
 
 import { MensagensDeArquivo } from '@/components/shared/MensagensDeArquivo'
 import { Button } from '@/components/ui/Button'
+import { Dica } from '@/components/ui/Dica'
 import { Field } from '@/components/ui/Field'
 import { FileInput } from '@/components/ui/FileInput'
 import { Icon } from '@/components/ui/Icon'
+import { IconeEmBloco } from '@/components/ui/IconeEmBloco'
+import { cn } from '@/components/ui/cn'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
 
+import { iconeDoComplementar, iconesDeComplementar } from '../catalogo'
 import type { FormularioProjetoApi } from '../hooks/useFormularioProjeto'
 import { ARQUIVOS_DE_PDF, LIMITES, filtrarPreco } from '../rules'
 import type { ComplementarProjeto, EntregaComplementar } from '../types'
@@ -35,6 +39,8 @@ export function CartaoComplementar({ form, complementar, indice }: CartaoComplem
   const mostrarAberto = aberto || (form.tentouSalvar && temErro)
   const titulo = complementar.titulo || `Projeto complementar ${indice + 1}`
   const pdf = campo(chave('pdf'))
+  // Sem escolha, o cartão mostra o ícone padrão (o mesmo que a página pública usaria).
+  const iconeAtual = iconeDoComplementar(complementar.icone)
 
   function mudarEntrega(entrega: EntregaComplementar) {
     // Cada forma de entrega tem os seus dados: trocar limpa os da outra.
@@ -51,7 +57,10 @@ export function CartaoComplementar({ form, complementar, indice }: CartaoComplem
       className="group rounded-lg border border-border bg-surface"
     >
       <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 rounded-lg px-4 py-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
-        <span className="min-w-0 truncate">{titulo}</span>
+        <span className="flex min-w-0 items-center gap-3">
+          <IconeEmBloco icon={iconeAtual.icone} tone={iconeAtual.tom} size="md" />
+          <span className="truncate">{titulo}</span>
+        </span>
         <span className="flex shrink-0 items-center gap-3">
           {temErro && (
             <span className="flex items-center gap-1 text-xs text-danger-fg">
@@ -64,6 +73,41 @@ export function CartaoComplementar({ form, complementar, indice }: CartaoComplem
       </summary>
 
       <div className="flex flex-col gap-6 border-t border-border p-4">
+        <fieldset className="flex flex-col gap-2">
+          <legend className="mb-2 flex items-center gap-2 text-sm font-medium">
+            Ícone
+            <Dica texto="Aparece no cartão do complementar na página do projeto. Sem escolha, fica o de documento." />
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {iconesDeComplementar.map((opcao) => {
+              const escolhido = iconeAtual.valor === opcao.valor
+              return (
+                <label
+                  key={opcao.valor}
+                  title={opcao.rotulo}
+                  className={cn(
+                    'cursor-pointer rounded-lg p-1 ring-offset-2 transition-shadow duration-150 ease-standard has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring',
+                    escolhido ? 'ring-2 ring-primary' : 'hover:ring-2 hover:ring-border-strong',
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name={`icone-${complementar.id}`}
+                    value={opcao.valor}
+                    checked={escolhido}
+                    onChange={() =>
+                      form.atualizarComplementar(complementar.id, { icone: opcao.valor })
+                    }
+                    className="sr-only"
+                  />
+                  <IconeEmBloco icon={opcao.icone} tone={opcao.tom} size="md" />
+                  <span className="sr-only">{opcao.rotulo}</span>
+                </label>
+              )
+            })}
+          </div>
+        </fieldset>
+
         <Field
           label="Título *"
           htmlFor={campo(chave('titulo')).id}

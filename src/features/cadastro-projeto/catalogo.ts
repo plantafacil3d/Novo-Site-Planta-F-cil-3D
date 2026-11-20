@@ -2,6 +2,9 @@
 // (features/projetos importa `categoriasDoCadastro`/`estilosDoCadastro` daqui), para categoria e
 // estilo nunca ficarem com listas diferentes entre o cadastro e o filtro público.
 
+import type { IconName } from '@/components/ui/Icon'
+import type { TomDoIconeEmBloco } from '@/components/ui/IconeEmBloco'
+
 import type { EtapaId } from './types'
 
 /** `arquivo`: como a categoria entra no nome das imagens (singular, sem acento). `singular`: o mesmo, escrito
@@ -148,6 +151,41 @@ export type EtapaDaObra = (typeof etapasDaObra)[number]['valor']
 /** Texto do selo de uma situação gravada; `null` para vazio ou valor desconhecido. */
 export const rotuloDaEtapaDaObra = (valor: unknown): string | null =>
   etapasDaObra.find((etapa) => etapa.valor === valor)?.rotulo ?? null
+
+/**
+ * Ícones que o admin escolhe para cada projeto complementar (aba Complementares): o valor gravado, o
+ * nome que o cadastro mostra, o desenho e a cor do quadrado. Fonte única também para a página
+ * pública. Acrescentar um ícone aqui não precisa de migration (o banco guarda só o `valor`).
+ */
+export const iconesDeComplementar = [
+  { valor: 'eletrico', rotulo: 'Elétrico', icone: 'zap', tom: 'amber' },
+  { valor: 'hidrossanitario', rotulo: 'Hidrossanitário', icone: 'droplet', tom: 'blue' },
+  { valor: 'estrutural', rotulo: 'Estrutural', icone: 'landmark', tom: 'slate' },
+  { valor: 'cobertura', rotulo: 'Cobertura', icone: 'house', tom: 'red' },
+  { valor: 'modelo-3d', rotulo: 'Modelo 3D e renders', icone: 'box', tom: 'violet' },
+  { valor: 'luminotecnico', rotulo: 'Luminotécnico', icone: 'lightbulb', tom: 'orange' },
+  { valor: 'paisagismo', rotulo: 'Paisagismo', icone: 'trees', tom: 'green' },
+  { valor: 'interiores', rotulo: 'Interiores', icone: 'sofa', tom: 'pink' },
+  { valor: 'climatizacao', rotulo: 'Climatização', icone: 'snowflake', tom: 'cyan' },
+  { valor: 'gas', rotulo: 'Gás', icone: 'flame', tom: 'orange' },
+  { valor: 'orcamento', rotulo: 'Orçamento', icone: 'calculator', tom: 'teal' },
+  { valor: 'documento', rotulo: 'Documento', icone: 'file-text', tom: 'slate' },
+] as const satisfies readonly {
+  valor: string
+  rotulo: string
+  icone: IconName
+  tom: TomDoIconeEmBloco
+}[]
+
+export type IconeDeComplementar = (typeof iconesDeComplementar)[number]
+
+/** Ícone de um complementar pelo valor gravado; vazio ou desconhecido = documento (o padrão). */
+export function iconeDoComplementar(valor: unknown): IconeDeComplementar {
+  return (
+    iconesDeComplementar.find((item) => item.valor === valor) ??
+    (iconesDeComplementar[iconesDeComplementar.length - 1] as IconeDeComplementar)
+  )
+}
 
 /** As 10 abas, na ordem do menu. `opcional`: não bloqueia o "Salvar". */
 export const etapasDoCadastro: readonly { id: EtapaId; rotulo: string; opcional: boolean }[] = [
