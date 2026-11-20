@@ -1,5 +1,5 @@
 export { FormularioProjeto } from './components/FormularioProjeto'
-export { categoriasDoCadastro, estilosDoCadastro } from './catalogo'
+export { categoriasDoCadastro, estilosDoCadastro, rotuloDaEtapaDaObra } from './catalogo'
 export { publicarProjeto } from './actions'
 export { buscarProjetoParaEditar } from './queries'
 export { acessoDoPapel, nomePadraoPavimento, textoAlternativoDaImagem } from './rules'
@@ -9,6 +9,7 @@ export type {
   ArquivoGravado,
   CadastroCompletoDoBanco,
   CadastroGravavel,
+  ComentarioGravavel,
   ComplementarGravavel,
   DadosDoNomeDaImagem,
   DadosProjeto,
@@ -16,6 +17,7 @@ export type {
   ItemDaPlantaGravavel,
   ModoSalvar,
   NovoArquivoProjeto,
+  ObraGravavel,
   PapelDoArquivo,
   PavimentoDoBanco,
   PavimentoGravavel,

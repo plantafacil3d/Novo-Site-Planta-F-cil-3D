@@ -2,9 +2,11 @@ import { z } from 'zod'
 
 import {
   FAMILIA_CAPACIDADE,
+  PROVA_SOCIAL,
   camposDeCaracteristicas,
   categoriasDoCadastro,
   estilosDoCadastro,
+  etapasDaObra,
   etapasDoCadastro,
   perfisDeTerrenoDoCadastro,
 } from './catalogo'
@@ -288,6 +290,91 @@ const schemaItens = z.object({
 
 const schemaExemplos = z.object({ arquivosExemplo: z.array(z.string()) })
 
+// ── 5.1 Prévias do projeto (opcional: 0 fotos é válido; cada foto enviada confere como a galeria) ──
+
+const schemaPrevias = z.object({
+  imagensPrevia: z.array(z.object(dadosDoArquivo)).superRefine((imagens, ctx) => {
+    const erro = primeiroErroDeImagem(imagens)
+    if (erro) ctx.addIssue({ code: 'custom', message: erro })
+  }),
+})
+
+// ── 5.2 Marketing (opcional: sem prints e sem comentários é válido) ──────────────────────────────
+
+const notaDoComentario = z
+  .number('Escolha de 1 a 5 estrelas.')
+  .int('Escolha de 1 a 5 estrelas.')
+  .min(1, 'Escolha de 1 a 5 estrelas.')
+  .max(5, 'Escolha de 1 a 5 estrelas.')
+
+const schemaComentario = z.object({
+  nota: notaDoComentario,
+  texto: textoObrigatorio(LIMITES.comentarioTextoMax, 'Escreva o comentário.'),
+  nome: textoObrigatorio(LIMITES.comentarioNomeMax, 'Informe o nome.'),
+  cidade: textoObrigatorio(LIMITES.comentarioCidadeMax, 'Informe a cidade e o estado.'),
+})
+
+/** Legenda de uma foto de obra: os dois campos são opcionais. Vale na aba e no servidor. */
+const schemaLegendaDaObra = z.object({
+  etapa: escolhaOpcional(etapasDaObra),
+  cidade: z
+    .string()
+    .trim()
+    .max(LIMITES.obraCidadeMax, maximo(LIMITES.obraCidadeMax))
+    .refine(semSimbolos, SEM_SIMBOLOS),
+})
+
+const MENSAGEM_OBRAS_MAX = `Use no máximo ${LIMITES.obrasMax} fotos.`
+
+/** Uma legenda por foto, pelo id dela; o teto só impede um pedido absurdo. */
+const legendasDaObra = z
+  .record(z.string().max(60), schemaLegendaDaObra)
+  .refine((legendas) => Object.keys(legendas).length <= 50, 'Legendas demais.')
+
+/** Faixa de prova social: os dois campos são opcionais; a nota tem no máximo uma casa decimal e só
+ *  vale com a quantidade de clientes. Vale na aba e no servidor. */
+const camposDaProvaSocial = {
+  provaSocialClientes: campoNumerico({ decimal: false, ...PROVA_SOCIAL.clientes }, false),
+  provaSocialNota: campoNumerico({ decimal: true, ...PROVA_SOCIAL.nota }, false).refine(
+    (texto) => !/[.,]\d{2,}/.test(texto),
+    'Use só uma casa decimal (ex.: 4,9).',
+  ),
+}
+
+const conferirProvaSocial = (
+  dados: { provaSocialClientes: string; provaSocialNota: string },
+  ctx: z.RefinementCtx,
+) => {
+  if (dados.provaSocialNota.trim() !== '' && dados.provaSocialClientes.trim() === '') {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['provaSocialClientes'],
+      message: 'Informe a quantidade de clientes.',
+    })
+  }
+}
+
+const schemaMarketing = z
+  .object({
+    imagensDepoimento: z.array(z.object(dadosDoArquivo)).superRefine((imagens, ctx) => {
+      const erro = primeiroErroDeImagem(imagens)
+      if (erro) ctx.addIssue({ code: 'custom', message: erro })
+    }),
+    comentariosClientes: z
+      .array(schemaComentario)
+      .max(LIMITES.comentariosMax, `Use no máximo ${LIMITES.comentariosMax} comentários.`),
+    imagensObra: z
+      .array(z.object(dadosDoArquivo))
+      .max(LIMITES.obrasMax, MENSAGEM_OBRAS_MAX)
+      .superRefine((imagens, ctx) => {
+        const erro = primeiroErroDeImagem(imagens)
+        if (erro) ctx.addIssue({ code: 'custom', message: erro })
+      }),
+    legendasObra: legendasDaObra,
+    ...camposDaProvaSocial,
+  })
+  .superRefine(conferirProvaSocial)
+
 // ── 6. Complementares ────────────────────────────────────────────────────────────────────────────
 
 const schemaComplementar = z
@@ -372,6 +459,8 @@ const schemasPorEtapa: Record<EtapaId, z.ZodType> = {
   caracteristicas: schemaCaracteristicas,
   itens: schemaItens,
   exemplos: schemaExemplos,
+  previas: schemaPrevias,
+  marketing: schemaMarketing,
   complementares: schemaComplementares,
   entrega: schemaEntrega,
 }
@@ -432,6 +521,24 @@ const schemaPayload = z
     checkoutUrl: linkHttpsOpcional,
     imagemPrincipal: arquivoDoPayload.nullable(),
     imagens: z.array(arquivoDoPayload),
+    // Sem limite na prática; o teto só impede um pedido absurdo (a tela não impõe nenhum).
+    imagensPrevia: z.array(arquivoDoPayload).max(200),
+    imagensDepoimento: z.array(arquivoDoPayload).max(200),
+    // No rascunho um comentário pode estar pela metade; a página pública só mostra os completos.
+    comentariosClientes: z
+      .array(
+        z.object({
+          id: z.string().max(60),
+          nota: notaDoComentario,
+          texto: textoLivre(LIMITES.comentarioTextoMax),
+          nome: textoLivre(LIMITES.comentarioNomeMax),
+          cidade: textoLivre(LIMITES.comentarioCidadeMax),
+        }),
+      )
+      .max(LIMITES.comentariosMax, `Use no máximo ${LIMITES.comentariosMax} comentários.`),
+    imagensObra: z.array(arquivoDoPayload).max(LIMITES.obrasMax, MENSAGEM_OBRAS_MAX),
+    legendasObra: legendasDaObra,
+    ...camposDaProvaSocial,
     plantaHumanizada: z
       .array(
         z.object({

@@ -12,7 +12,7 @@ export type LinkNavegacao = { label: string; href: string }
 /** Selos de confiança exibidos no hero da home e na página do projeto. */
 export const selosDeConfianca = [
   { icon: 'shield-check', title: 'Compra segura', description: 'Seus dados protegidos' },
-  { icon: 'cloud-download', title: 'Entrega imediata', description: 'Acesso rápido após a compra' },
+  { icon: 'zap', title: 'Entrega imediata', description: 'Acesso rápido após a compra' },
   {
     icon: 'headphones',
     title: 'Suporte especializado',

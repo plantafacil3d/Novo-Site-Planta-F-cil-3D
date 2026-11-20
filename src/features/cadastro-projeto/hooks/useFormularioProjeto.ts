@@ -41,11 +41,13 @@ import { validarEtapas, validarRascunho } from '../schemas'
 import type {
   AnexoProjeto,
   ArquivoEscolhido,
+  ComentarioDoCadastro,
   ComplementarProjeto,
   DadosProjeto,
   EtapaId,
   ImagemProjeto,
   ItemDaPlanta,
+  LegendaDaObra,
   ModoSalvar,
   PavimentoProjeto,
   SituacaoDaEtapa,
@@ -71,7 +73,10 @@ type ChaveDeTexto = {
   [K in keyof DadosProjeto]: DadosProjeto[K] extends string ? K : never
 }[keyof DadosProjeto]
 
-type CampoDeImagem = 'imagemPrincipal' | 'imagens'
+/** Listas de várias imagens (reordenáveis): as do projeto, as prévias, os prints e as obras de clientes. */
+type ListaDeImagens = 'imagens' | 'imagensPrevia' | 'imagensDepoimento' | 'imagensObra'
+
+type CampoDeImagem = 'imagemPrincipal' | ListaDeImagens
 
 const novoId = () => crypto.randomUUID()
 
@@ -226,7 +231,10 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     }
   }
 
-  function campoNumero(chave: ChaveDeCaracteristica | 'familiaCapacidade', decimal: boolean) {
+  function campoNumero(
+    chave: ChaveDeCaracteristica | 'familiaCapacidade' | 'provaSocialClientes' | 'provaSocialNota',
+    decimal: boolean,
+  ) {
     return {
       ...campo(chave),
       value: dados[chave],
@@ -288,16 +296,34 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
   }
 
   /**
-   * Confere cada imagem escolhida, reduz a 1920 px e converte para WebP: as boas entram, as ruins viram
-   * aviso com o motivo. Uma de cada vez, para não encher a memória do navegador.
+   * Confere cada imagem escolhida, reduz (fotos 1920 px; prévias, que têm texto pequeno, 2400 px como a
+   * planta humanizada; prints de clientes 800 px de largura; obras de clientes como fotos) e converte
+   * para WebP: as boas entram, as ruins viram aviso com o motivo. Uma de cada vez, para não encher a
+   * memória do navegador. As obras de clientes param em `LIMITES.obrasMax`: as que sobram viram aviso.
    */
   async function enviarImagens(chave: CampoDeImagem, arquivos: File[]) {
-    const recebidos = chave === 'imagemPrincipal' ? arquivos.slice(0, 1) : arquivos
+    const vagas =
+      chave === 'imagemPrincipal'
+        ? 1
+        : chave === 'imagensObra'
+          ? Math.max(0, LIMITES.obrasMax - dados.imagensObra.length)
+          : arquivos.length
+    const recebidos = arquivos.slice(0, vagas)
+    const foraDoLimite = arquivos
+      .slice(vagas)
+      .map((arquivo) => `${arquivo.name}: limite de ${LIMITES.obrasMax} fotos.`)
+    const sobras = chave === 'imagensObra' ? foraDoLimite : []
+    const reducao =
+      chave === 'imagensDepoimento'
+        ? REDUCAO_DE_IMAGEM.print
+        : chave === 'imagensPrevia'
+          ? REDUCAO_DE_IMAGEM.planta
+          : REDUCAO_DE_IMAGEM.foto
     const aceitas: ImagemProjeto[] = []
     const recusas: string[] = []
     await comAvisoDePreparo(async () => {
       for (const arquivo of recebidos) {
-        const preparada = await prepararImagem(arquivo, REDUCAO_DE_IMAGEM.foto)
+        const preparada = await prepararImagem(arquivo, reducao)
         if (!preparada.ok) {
           recusas.push(`${arquivo.name}: ${preparada.motivo}`)
           continue
@@ -311,15 +337,31 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
         })
       }
     })
-    guardarAvisosDeArquivo(chave, recusas)
+    guardarAvisosDeArquivo(chave, [...recusas, ...sobras])
     tocar(chave)
     if (aceitas.length === 0) return
 
     if (chave === 'imagemPrincipal') {
       atualizar({ imagemPrincipal: aceitas[0] })
+    } else if (chave === 'imagensObra') {
+      // Confere de novo o limite com o estado mais recente (duas escolhas seguidas, antes de a
+      // primeira terminar de preparar, não passam de 5 juntas).
+      setDados((atual) => ({
+        ...atual,
+        imagensObra: [...atual.imagensObra, ...aceitas].slice(0, LIMITES.obrasMax),
+      }))
     } else {
-      setDados((atual) => ({ ...atual, imagens: [...atual.imagens, ...aceitas] }))
+      setDados((atual) => ({ ...atual, [chave]: [...atual[chave], ...aceitas] }))
     }
+  }
+
+  /** Situação e cidade de uma foto de obra de cliente (aba Marketing). */
+  function atualizarLegendaObra(id: string, patch: Partial<LegendaDaObra>) {
+    setDados((atual) => {
+      const legenda = { etapa: '', cidade: '', ...atual.legendasObra[id], ...patch }
+      legenda.cidade = semSimbolos(legenda.cidade)
+      return { ...atual, legendasObra: { ...atual.legendasObra, [id]: legenda } }
+    })
   }
 
   function removerImagem(chave: CampoDeImagem, id: string) {
@@ -331,36 +373,50 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     if (chave === 'imagemPrincipal') {
       atualizar({ imagemPrincipal: null })
     } else {
-      setDados((atual) => ({ ...atual, [chave]: atual[chave].filter((item) => item.id !== id) }))
+      setDados((atual) => {
+        const proximo = { ...atual, [chave]: atual[chave].filter((item) => item.id !== id) }
+        if (chave !== 'imagensObra') return proximo
+        // A legenda vai junto com a foto.
+        const legendas = { ...atual.legendasObra }
+        delete legendas[id]
+        return { ...proximo, legendasObra: legendas }
+      })
     }
     guardarAvisosDeArquivo(chave, [])
     tocar(chave)
   }
 
-  /** Muda a ordem das imagens do projeto: a que saiu de `idOrigem` passa a ocupar o lugar de `idDestino`. */
-  function reordenarImagens(idOrigem: string, idDestino: string) {
+  /**
+   * Muda a ordem das imagens de uma lista (as do projeto, por padrão, ou as prévias): a que saiu de
+   * `idOrigem` passa a ocupar o lugar de `idDestino`.
+   */
+  function reordenarImagens(
+    idOrigem: string,
+    idDestino: string,
+    chave: ListaDeImagens = 'imagens',
+  ) {
     if (idOrigem === idDestino) return
     setDados((atual) => {
-      const imagens = [...atual.imagens]
+      const imagens = [...atual[chave]]
       const origem = imagens.findIndex((imagem) => imagem.id === idOrigem)
       const destino = imagens.findIndex((imagem) => imagem.id === idDestino)
       if (origem === -1 || destino === -1) return atual
       const [movida] = imagens.splice(origem, 1)
       if (!movida) return atual
       imagens.splice(destino, 0, movida)
-      return { ...atual, imagens }
+      return { ...atual, [chave]: imagens }
     })
   }
 
   /** As imagens de `ids` vão para o início, na ordem de `ids`; as demais seguem atrás, como estavam. */
-  function moverImagensParaInicio(ids: string[]) {
+  function moverImagensParaInicio(ids: string[], chave: ListaDeImagens = 'imagens') {
     setDados((atual) => {
-      const porId = new Map(atual.imagens.map((imagem) => [imagem.id, imagem]))
+      const porId = new Map(atual[chave].map((imagem) => [imagem.id, imagem]))
       const escolhidas = ids.flatMap((id) => porId.get(id) ?? [])
       if (escolhidas.length === 0) return atual
       const escolhidasIds = new Set(escolhidas.map((imagem) => imagem.id))
-      const resto = atual.imagens.filter((imagem) => !escolhidasIds.has(imagem.id))
-      return { ...atual, imagens: [...escolhidas, ...resto] }
+      const resto = atual[chave].filter((imagem) => !escolhidasIds.has(imagem.id))
+      return { ...atual, [chave]: [...escolhidas, ...resto] }
     })
   }
 
@@ -689,6 +745,39 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     guardarAvisosDeArquivo(`pdf-${id}`, [])
   }
 
+  // ── Comentários (aba Marketing) ──────────────────────────────────────────────────────────────
+
+  /** Comentário novo já com 5 estrelas (o mais comum), no fim da lista, com o foco no texto. */
+  function adicionarComentario() {
+    const novo: ComentarioDoCadastro = { id: novoId(), nota: 5, texto: '', nome: '', cidade: '' }
+    setDados((atual) => ({ ...atual, comentariosClientes: [...atual.comentariosClientes, novo] }))
+    focarCampo(`comentariosClientes.${dados.comentariosClientes.length}.texto`)
+  }
+
+  function atualizarComentario(id: string, patch: Partial<Omit<ComentarioDoCadastro, 'id'>>) {
+    const limpo = Object.fromEntries(
+      Object.entries(patch).map(([chave, valor]) => [
+        chave,
+        typeof valor === 'string' ? semSimbolos(valor) : valor,
+      ]),
+    ) as typeof patch
+    setDados((atual) => ({
+      ...atual,
+      comentariosClientes: atual.comentariosClientes.map((item) =>
+        item.id === id ? { ...item, ...limpo } : item,
+      ),
+    }))
+  }
+
+  function removerComentario(id: string) {
+    setDados((atual) => ({
+      ...atual,
+      comentariosClientes: atual.comentariosClientes.filter((item) => item.id !== id),
+    }))
+    // Os erros são guardados pela posição; depois de remover um, as posições mudam.
+    esquecerToques('comentariosClientes.')
+  }
+
   // ── Abas ─────────────────────────────────────────────────────────────────────────────────────
 
   const indiceDaEtapa = etapasDoCadastro.findIndex((etapa) => etapa.id === etapaAtual)
@@ -958,6 +1047,10 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
     enviarPdfDoComplementar,
     removerPdfDoComplementar,
     complementarNovo,
+    adicionarComentario,
+    atualizarComentario,
+    removerComentario,
+    atualizarLegendaObra,
     etapaAtual,
     irParaEtapa,
     etapaAnterior,

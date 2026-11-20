@@ -7,6 +7,8 @@
  * Limites (os mesmos de `REDUCAO_DE_IMAGEM` em src/features/cadastro-projeto/rules.ts; mudou lá, mude aqui):
  *   fotos (principal, galeria, biblioteca): lado maior 1920 px, qualidade 85
  *   plantas (pasta /planta/):               lado maior 2400 px, qualidade 90
+ *   prévias do projeto (pasta /previa/):    lado maior 2400 px, qualidade 90 (como as plantas)
+ *   prints de clientes (pasta /depoimento/): LARGURA 800 px, qualidade 80 (prints de celular são altos)
  * Nunca amplia: imagem que já cabe no limite não é tocada. A proporção é mantida.
  *
  * Formato: o mesmo do arquivo (WebP continua WebP, JPG continua JPG, PNG continua PNG). Trocar o formato
@@ -51,7 +53,13 @@ const PAUSA_ENTRE_LOTES_MS = 500
 const LIMITES = {
   foto: { ladoMaximo: 1920, qualidade: 85 },
   planta: { ladoMaximo: 2400, qualidade: 90 },
+  // `medida: largura`: o limite vale só para a largura (no resto, para o lado maior).
+  print: { ladoMaximo: 800, qualidade: 80, medida: 'largura' },
 }
+
+/** O que o limite mede nesta imagem: a largura (prints) ou o lado maior (o resto). */
+const medido = (limite, largura, altura) =>
+  limite.medida === 'largura' ? largura : Math.max(largura, altura)
 const TIPO_POR_EXTENSAO = {
   webp: 'image/webp',
   jpg: 'image/jpeg',
@@ -59,7 +67,7 @@ const TIPO_POR_EXTENSAO = {
   png: 'image/png',
 }
 
-const AJUDA = `Reduz as fotos públicas antigas (1920 px; plantas 2400 px) no mesmo caminho e formato.
+const AJUDA = `Reduz as fotos públicas antigas (1920 px; plantas e prévias 2400 px; prints de clientes 800 px de largura) no mesmo caminho e formato.
 Sem --executar nada é enviado (dry-run). Opções: --executar --limite=<N> --bucket=<nome> --lote=<1-50>
 --pasta=<dir> --detalhar`
 
@@ -162,8 +170,18 @@ async function tamanhoLocal(arquivo) {
   }
 }
 
-/** Planta tem limite maior (linhas finas, texto e zoom). Biblioteca e o resto seguem o das fotos. */
-const limiteDe = (caminho) => (caminho.split('/').includes('planta') ? LIMITES.planta : LIMITES.foto)
+/**
+ * Planta e prévia têm limite maior: linhas finas, texto e zoom. Print de cliente (pasta depoimento) é
+ * limitado pela largura. Biblioteca e
+ * o resto seguem o das fotos.
+ */
+const limiteDe = (caminho) => {
+  const pastas = caminho.split('/')
+  if (pastas.includes('depoimento')) return LIMITES.print
+  return ['planta', 'previa'].some((pasta) => pastas.includes(pasta))
+    ? LIMITES.planta
+    : LIMITES.foto
+}
 
 // ── Listagem: do Storage (com chave) ou do backup local (sem chave, só dry-run) ─────────────────
 
@@ -242,10 +260,10 @@ async function medir(buffer) {
   }
 }
 
-async function reduzir(buffer, formato, { ladoMaximo, qualidade }) {
+async function reduzir(buffer, formato, { ladoMaximo, qualidade, medida }) {
   let imagem = sharp(buffer).rotate().resize({
     width: ladoMaximo,
-    height: ladoMaximo,
+    height: medida === 'largura' ? undefined : ladoMaximo,
     fit: 'inside',
     withoutEnlargement: true,
     kernel: 'lanczos3',
@@ -277,7 +295,7 @@ async function analisar(item, buffer) {
   }
   const limite = limiteDe(item.caminho)
   const comDados = { ...base, formato, largura, altura, limite }
-  if (Math.max(largura, altura) <= limite.ladoMaximo) return { ...comDados, acao: 'manter' }
+  if (medido(limite, largura, altura) <= limite.ladoMaximo) return { ...comDados, acao: 'manter' }
 
   const nova = await reduzir(buffer, formato, limite)
   const completo = {
@@ -337,7 +355,8 @@ function mostrarDryRun(analises, opcoes, origem, foraDoBackup) {
   }
   console.log('\nO que seria reduzido:')
   porCategoria('fotos (principal e galeria) → 1920', (a) => a.limite.ladoMaximo === LIMITES.foto.ladoMaximo && a.bucket === 'projetos-publico')
-  porCategoria('plantas → 2400', (a) => a.limite.ladoMaximo === LIMITES.planta.ladoMaximo)
+  porCategoria('plantas e prévias → 2400', (a) => a.limite.ladoMaximo === LIMITES.planta.ladoMaximo)
+  porCategoria('prints de clientes → 800 de largura', (a) => a.limite.medida === 'largura')
   porCategoria('biblioteca de exemplos → 1920', (a) => a.bucket === 'biblioteca-exemplos')
   for (const formato of ['webp', 'jpeg', 'png']) {
     porCategoria(`formato mantido: ${formato}`, (a) => a.formato === formato)
@@ -440,7 +459,7 @@ async function processarArquivo(supabase, item, contexto) {
     // Conferência antes de enviar: dimensões dentro do limite, mesmo formato, menor que a original.
     const conferida = await medir(analise.buffer)
     const { ladoMaximo } = analise.limite
-    if (conferida.formato !== analise.formato || Math.max(conferida.largura, conferida.altura) > ladoMaximo) {
+    if (conferida.formato !== analise.formato || medido(analise.limite, conferida.largura, conferida.altura) > ladoMaximo) {
       throw new Error('a versão reduzida não passou na conferência (formato ou dimensões); nada foi enviado')
     }
 

@@ -2,7 +2,6 @@ import { useId } from 'react'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { cn } from '@/components/ui/cn'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import { FeatureItem } from '@/components/shared/FeatureItem'
 import { MediaGallery } from '@/components/shared/MediaGallery'
@@ -15,6 +14,7 @@ import { selosDeConfianca } from '@/features/site'
 
 import { descreverProjeto, type PrecoExibido } from '../rules'
 import type { ProjetoDetalhe } from '../types'
+import { ProvaSocial } from './ProvaSocial'
 
 type ProjetoHeroProps = {
   projeto: ProjetoDetalhe
@@ -38,8 +38,8 @@ export function ProjetoHero({ projeto, preco, checkoutUrl, compartilhar }: Proje
 
   return (
     <section aria-labelledby={headingId} className="mx-auto max-w-content px-4 py-6 md:py-8">
-      <div className="grid gap-8 lg:grid-cols-2 xl:grid-cols-12">
-        <div className="xl:col-span-6">
+      <div className="grid gap-8 lg:grid-cols-2">
+        <div>
           <MediaGallery
             images={projeto.galeria.map((item) => item.imagem)}
             video={projeto.video}
@@ -48,7 +48,7 @@ export function ProjetoHero({ projeto, preco, checkoutUrl, compartilhar }: Proje
           />
         </div>
 
-        <div className="flex flex-col gap-4 xl:col-span-4">
+        <div className="flex flex-col gap-4">
           {projeto.selo && (
             <Badge variant="accent" className="self-start">
               {projeto.selo}
@@ -111,21 +111,17 @@ export function ProjetoHero({ projeto, preco, checkoutUrl, compartilhar }: Proje
               entrarComGoogleAction={entrarComGoogle.bind(null, projeto.id)}
             />
           </div>
-        </div>
 
-        <ul
-          className={cn(
-            'grid gap-3 border-t border-border sm:grid-cols-3',
-            'lg:col-start-2',
-            'xl:col-span-2 xl:col-start-11 xl:grid-cols-1 xl:content-start xl:rounded-lg xl:border-0 xl:bg-tint xl:p-5',
-          )}
-        >
-          {selosDeConfianca.map((selo) => (
-            <li key={selo.title}>
-              <FeatureItem layout="stack" className="max-sm:flex-row max-sm:gap-3" {...selo} />
-            </li>
-          ))}
-        </ul>
+          <ProvaSocial provaSocial={projeto.provaSocial} semente={projeto.slug} />
+
+          <ul className="grid gap-3 sm:grid-cols-3">
+            {selosDeConfianca.map((selo) => (
+              <li key={selo.title}>
+                <FeatureItem tone="card" {...selo} />
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   )

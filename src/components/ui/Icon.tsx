@@ -61,6 +61,7 @@ import {
   Smartphone,
   Sofa,
   Sparkles,
+  Star,
   Target,
   Toilet,
   Trash2,
@@ -75,6 +76,7 @@ import {
   Waves,
   Wrench,
   X,
+  Zap,
 } from 'lucide-react'
 import type { ComponentType, SVGProps } from 'react'
 
@@ -156,6 +158,7 @@ const icons = {
   smartphone: Smartphone,
   sofa: Sofa,
   sparkles: Sparkles,
+  star: Star,
   target: Target,
   toilet: Toilet,
   trash: Trash2,
@@ -169,6 +172,7 @@ const icons = {
   warehouse: Warehouse,
   waves: Waves,
   wrench: Wrench,
+  zap: Zap,
   close: X,
   facebook: Facebook,
   google: Google,

@@ -54,6 +54,47 @@ export type ItemGaleria = {
   imagem: ImagemRef
 }
 
+/** Print de conversa (WhatsApp, SketchUp, comentários do Instagram...) de um cliente que comprou. */
+export type PrintDeCliente = {
+  id: string
+  /** O print em si, enviado pelo admin. É só a foto: o cartão não tem nome nem origem. */
+  imagem: ImagemRef
+}
+
+/** Comentário escrito pelo admin (não é print), mostrado num cartão com estrelas e "Compra verificada". */
+export type ComentarioDeCliente = {
+  id: string
+  /** Estrelas, de 1 a 5. */
+  nota: number
+  texto: string
+  nome: string
+  /** Cidade e estado (ex.: "São Luís-MA"). */
+  cidade: string
+}
+
+/** Seção "O que nossos clientes dizem" (aba Marketing do cadastro). Sem prints, a seção não aparece. */
+export type DepoimentosDoProjeto = {
+  prints: PrintDeCliente[]
+  comentarios: ComentarioDeCliente[]
+}
+
+/** Foto da seção "Do projeto à obra" (aba Marketing): obra de um cliente, com selo opcional. */
+export type FotoDeObra = {
+  id: string
+  imagem: ImagemRef
+  /** Texto da situação, pronto para o selo ("Em obra", "Acabamento", "Concluída"); `null` = sem. */
+  etapa: string | null
+  /** Cidade e estado (ex.: "Teresina-PI"); `null` = sem. */
+  cidade: string | null
+}
+
+/** Faixa de prova social do topo da página. Os avatares são decorativos (sorteados no componente). */
+export type ProvaSocialDoProjeto = {
+  clientes: number
+  /** De 1 a 5, uma casa decimal; `null` = sem estrelas nem nota. */
+  nota: number | null
+}
+
 /** Uma linha da lista "Informações da planta" (painel ao lado da imagem, na galeria de pavimentos). */
 export type ItemInformacaoPavimento = {
   id: string
@@ -122,6 +163,16 @@ export type ProjetoDetalhe = Projeto & {
    *  seção não aparece na página. Nome diferente de `pavimentos` (herdado de `Projeto`: o número
    *  de pavimentos do imóvel) para não colidir com ele. */
   plantaHumanizada: PavimentoPublico[]
+  /** Fotos da aba "Prévias do Projeto" do cadastro, na ordem de exibição. Lista vazia = a seção
+   *  "Prévias do projeto" não aparece na página. */
+  previas: ItemGaleria[]
+  /** Aba "Marketing" do cadastro: prints e comentários de clientes. */
+  depoimentos: DepoimentosDoProjeto
+  /** Aba "Marketing" do cadastro: até 5 fotos de obras de clientes, na ordem de exibição. Lista
+   *  vazia = a seção "Do projeto à obra" não aparece. */
+  obras: FotoDeObra[]
+  /** Faixa "N clientes já compraram este projeto" (aba Marketing). `null` = a faixa não aparece. */
+  provaSocial: ProvaSocialDoProjeto | null
   /** `undefined` quando o projeto não tem vídeo cadastrado. */
   video?: VideoProjeto
   /** Cadastro: coluna `itens` (aba 4, "Itens Incluídos"). Alimenta a seção "O que está incluso". */

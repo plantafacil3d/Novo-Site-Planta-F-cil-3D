@@ -32,6 +32,11 @@ A marca é preto e branco, minimalista; o verde vivo é a única cor de destaque
 | `--gray-700`                                      | hover do botão preto                                                                                                     |
 | `--gray-900`                                      | texto principal                                                                                                          |
 | `--gray-100` / `--gray-300` / `--gray-400`        | fundo desabilitado / borda de campo / texto desabilitado                                                                 |
+| `--green-300`                                     | só texto verde sobre fundo escuro ou foto (situação da obra no selo das fotos de "Do projeto à obra"); medido no layout |
+| `--violet-50`                                     | só o fundo lilás da faixa de prova social (topo da página do projeto); medido no layout                                    |
+| `--violet-600`                                    | só o destaque de seção (contorno tracejado e selo); branco sobre ele dá 5,7:1                                            |
+| `--avatar-green` / `--avatar-blue` / `--avatar-amber` | só os avatares com iniciais dos depoimentos (decorativos; o nome aparece em texto ao lado)                            |
+| `--instagram-orange` / `--instagram-rose` / `--instagram-purple` | só o degradê do avatar de perfil do Instagram                                                          |
 | `--success-*`, `--red-*`, `--amber-*`, `--blue-*` | escalas de estado: 50 (fundo), 200 (borda), 500/600 (cor viva), 800/900 (texto)                                          |
 
 Cinzas e pretos com leve tom esverdeado, para combinar com a marca. Exceção intencional: `--black-800`, que puxa para azul-petróleo (escolha do usuário, 2026-09-20).
@@ -59,6 +64,14 @@ Cinzas e pretos com leve tom esverdeado, para combinar com a marca. Exceção in
 | `--color-link`                                | `--blue-600`                | links em texto corrido                                                                                                          |
 | `--color-overlay`                             | preto 55%                   | fundo atrás de modais                                                                                                           |
 | `--color-bg-disabled` / `--color-fg-disabled` | `--gray-100` / `--gray-400` | controles desabilitados (isento de AA)                                                                                          |
+| `--color-highlight` / `--color-highlight-fg`  | `--violet-600` / `--white`  | destaque de seção: contorno tracejado e selo (ex.: `PreviasDoProjeto`)                                                          |
+| `--color-highlight-subtle`                    | `--violet-50`               | fundo da faixa `ProvaSocial` ("N clientes já compraram este projeto")                                                           |
+| `--color-feature-icon-bg`                     | `--avatar-green`            | quadrado verde atrás do ícone branco do `FeatureItem` `tone="card"` (medido no layout)                                          |
+| `--color-avatar-green` / `-blue` / `-amber`   | `--avatar-*`                | fundo do `Avatar` (iniciais brancas, decorativas)                                                                               |
+| `--color-avatar-instagram-from` / `-via` / `-to` | `--instagram-*`          | degradê do `Avatar` `instagram` (de baixo-esquerda a cima-direita)                                                              |
+| `--color-rating`                              | `--amber-500`               | estrelas da nota de um comentário (ícone, não texto)                                                                            |
+| `--color-verified`                            | `--green-700`               | texto "Compra verificada" (4,8:1 sobre branco, passa AA)                                                                        |
+| `--color-accent-on-inverse`                   | `--green-300`               | texto verde sobre fundo escuro ou foto (situação da obra no selo de `ObrasDeClientes`; >10:1 sobre `--color-overlay-strong`)     |
 
 #### Estados (success, warning, danger, info)
 
@@ -89,6 +102,7 @@ Ex.: `bg-notification-error-bg text-notification-error-fg border-notification-er
 ## Tipografia
 
 - Títulos: **Poppins** 600/700 (`font-heading`, aplicada em `h1`–`h4`). Texto, botões e rótulos: **Inter** 400/500/600 (`font-body`, padrão do `body`). Carregadas com `next/font` em `app/layout.tsx`.
+- Tamanhos só dos depoimentos de clientes (o layout enviado usa uma escala 1px menor; nenhum tamanho existente mudou): `text-caption` 11px (legendas), `text-label` 13px (nomes) e `text-comment` 14,4px (texto de comentário, entrelinha 1,5).
 - Escala: `text-xs` 12px, `text-sm` 14px, `text-base` 16px, `text-lg` 18px, `text-xl` 20px, `text-2xl` 24px, `text-3xl` 32px, `text-4xl` 44px (título do hero).
 - Pesos: 400 (texto), 500 (rótulos), 600 (subtítulos), 700 (títulos).
 - Altura de linha: 1.2 em títulos, 1.5 em texto corrido.
@@ -103,8 +117,8 @@ Escala padrão do Tailwind (base 4px): `1`=4px, `2`=8px, `3`=12px, `4`=16px, `6`
 
 ## Raios, sombras e movimento
 
-- Raios: `rounded-sm` 6px (chips, tags) · `rounded-md` 10px (botões, campos) · `rounded-lg` 14px (cards) · `rounded-full`.
-- Sombras: `shadow-sm` (card em repouso) · `shadow-md` (card em hover, dropdown) · `shadow-lg` (modal).
+- Raios: `rounded-sm` 6px (chips, tags) · `rounded-md` 10px (botões, campos) · `rounded-lg` 14px (cards) · `rounded-highlight` 20px (moldura de destaque de seção e cartões de depoimento) · `rounded-full`.
+- Sombras: `shadow-sm` (card em repouso) · `shadow-md` (card em hover, dropdown) · `shadow-lg` (modal) · `shadow-soft` (cartões de depoimento: sombra larga e suave, bem mais leve que a `shadow-md`).
 - Movimento: `duration-150` (rápido) e `duration-250` (base) com `ease-standard`. Respeitar `prefers-reduced-motion` (já tratado em `globals.css`).
 
 ## Breakpoints

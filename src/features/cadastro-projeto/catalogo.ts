@@ -128,7 +128,28 @@ export const perfisDeTerrenoDoCadastro = [
 /** Faixa aceita para "Família indicada" (aba 1): capacidade de pessoas, vira "Até N pessoas". */
 export const FAMILIA_CAPACIDADE = { min: 1, max: 20 } as const
 
-/** As 8 abas, na ordem do menu. `opcional`: não bloqueia o "Salvar". */
+/** Faixa "N clientes já compraram este projeto" (aba Marketing): quantidade e nota aceitas. A nota
+ *  tem uma casa decimal (ex.: 4,9). Os mesmos limites estão no banco (migration `marketing_prova_social`). */
+export const PROVA_SOCIAL = {
+  clientes: { min: 1, max: 999999 },
+  nota: { min: 1, max: 5 },
+} as const
+
+/** Situação da obra de um cliente (aba Marketing, "Obras de clientes"): valor gravado e texto do selo
+ *  na foto. Fonte única também para a página pública, que mostra o `rotulo`. */
+export const etapasDaObra = [
+  { valor: 'em_obra', rotulo: 'Em obra' },
+  { valor: 'acabamento', rotulo: 'Acabamento' },
+  { valor: 'concluida', rotulo: 'Concluída' },
+] as const
+
+export type EtapaDaObra = (typeof etapasDaObra)[number]['valor']
+
+/** Texto do selo de uma situação gravada; `null` para vazio ou valor desconhecido. */
+export const rotuloDaEtapaDaObra = (valor: unknown): string | null =>
+  etapasDaObra.find((etapa) => etapa.valor === valor)?.rotulo ?? null
+
+/** As 10 abas, na ordem do menu. `opcional`: não bloqueia o "Salvar". */
 export const etapasDoCadastro: readonly { id: EtapaId; rotulo: string; opcional: boolean }[] = [
   { id: 'informacoes', rotulo: 'Informações Gerais', opcional: false },
   { id: 'imagens', rotulo: 'Imagens', opcional: false },
@@ -136,6 +157,8 @@ export const etapasDoCadastro: readonly { id: EtapaId; rotulo: string; opcional:
   { id: 'caracteristicas', rotulo: 'Características', opcional: false },
   { id: 'itens', rotulo: 'Itens Incluídos', opcional: false },
   { id: 'exemplos', rotulo: 'Arquivos de Exemplo', opcional: true },
+  { id: 'previas', rotulo: 'Prévias do Projeto', opcional: true },
+  { id: 'marketing', rotulo: 'Marketing', opcional: true },
   { id: 'complementares', rotulo: 'Complementares', opcional: true },
   { id: 'entrega', rotulo: 'Entrega do Projeto', opcional: false },
 ]

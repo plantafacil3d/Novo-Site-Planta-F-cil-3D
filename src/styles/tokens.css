@@ -16,6 +16,22 @@
   --green-600: #16a34a;
   --green-500: #22c55e;
   --green-100: #e7f8ec;
+  /* Verde claro para texto sobre fundo escuro (selo das fotos de "Do projeto à obra"). Medido no layout
+     enviado pelo usuário (2026-11-20); sobre o `--color-overlay-strong` passa de 10:1. */
+  --green-300: #8ff08d;
+  /* Só o destaque de seção (contorno tracejado e selo). Tirado do layout enviado pelo usuário
+     (2026-11-20); branco sobre este violeta dá 5,7:1 (passa AA). */
+  --violet-600: #7c3aed;
+  /* Fundo lilás da faixa "N clientes já compraram este projeto". Medido no layout (2026-11-20). */
+  --violet-50: #f3edff;
+  /* Avatares com iniciais (depoimentos de clientes) e o degradê do Instagram. Medidos no layout enviado
+     pelo usuário (2026-11-20). Decorativos: as iniciais repetem o nome que aparece ao lado. */
+  --avatar-green: #1fae4b;
+  --avatar-blue: #0ea5e9;
+  --avatar-amber: #f59e0b;
+  --instagram-orange: #ea552e;
+  --instagram-rose: #e11d48;
+  --instagram-purple: #b62a90;
   --white: #ffffff;
   --gray-50: #f5f8f6;
   --gray-200: #dfe6e2;
@@ -74,6 +90,28 @@
   --color-overlay-strong: rgb(11 20 16 / 0.75);
   --color-bg-disabled: var(--gray-100);
   --color-fg-disabled: var(--gray-400);
+
+  /* Destaque de seção (selo e contorno tracejado), ex.: "Prévias do projeto". */
+  --color-highlight: var(--violet-600);
+  --color-highlight-fg: var(--white);
+  /* Fundo suave do destaque (faixa de prova social no topo da página do projeto). */
+  --color-highlight-subtle: var(--violet-50);
+  /* Quadrado verde atrás do ícone branco dos selos em cartão (Compra segura...). Medido no layout. */
+  --color-feature-icon-bg: var(--avatar-green);
+
+  /* Avatar com iniciais: 3 tons que se alternam e o degradê do Instagram (de baixo-esquerda a cima-direita). */
+  --color-avatar-green: var(--avatar-green);
+  --color-avatar-blue: var(--avatar-blue);
+  --color-avatar-amber: var(--avatar-amber);
+  --color-avatar-instagram-from: var(--instagram-orange);
+  --color-avatar-instagram-via: var(--instagram-rose);
+  --color-avatar-instagram-to: var(--instagram-purple);
+  /* Estrelas da nota de um comentário (preenchimento e contorno). Ícone, não texto. */
+  --color-rating: var(--amber-500);
+  /* Selo "Compra verificada" (texto): verde escuro que passa AA sobre branco (4,8:1). */
+  --color-verified: var(--green-700);
+  /* Texto verde sobre fundo escuro ou foto (situação da obra no selo da foto). */
+  --color-accent-on-inverse: var(--green-300);
 
   /* Estados: -solid (ícone, borda de campo, botão), -subtle (fundo), -border, -fg (texto sobre o subtle). */
   --color-success-solid: var(--success-600);
@@ -150,13 +188,25 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
+  /* Moldura de destaque de seção: um pouco mais arredondada que o card (14px) que ela envolve. */
+  --radius-highlight: 20px;
 
   /* Sombras */
   --shadow-sm: 0 1px 3px rgb(11 20 16 / 0.08);
   --shadow-md: 0 6px 16px rgb(11 20 16 / 0.12);
   --shadow-lg: 0 16px 40px rgb(11 20 16 / 0.18);
+  /* Cartão de depoimento: sombra larga e suave, bem mais leve que a `shadow-md`. */
+  --shadow-soft: 0 8px 24px rgb(11 20 16 / 0.09);
 
   /* Tipografia (escala) */
+  /* Tamanhos só dos depoimentos de clientes: o layout enviado pelo usuário usa uma escala 1px menor que
+     a do site (11/13/14,4 em vez de 12/14/16). Novos; nenhum tamanho existente mudou. */
+  --text-caption: 0.6875rem;
+  --text-caption--line-height: 1.35;
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.3;
+  --text-comment: 0.9rem;
+  --text-comment--line-height: 1.5;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;

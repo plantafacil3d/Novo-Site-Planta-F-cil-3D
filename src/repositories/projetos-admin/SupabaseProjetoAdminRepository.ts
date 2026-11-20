@@ -13,10 +13,12 @@ import type {
   ArquivoGravado,
   CadastroCompletoDoBanco,
   CadastroGravavel,
+  ComentarioGravavel,
   ComplementarGravavel,
   EstadoParaPublicar,
   ItemDaPlantaGravavel,
   NovoArquivoProjeto,
+  ObraGravavel,
   PapelDoArquivo,
   PavimentoDoBanco,
   PavimentoGravavel,
@@ -111,6 +113,10 @@ function paraColunas(cadastro: CadastroGravavel) {
     area_gourmet: cadastro.areaGourmet,
     itens: cadastro.itens,
     entrega_link: cadastro.entregaLink,
+    comentarios_clientes: cadastro.comentariosClientes,
+    obras_clientes: cadastro.obrasClientes,
+    prova_social_clientes: cadastro.provaSocialClientes,
+    prova_social_nota: cadastro.provaSocialNota,
   }
 }
 
@@ -169,6 +175,7 @@ const COLUNAS_DO_CADASTRO_COMPLETO =
   'descricao, ambientes, indicado_para, aplicacoes, perfil_terreno, familia_capacidade, tags, video_url, checkout_url, ' +
   'largura_m, profundidade_m, area_construida_m2, quartos, suites, ' +
   'suite_master, banheiros, lavabo, vagas, pavimentos, piscina, area_gourmet, itens, entrega_link, ' +
+  'comentarios_clientes, obras_clientes, prova_social_clientes, prova_social_nota, ' +
   'projeto_complementares (id, titulo, valor_centavos, descricao, entrega, link, checkout_url, ordem), ' +
   'projeto_pavimentos (id, nome, ordem, pavimento_itens (id, nome, metragem_m2, numero_bolinha, ordem)), ' +
   'projeto_arquivos (id, papel, complementar_id, pavimento_id, caminho, nome_original, tamanho_bytes, tipo_mime, ordem), ' +
@@ -207,6 +214,11 @@ type LinhaCadastroCompleto = {
   area_gourmet: boolean | null
   itens: string[]
   entrega_link: string | null
+  comentarios_clientes: ComentarioGravavel[]
+  obras_clientes: ObraGravavel[]
+  prova_social_clientes: number | null
+  /** `numeric` do Postgres: o cliente do Supabase entrega como número. */
+  prova_social_nota: number | null
   projeto_complementares: {
     id: string
     titulo: string | null
@@ -277,6 +289,10 @@ function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoB
     areaGourmet: linha.area_gourmet,
     itens: linha.itens,
     entregaLink: linha.entrega_link,
+    comentariosClientes: linha.comentarios_clientes ?? [],
+    obrasClientes: linha.obras_clientes ?? [],
+    provaSocialClientes: linha.prova_social_clientes,
+    provaSocialNota: linha.prova_social_nota === null ? null : Number(linha.prova_social_nota),
     complementares: linha.projeto_complementares.map((complementar) => ({
       id: complementar.id,
       titulo: complementar.titulo,

@@ -5,6 +5,8 @@ export type EtapaId =
   | 'caracteristicas'
   | 'itens'
   | 'exemplos'
+  | 'previas'
+  | 'marketing'
   | 'complementares'
   | 'entrega'
 
@@ -69,6 +71,25 @@ export type ComplementarProjeto = {
   pdf: AnexoProjeto | null
 }
 
+/** Um comentário da aba Marketing (cartão com estrelas na página pública). Escrito pelo admin. */
+export type ComentarioDoCadastro = {
+  id: string
+  /** Estrelas, de 1 a 5. */
+  nota: number
+  texto: string
+  nome: string
+  /** Cidade e estado, como deve aparecer (ex.: "São Luís-MA"). */
+  cidade: string
+}
+
+/** Legenda de uma foto de obra de cliente (aba Marketing). Os dois campos são opcionais. */
+export type LegendaDaObra = {
+  /** '' = sem situação; senão um valor de `etapasDaObra` (catalogo.ts). */
+  etapa: string
+  /** Cidade e estado, como deve aparecer (ex.: "Teresina-PI"). */
+  cidade: string
+}
+
 /**
  * Tudo que o formulário guarda. Números e preços ficam como texto digitado; a conversão e a
  * conferência são feitas em `schemas.ts`. O formulário nasce vazio (`dadosVazios`).
@@ -116,6 +137,22 @@ export type DadosProjeto = {
   itens: string[]
   // 5. Arquivos de exemplo (ids da biblioteca)
   arquivosExemplo: string[]
+  // 5.1 Prévias do projeto (aba própria, opcional): fotos de plantas e detalhamentos que a página
+  // pública mostra antes da compra. Sem nenhuma, a seção não aparece no site.
+  imagensPrevia: ImagemProjeto[]
+  // 5.2 Marketing (aba própria, opcional): seção "O que nossos clientes dizem" da página pública.
+  // Sem nenhum print, a seção inteira não aparece; sem comentários, só a fileira deles some.
+  imagensDepoimento: ImagemProjeto[]
+  comentariosClientes: ComentarioDoCadastro[]
+  // Seção "Do projeto à obra" (também na aba Marketing): até 5 fotos de obras de clientes e a
+  // legenda de cada uma, pelo id da foto. Sem fotos, a seção não aparece.
+  imagensObra: ImagemProjeto[]
+  legendasObra: Record<string, LegendaDaObra>
+  // Faixa "N clientes já compraram este projeto" (também na aba Marketing), no topo da página.
+  // Texto digitado, como os outros números. Sem clientes, a faixa não aparece.
+  provaSocialClientes: string
+  /** Nota de 1 a 5 com uma casa decimal (ex.: "4,9"); vazio = sem estrelas nem nota. */
+  provaSocialNota: string
   // 6. Complementares
   complementares: ComplementarProjeto[]
   // 7. Entrega
@@ -139,7 +176,15 @@ export type ErrosDaEtapa = Record<string, string>
 // ── Arquivos ─────────────────────────────────────────────────────────────────────────────────────
 
 /** Para que serve o arquivo no projeto. Decide o tipo aceito, a pasta e se o acesso é público. */
-export type PapelDoArquivo = 'principal' | 'galeria' | 'planta' | 'entrega' | 'complementar_pdf'
+export type PapelDoArquivo =
+  | 'principal'
+  | 'galeria'
+  | 'planta'
+  | 'previa'
+  | 'depoimento'
+  | 'obra'
+  | 'entrega'
+  | 'complementar_pdf'
 
 /** O que a conferência precisa saber de um arquivo (um `File` do navegador já se encaixa). */
 export type MetaArquivo = { nomeArquivo: string; tamanho: number; tipo: string }
@@ -149,10 +194,20 @@ export type ArquivoDoPayload = MetaArquivo & { id: string; salvo: boolean }
 
 type DadosComArquivos<A extends MetaArquivo> = Omit<
   DadosProjeto,
-  'imagemPrincipal' | 'imagens' | 'plantaHumanizada' | 'entregaArquivos' | 'complementares'
+  | 'imagemPrincipal'
+  | 'imagens'
+  | 'imagensPrevia'
+  | 'imagensDepoimento'
+  | 'imagensObra'
+  | 'plantaHumanizada'
+  | 'entregaArquivos'
+  | 'complementares'
 > & {
   imagemPrincipal: A | null
   imagens: A[]
+  imagensPrevia: A[]
+  imagensDepoimento: A[]
+  imagensObra: A[]
   plantaHumanizada: (Omit<PavimentoProjeto, 'imagem'> & { imagem: A | null })[]
   entregaArquivos: A[]
   complementares: (Omit<ComplementarProjeto, 'pdf'> & { pdf: A | null })[]
@@ -198,7 +253,20 @@ export type CadastroGravavel = {
   areaGourmet: boolean | null
   itens: string[]
   entregaLink: string | null
+  /** Comentários da aba Marketing, na ordem da tela (coluna `comentarios_clientes`, jsonb). */
+  comentariosClientes: ComentarioGravavel[]
+  /** Legendas das fotos de obras (coluna `obras_clientes`, jsonb), na ordem das fotos. */
+  obrasClientes: ObraGravavel[]
+  /** Faixa de prova social (colunas `prova_social_clientes` e `prova_social_nota`). */
+  provaSocialClientes: number | null
+  provaSocialNota: number | null
 }
+
+/** Um comentário pronto para gravar: textos sem espaços nas pontas. */
+export type ComentarioGravavel = Omit<ComentarioDoCadastro, 'id'>
+
+/** Legenda de uma foto de obra pronta para gravar, ligada à foto pelo id do arquivo. Vazio = `null`. */
+export type ObraGravavel = { arquivoId: string; etapa: string | null; cidade: string | null }
 
 export type ComplementarGravavel = {
   id: string

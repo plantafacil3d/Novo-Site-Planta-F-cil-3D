@@ -8,7 +8,10 @@ export { GaleriaPlantaHumanizada } from './components/GaleriaPlantaHumanizada'
 export { GlossarioEspecificacoes } from './components/GlossarioEspecificacoes'
 export { IncluidoNoProjeto } from './components/IncluidoNoProjeto'
 export { PerfilProjeto } from './components/PerfilProjeto'
+export { DepoimentosDeClientes } from './components/DepoimentosDeClientes'
+export { ObrasDeClientes } from './components/ObrasDeClientes'
 export { PerguntasFrequentes } from './components/PerguntasFrequentes'
+export { PreviasDoProjeto } from './components/PreviasDoProjeto'
 export { FiltrosAplicados } from './components/FiltrosAplicados'
 export { FiltrosSkeleton } from './components/FiltrosSkeleton'
 export { FormularioDeFiltros } from './components/FormularioDeFiltros'
@@ -57,10 +60,12 @@ export { lerParametrosListagem } from './schemas'
 export type {
   Categoria,
   CategoriaSlug,
+  ComentarioDeCliente,
   Complementar,
   ComplementarDoProjeto,
   ConsultaProjetos,
   ConteudoSobre,
+  DepoimentosDoProjeto,
   Diferencial,
   FiltrosProjetos,
   ImagemRef,
@@ -70,6 +75,9 @@ export type {
   ParametrosListagem,
   PavimentoPublico,
   PerfilDoProjeto,
+  PrintDeCliente,
+  FotoDeObra,
+  ProvaSocialDoProjeto,
   Projeto,
   ProjetoDetalhe,
   SeloProjeto,

@@ -4,6 +4,60 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-11-20 (celular: prévias, depoimentos e obras sem faixa de deslizar)
+
+- No celular, a pedido do usuário (referências `versão celular (1)` e `(2)`): "Prévias do projeto" vira uma coluna com todas as fotos à mostra e centralizadas; os prints de "O que nossos clientes dizem" ficam em 2 colunas; "Do projeto à obra" mostra a 1ª foto na largura toda e as outras em 2 colunas. Por quê: na faixa de deslizar não dava para ver quantas fotos havia e a foto ficava fora do centro. Os comentários dos depoimentos continuam na faixa. Computador sem mudança.
+
+## 2026-11-20 (topo da página do projeto: prova social e selos em cartão)
+
+- Faixa nova `ProvaSocial` ("★★★★★ 4,9 · 128 clientes já compraram este projeto"), abaixo de "Adicionar aos favoritos", configurada na aba Marketing (quantidade de clientes e nota decimal; textos fixos; avatares sorteados por projeto, estáveis). Opcional: sem quantidade, some. Banco: migration `marketing_prova_social` (`prova_social_clientes`, `prova_social_nota`). Cache de `buscarProjeto` em `v4`.
+- Selos "Compra segura / Entrega imediata / Suporte especializado" viram 3 cartões lado a lado dentro da coluna de compra (`FeatureItem` `tone="card"`, variante nova); a coluna lateral de selos no `xl` saiu e galeria e informações ficam em duas metades iguais, como `referencias/imagem aberta para Ia entender como vai ficar.png`. "Entrega imediata" usa o ícone `zap` (novo no `Icon`), também na página inicial (decisão do usuário).
+- Tokens novos: `--violet-50` / `--color-highlight-subtle` (fundo lilás, medido) e `--color-feature-icon-bg` (`--avatar-green`, o verde do quadrado do ícone no layout). `Avatar` ganhou o tom `highlight` (círculo "+").
+
+## 2026-11-20 (Galeria completa com 8 fotos)
+
+- A grade da "Galeria completa" mostra só as 8 primeiras fotos (2 fileiras de 4, como `referencias/Seção 5.jpeg`); clicar abre a tela cheia com todas. Saiu a etapa de 3 colunas (tablet): com 8 fotos a última fileira ficava pela metade. Por quê: o usuário achou a galeria longa demais.
+
+## 2026-11-20 (seção "Do projeto à obra": obras de clientes)
+
+- Componente novo `ObrasDeClientes` (`features/projetos/components/`), logo depois dos depoimentos: mosaico de até 5 fotos de obras de clientes (1 grande + 4), cada uma com selo opcional de situação e cidade. Layout copiado de `referencias/Seção 4.png`. Feito de uma vez (visual + cadastro + banco), a pedido do usuário. As classes da faixa do celular saíram de `DepoimentosDeClientes` para `faixaNoCelular.ts`, agora usadas pelas duas seções (sem mudança visual).
+- Tokens novos: `--green-300` (#8ff08d, medido no layout) e o semântico `--color-accent-on-inverse` (texto verde sobre fundo escuro ou foto). Por quê: o `--color-accent` é mais escuro que o verde do layout; o fundo do selo reaproveita `--color-overlay-strong`.
+- Aba Marketing: grupo "Obras de clientes" (limite de 5 fotos, decisão do usuário; ao clicar, abre o visualizador só com elas). Banco (migration `marketing_obras`): papel `obra` em `projeto_arquivos` (+ leitura pública só de projeto publicado) e coluna `obras_clientes` (jsonb, até 5 legendas `{ arquivoId, etapa, cidade }`) em `projetos`. Cache de `buscarProjeto` na versão `v3`.
+
+## 2026-11-20 (Prévias sem marca d'água)
+
+- Saiu a marca d'água "PRÉVIA · PLANTA FÁCIL 3D" de cima das fotos de "Prévias do projeto", a pedido do usuário; o token `--color-watermark`, que só ela usava, foi removido.
+
+## 2026-11-20 (aba "Marketing": prints leves e menos texto)
+
+- Prints de clientes passam a ser reduzidos no navegador para **800 px de largura**, WebP 80% (perfil `REDUCAO_DE_IMAGEM.print`; `reduzirImagem` ganhou `medida: 'largura'`). Por quê: são só conversas, 2400 px era exagero. Largura e não lado maior: 800 no lado maior deixaria um print de celular com 369 px de largura, menos que os ~530 px do cartão de 264 px em tela nítida. O script das fotos antigas segue a mesma regra na pasta `depoimento`.
+- Componente novo `Dica` (`ui/`): ícone "i" com balão. A aba Marketing troca a descrição do painel, as dicas dos grupos, a dica do campo de arquivo, os rótulos visíveis e o contador dos comentários por `Dica` e placeholders. Por quê: o usuário achou a tela poluída e pediu as explicações em tooltip. As outras abas não mudaram.
+
+## 2026-11-20 (aba "Marketing" do cadastro: depoimentos funcionando de verdade)
+
+- Aba nova **"Marketing"** no cadastro de projeto, logo depois de "Prévias do Projeto" (10 abas), opcional. Dois grupos: "Prints de clientes", com envio de fotos igual ao das prévias (2400 px, WebP, reordenar), e "Comentários", uma lista compacta (estrelas, comentário, nome, cidade-estado) com "Adicionar comentário". Componente novo `NotaEmEstrelas` (só do cadastro): rádios escondidos desenhados como estrelas, sem token novo (`--color-rating`). Por quê: o usuário pediu "um campozinho bem facinho e bem compacto" para preencher cada comentário.
+- "Compra verificada" passa a aparecer **sempre**, em todos os comentários (decisão do usuário); o campo `compraVerificada` saiu. O risco de selo de compra verificada em comentário escrito pelo admin foi avisado antes.
+- Banco (migration `marketing_depoimentos`): papel `depoimento` em `projeto_arquivos` (+ leitura pública só de projeto publicado) e coluna `comentarios_clientes` (jsonb, lista de até 30) em `projetos`. Dados de teste do dev e `public/teste-depoimentos/` removidos.
+- O cache de `buscarProjeto` ganhou versão na chave (`v2`): o cache guardado tinha o formato antigo de `ProjetoDetalhe` (sem `depoimentos`) e quebrava o build.
+
+## 2026-11-20 (seção "O que nossos clientes dizem": depoimentos, fase do visual)
+
+- Novo componente `DepoimentosDeClientes` (`features/projetos/components/`), logo depois de "Prévias do projeto": uma fileira de prints de conversa (WhatsApp, SketchUp, Instagram...) e, abaixo, cartões de comentário com estrelas. Layout copiado de `referencias/seção 2.png`, medido no print: moldura 854px, cartões de print 264×467px, de comentário 358,7×218px, avatares de 30 e 36px, nomes 13px, legendas 11px, texto de comentário 14,4px (as larguras de texto conferem em ~1px). Por quê: mostrar prova social (prints reais de clientes) na página do projeto. Nesta fase só o visual: textos e prints de teste aparecem só no `npm run dev` (recortes do próprio layout em `public/teste-depoimentos/`, ignorados pelo Git); o cadastro e o banco vêm depois da aprovação.
+- Componentes novos: `Avatar` (`ui/`), `SecaoDestacada` (`layout/`, tirada de `PreviasDoProjeto`, que passou a usá-la sem mudar nada no visual) e o ícone `star`. Por quê: avatar com iniciais e moldura com selo se repetem em 2 telas; um primitivo e um container, não cópias.
+- Tokens novos: cores do avatar (`--avatar-green/blue/amber`, `--instagram-orange/rose/purple`, semânticos `--color-avatar-*`), `--color-rating` (estrelas, `--amber-500`, igual ao layout), `--color-verified` (`--green-700`; o layout usa `#17913d`, que dá 4,0:1 sobre branco, abaixo de AA; o tom mais escuro passa com 4,8:1), `--shadow-soft` (sombra larga e suave, medida no layout) e 3 tamanhos de texto (`--text-caption` 11px, `--text-label` 13px, `--text-comment` 14,4px). Por quê: o layout usa uma escala de texto 1px menor que a do site, e nesses tamanhos os comentários quebram em 2 linhas como no layout (com 16px quebravam em 3). Nenhum tamanho existente mudou.
+- Regras de exibição: sem nenhum print, a seção inteira some; sem comentários, só a fileira de baixo some. Interpretação do pedido do usuário ("se eu não botei nenhum print... esse campo inteiro fica oculto"); a confirmar na fase do cadastro.
+- O selo da referência diz "NOVO · DEPOIMENTOS"; ficou só "DEPOIMENTOS", pelo mesmo motivo de "Prévias do projeto" (o usuário tirou o "NOVO ·" lá).
+- "Compra verificada" é opcional por comentário (`compraVerificada`), não fixo: o selo afirma que a compra foi real. Fica pendente conversar com o usuário sobre comentários escritos por ele (ver o relato da sessão).
+- Ajuste pedido pelo usuário (mesmo dia): os cartões de print **não têm mais cabeçalho** (avatar, nome e "origem · cidade"). O que entra no cartão é só a foto do print, que o admin sobe, e o print de WhatsApp já mostra quem falou. O cartão mantém borda, arredondamento (`--radius-highlight`) e sombra; a foto enche o cartão até a borda, em proporção fixa 9:16 (≈ a altura de antes, 469px contra 467px do layout). `PrintDeCliente` perdeu `nome` e `detalhe`; o cadastro dos prints será só envio de foto, como nas Prévias (sem campo de texto por print).
+
+## 2026-11-20 (seção "Prévias do projeto" e destaque de seção)
+
+- Novo componente `PreviasDoProjeto` (`features/projetos/components/`), entre "O que está incluso" e os complementares. Layout copiado de uma referência enviada pelo usuário: moldura tracejada violeta com selo "NOVO · PRÉVIAS DO PROJETO", cartões em grade de 2 colunas (faixa deslizante no celular) e marca d'água "PRÉVIA · PLANTA FÁCIL 3D". Por quê: mostrar plantas e detalhamentos antes da compra. Nesta fase só o visual (fotos de teste só em `npm run dev`); o cadastro e o banco vêm depois da aprovação.
+- Tokens novos: primitivo `--violet-600` (`#7c3aed`) e semânticos `--color-highlight`, `--color-highlight-fg`, `--color-watermark` e `--radius-highlight` (20px). Por quê: o violeta e a marca d'água não existiam na paleta; os valores foram medidos pixel a pixel no print do usuário (violeta `#7b3aec` no print, arredondado para o `#7c3aed` padrão; cinza da marca `#eef0ef` ≈ `--gray-100`). O usuário forneceu a cor, então não é decisão de marca inventada.
+- Correção do selo "NOVO · PRÉVIAS DO PROJETO" (usuário viu o selo "descentralizado na vertical"): o selo ficava ~3px acima do centro da linha tracejada; agora fica centrado nela (`-top-px` + `-translate-y-1/2`, não depende de fonte). Tamanho e padding do selo continuam `text-xs tracking-wide py-0.5`: medido com a **Poppins real** (página de teste com a fonte do Google), dá 205px de largura (layout: 204px) e texto centrado. Sem token novo.
+- Lição (2026-11-20): o `npm run dev` do usuário estava rodando com a **fonte reserva** (tipo Arial) no lugar da Inter/Poppins — o CSS local só tinha os `@font-face` "Inter Fallback" e "Poppins Fallback", e o título ficava mais fino que no site no ar. Medir tamanho, espaçamento ou centralização de texto nessa situação dá resultado errado (a primeira "correção" do selo, calibrada na fonte reserva, deixaria o texto ~1px baixo na Poppins real e foi desfeita). Antes de medir texto, confirme que a fonte real carregou (`document.fonts` com `Poppins 700 → loaded`).
+- Fase 2 (mesmo dia): a seção passou a ser alimentada de verdade. O selo ficou só "PRÉVIAS DO PROJETO" (saiu o "NOVO ·", pedido do usuário; a moldura tracejada e o selo continuam, então o destaque deixou de ser "Novo": os tokens `--color-highlight*` e `--radius-highlight` mantêm o nome). Nova aba "Prévias do Projeto" no cadastro (`EtapaPrevias`, opcional, depois de "Arquivos de Exemplo"; o cadastro passou a ter 9 abas). Dados: papel novo `previa` em `projeto_arquivos` (mesma tabela e bucket público das demais imagens), com migration que aceita o papel e o libera na leitura pública. Compressão: perfil de planta (2400 px, WebP 0,90, máx. 2 MB), como a planta humanizada, por causa do texto pequeno dos desenhos; `scripts/reduzir-fotos-storage.mjs` trata a pasta `previa` com o mesmo limite. Por quê: o usuário aprovou o visual e pediu a seção funcionando, opcional por projeto e seguindo a otimização das outras imagens.
+
 ## 2026-10-17 (idioma automático pelo navegador + russo no seletor)
 
 - `SeletorDeIdioma` ganhou o russo (`ru`, "Русский"), agora com 9 idiomas. Nova bandeira `flag-ru` no registro do `Icon` (SVG próprio, mesmo estilo das outras). Por quê: pedido do usuário.

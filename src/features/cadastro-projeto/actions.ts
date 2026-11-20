@@ -81,7 +81,16 @@ const schemaModo = z.enum(['rascunho', 'completo'])
 const schemaArquivo = z
   .object({
     id: z.uuid(),
-    papel: z.enum(['principal', 'galeria', 'planta', 'entrega', 'complementar_pdf']),
+    papel: z.enum([
+      'principal',
+      'galeria',
+      'planta',
+      'previa',
+      'depoimento',
+      'obra',
+      'entrega',
+      'complementar_pdf',
+    ]),
     nomeArquivo: z.string().min(1).max(255),
     tamanho: z.number().int().positive(),
     tipo: z.string().max(100),
@@ -182,8 +191,8 @@ async function lerContextoDeNomes(
 }
 
 /**
- * Dá a cada imagem nova da galeria e das plantas o próximo número livre do projeto (cada papel conta
- * à parte). Quem já está gravado (o envio se repete quando a resposta anterior se perde) mantém o
+ * Dá a cada imagem nova da galeria, das plantas, das prévias, dos prints e das obras de clientes o próximo número livre do projeto (cada
+ * papel conta à parte). Quem já está gravado (o envio se repete quando a resposta anterior se perde) mantém o
  * número que já tinha. Devolve o número por id de arquivo.
  */
 function numerarImagens(
@@ -191,7 +200,7 @@ function numerarImagens(
   contexto: ContextoDeNomes,
 ): Map<string, number> {
   const numeros = new Map<string, number>()
-  for (const papel of ['galeria', 'planta'] as const) {
+  for (const papel of ['galeria', 'planta', 'previa', 'depoimento', 'obra'] as const) {
     const doPapel = arquivos.filter((arquivo) => arquivo.papel === papel)
     const novos = doPapel.filter((arquivo) => {
       const gravado = contexto.gravados.find((item) => item.id === arquivo.id)

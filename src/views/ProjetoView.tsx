@@ -8,13 +8,16 @@ import { Breadcrumb } from '@/components/navigation/Breadcrumb'
 import {
   BarraCompraMobile,
   ComplementaresDoProjeto,
+  DepoimentosDeClientes,
   EspecificacoesTecnicas,
   GaleriaCompleta,
   GaleriaPlantaHumanizada,
   GlossarioEspecificacoes,
   IncluidoNoProjeto,
+  ObrasDeClientes,
   PerfilProjeto,
   PerguntasFrequentes,
+  PreviasDoProjeto,
   ProjetoHero,
   ProjetosRelacionados,
   SobreProjeto,
@@ -90,6 +93,13 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
       <GaleriaPlantaHumanizada pavimentos={projeto.plantaHumanizada} compartilhar={compartilhar} />
       <SobreProjeto sobre={projeto.sobre} imagem={projeto.imagem} />
       <IncluidoNoProjeto itens={projeto.itensInclusos} />
+      <PreviasDoProjeto previas={projeto.previas} compartilhar={compartilhar} />
+      <DepoimentosDeClientes
+        prints={projeto.depoimentos.prints}
+        comentarios={projeto.depoimentos.comentarios}
+        compartilhar={compartilhar}
+      />
+      <ObrasDeClientes obras={projeto.obras} compartilhar={compartilhar} />
       <ComplementaresDoProjeto complementares={projeto.complementares} />
       <GaleriaCompleta itens={projeto.galeria} compartilhar={compartilhar} />
       {projeto.video && (

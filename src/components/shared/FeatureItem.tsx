@@ -5,8 +5,9 @@ type FeatureItemProps = {
   icon: IconName
   title: string
   description: string
-  /** `inverse` para fundos escuros (hero). */
-  tone?: 'default' | 'inverse'
+  /** `inverse` para fundos escuros (hero). `card`: cartão verde-claro com o ícone branco num quadrado
+   *  verde (selos de confiança da página do projeto); ignora `layout`. */
+  tone?: 'default' | 'inverse' | 'card'
   /** `row`: ícone ao lado do texto. `stack`: ícone em cima do texto (grades de características). */
   layout?: 'row' | 'stack'
   /** Use `h3` quando o item estiver dentro de uma seção com h2, para não pular nível. */
@@ -24,6 +25,20 @@ export function FeatureItem({
   titleAs: Title = 'p',
   className,
 }: FeatureItemProps) {
+  if (tone === 'card') {
+    return (
+      <div className={cn('flex h-full items-start gap-3 rounded-lg bg-tint p-4', className)}>
+        <span className="inline-flex size-10.5 shrink-0 items-center justify-center rounded-md bg-feature-icon-bg text-fg-inverse">
+          <Icon name={icon} className="size-5" />
+        </span>
+        <div>
+          <Title className="font-body text-base leading-snug font-semibold">{title}</Title>
+          <p className="text-sm leading-snug text-fg-muted">{description}</p>
+        </div>
+      </div>
+    )
+  }
+
   const inverse = tone === 'inverse'
   const stack = layout === 'stack'
 

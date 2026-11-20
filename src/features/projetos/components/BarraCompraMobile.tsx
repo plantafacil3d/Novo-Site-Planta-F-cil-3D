@@ -18,7 +18,8 @@ export function BarraCompraMobile({ preco, checkoutUrl }: BarraCompraMobileProps
   return (
     <div
       data-barra-compra-mobile
-      className="sticky bottom-0 z-30 flex items-center justify-between gap-4 border-t border-border bg-page p-3 shadow-lg md:hidden">
+      className="sticky bottom-0 z-30 flex items-center justify-between gap-4 border-t border-border bg-page p-3 shadow-lg md:hidden"
+    >
       <PriceTag
         price={preco.atual}
         originalPrice={preco.original}

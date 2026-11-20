@@ -1,9 +1,15 @@
 import 'server-only'
 
-import { textoAlternativoDaImagem, type DadosDoNomeDaImagem } from '@/features/cadastro-projeto'
+import {
+  rotuloDaEtapaDaObra,
+  textoAlternativoDaImagem,
+  type DadosDoNomeDaImagem,
+} from '@/features/cadastro-projeto'
 import {
   formatarFamiliaIndicada,
   type Categoria,
+  type ComentarioDeCliente,
+  type FotoDeObra,
   type Complementar,
   type ComplementarDoProjeto,
   type ConsultaProjetos,
@@ -13,6 +19,8 @@ import {
   type LimitesDeFiltro,
   type OrdenacaoProjetos,
   type PavimentoPublico,
+  type PrintDeCliente,
+  type ProvaSocialDoProjeto,
   type Projeto,
   type ProjetoDetalhe,
 } from '@/features/projetos'
@@ -74,8 +82,9 @@ const COLUNAS_DETALHE =
   'largura_m, profundidade_m, area_construida_m2, quartos, suites, suite_master, banheiros, lavabo, ' +
   'vagas, pavimentos, piscina, area_gourmet, ' +
   'checkout_url, resumo, descricao, ambientes, indicado_para, aplicacoes, ' +
-  'perfil_terreno, familia_capacidade, itens, video_url, ' +
-  'projeto_arquivos (caminho, papel, ordem, pavimento_id), ' +
+  'perfil_terreno, familia_capacidade, itens, video_url, comentarios_clientes, obras_clientes, ' +
+  'prova_social_clientes, prova_social_nota, ' +
+  'projeto_arquivos (id, caminho, papel, ordem, pavimento_id), ' +
   'projeto_pavimentos (id, nome, ordem, pavimento_itens (id, nome, metragem_m2, numero_bolinha, ordem)), ' +
   // Só as colunas liberadas ao público (`entrega` e `link` são conteúdo pago).
   'projeto_complementares (id, titulo, valor_centavos, descricao, checkout_url, ordem)'
@@ -98,7 +107,7 @@ const COLUNAS_LIMITE =
   'preco_efetivo_centavos, area_construida_m2, quartos_total, suites, suite_master, banheiros, ' +
   'lavabo, vagas, pavimentos, projeto_arquivos!inner(papel)'
 
-type LinhaArquivoDetalhe = LinhaArquivo & { pavimento_id: string | null }
+type LinhaArquivoDetalhe = LinhaArquivo & { id: string; pavimento_id: string | null }
 
 type LinhaPavimento = {
   id: string
@@ -136,6 +145,51 @@ type LinhaDetalhe = Omit<LinhaResumo, 'projeto_arquivos'> & {
   familia_capacidade: number | null
   itens: string[]
   video_url: string | null
+  /** jsonb gravado pelo cadastro (aba Marketing); lido com cuidado, como dado de fora. */
+  comentarios_clientes: unknown
+  /** jsonb com a legenda das fotos de obras (aba Marketing); lido como dado de fora. */
+  obras_clientes: unknown
+  prova_social_clientes: number | null
+  prova_social_nota: number | string | null
+}
+
+/** Faixa de prova social: só com a quantidade de clientes; a nota fora de 1–5 é ignorada. */
+function lerProvaSocial(linha: LinhaDetalhe): ProvaSocialDoProjeto | null {
+  const clientes = linha.prova_social_clientes
+  if (typeof clientes !== 'number' || !Number.isInteger(clientes) || clientes < 1) return null
+  const nota = linha.prova_social_nota === null ? null : Number(linha.prova_social_nota)
+  return { clientes, nota: nota !== null && nota >= 1 && nota <= 5 ? nota : null }
+}
+
+/** Legenda de cada foto de obra, pelo id do arquivo. O que vier fora do formato vira "sem legenda". */
+function lerLegendasDasObras(
+  valor: unknown,
+): Map<string, { etapa: string | null; cidade: string | null }> {
+  const legendas = new Map<string, { etapa: string | null; cidade: string | null }>()
+  if (!Array.isArray(valor)) return legendas
+  for (const item of valor as unknown[]) {
+    if (typeof item !== 'object' || item === null) continue
+    const { arquivoId, etapa, cidade } = item as Record<string, unknown>
+    if (typeof arquivoId !== 'string') continue
+    const cidadeLida = typeof cidade === 'string' ? cidade.trim() : ''
+    legendas.set(arquivoId, { etapa: rotuloDaEtapaDaObra(etapa), cidade: cidadeLida || null })
+  }
+  return legendas
+}
+
+/** Um comentário só aparece completo: nota de 1 a 5 e texto, nome e cidade preenchidos (um rascunho
+ *  pode ter gravado um pela metade). Qualquer coisa fora desse formato é ignorada. */
+function lerComentarios(valor: unknown, slug: string): ComentarioDeCliente[] {
+  if (!Array.isArray(valor)) return []
+  const texto = (campo: unknown) => (typeof campo === 'string' ? campo.trim() : '')
+  return valor.flatMap((item: unknown, indice): ComentarioDeCliente[] => {
+    if (typeof item !== 'object' || item === null) return []
+    const { nota, texto: comentario, nome, cidade } = item as Record<string, unknown>
+    const lido = { texto: texto(comentario), nome: texto(nome), cidade: texto(cidade) }
+    if (typeof nota !== 'number' || !Number.isInteger(nota) || nota < 1 || nota > 5) return []
+    if (!lido.texto || !lido.nome || !lido.cidade) return []
+    return [{ id: `${slug}-comentario-${indice}`, nota, ...lido }]
+  })
 }
 
 /** Nome de coluna real de cada ordenação da URL. */
@@ -254,6 +308,59 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
   )
   const galeria: ItemGaleria[] = [{ id: principal.caminho, imagem: base.imagem }, ...restante]
 
+  // Prévias do cadastro (papel `previa`), na ordem em que o admin deixou. A leitura pública já só
+  // devolve as de projeto publicado (policy do banco); sem nenhuma, a seção não aparece.
+  const previas: ItemGaleria[] = await Promise.all(
+    linha.projeto_arquivos
+      .filter((arquivo) => arquivo.papel === 'previa')
+      .sort((a, b) => a.ordem - b.ordem)
+      .map(async (arquivo, indice) => ({
+        id: arquivo.caminho,
+        imagem: {
+          src: await resolverUrl(arquivo.caminho),
+          alt: `Prévia ${indice + 1} do projeto ${linha.titulo}`,
+        },
+      })),
+  )
+
+  // Prints de clientes (aba Marketing, papel `depoimento`), na ordem do cadastro. Mesma policy das
+  // prévias: só os de projeto publicado. Sem nenhum, a seção "O que nossos clientes dizem" some.
+  const prints: PrintDeCliente[] = await Promise.all(
+    linha.projeto_arquivos
+      .filter((arquivo) => arquivo.papel === 'depoimento')
+      .sort((a, b) => a.ordem - b.ordem)
+      .map(async (arquivo, indice) => ({
+        id: arquivo.caminho,
+        imagem: {
+          src: await resolverUrl(arquivo.caminho),
+          alt: `print ${indice + 1} de cliente do projeto ${linha.titulo}`,
+        },
+      })),
+  )
+
+  // Obras de clientes (aba Marketing, papel `obra`), na ordem do cadastro, com a legenda de cada uma.
+  // Mesma policy das prévias; sem nenhuma, a seção "Do projeto à obra" some. O teto de 5 é o do
+  // cadastro (e do banco): aqui só garante o mosaico mesmo com um estado inesperado.
+  const legendasDasObras = lerLegendasDasObras(linha.obras_clientes)
+  const obras: FotoDeObra[] = await Promise.all(
+    linha.projeto_arquivos
+      .filter((arquivo) => arquivo.papel === 'obra')
+      .sort((a, b) => a.ordem - b.ordem)
+      .slice(0, 5)
+      .map(async (arquivo, indice) => {
+        const legenda = legendasDasObras.get(arquivo.id)
+        return {
+          id: arquivo.caminho,
+          imagem: {
+            src: await resolverUrl(arquivo.caminho),
+            alt: `Obra ${indice + 1} de cliente construída com o projeto ${linha.titulo}`,
+          },
+          etapa: legenda?.etapa ?? null,
+          cidade: legenda?.cidade ?? null,
+        }
+      }),
+  )
+
   // Só entram pavimentos com imagem gravada (a publicação já exige isso; defensivo contra estado
   // inconsistente, no mesmo espírito de `principal` acima).
   const plantaHumanizada: PavimentoPublico[] = (
@@ -316,6 +423,10 @@ async function montarDetalhe(linha: LinhaDetalhe): Promise<ProjetoDetalhe | null
     },
     galeria,
     plantaHumanizada,
+    previas,
+    depoimentos: { prints, comentarios: lerComentarios(linha.comentarios_clientes, linha.slug) },
+    obras,
+    provaSocial: lerProvaSocial(linha),
     video: linha.video_url ? { src: linha.video_url } : undefined,
     itensInclusos: linha.itens,
     complementares,

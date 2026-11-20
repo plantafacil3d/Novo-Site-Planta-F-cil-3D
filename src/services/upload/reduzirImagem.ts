@@ -1,11 +1,17 @@
 import { AppError } from '@/types/erro'
 
 // Roda no NAVEGADOR (usa canvas), antes de a imagem ir ao Storage. Sem regra de negócio: quem chama
-// diz o lado máximo e a qualidade (os valores de foto e de planta moram em `cadastro-projeto/rules.ts`).
+// diz o limite, a medida e a qualidade (os perfis moram em `cadastro-projeto/rules.ts`).
+
+/** O que o limite mede: o lado maior da imagem (fotos, plantas) ou só a largura (prints de celular,
+ *  que são altos e estreitos: limitar o lado maior deixaria a letra pequena demais). */
+export type MedidaDaReducao = 'ladoMaior' | 'largura'
 
 type Opcoes = {
-  /** Lado maior máximo, em pixels. Imagem menor que isto não é tocada. */
-  ladoMaximo: number
+  /** Limite em pixels da `medida`. Imagem que já cabe nele não é reduzida. */
+  limite: number
+  /** Padrão: `ladoMaior`. */
+  medida?: MedidaDaReducao
   /** Qualidade do WebP, de 0 a 1. */
   qualidade: number
 }
@@ -14,10 +20,15 @@ type Opcoes = {
  * Tamanho final mantendo a proporção. `reduzir` é falso quando a imagem já cabe no limite: nesse caso
  * as dimensões devolvidas são as originais (nunca amplia).
  */
-export function dimensoesReduzidas(largura: number, altura: number, ladoMaximo: number) {
-  const ladoMaior = Math.max(largura, altura)
-  if (ladoMaior <= ladoMaximo) return { largura, altura, reduzir: false }
-  const escala = ladoMaximo / ladoMaior
+export function dimensoesReduzidas(
+  largura: number,
+  altura: number,
+  limite: number,
+  medida: MedidaDaReducao = 'ladoMaior',
+) {
+  const medido = medida === 'largura' ? largura : Math.max(largura, altura)
+  if (medido <= limite) return { largura, altura, reduzir: false }
+  const escala = limite / medido
   return {
     largura: Math.max(1, Math.round(largura * escala)),
     altura: Math.max(1, Math.round(altura * escala)),
@@ -35,16 +46,27 @@ const nomeEmWebp = (nome: string) => `${nome.replace(/\.[^./]+$/, '') || 'imagem
  * metadados. Se a conversão falhar, lança `AppError` com a explicação: o arquivo original NUNCA
  * segue adiante no lugar do convertido.
  */
-export async function reduzirImagem(arquivo: File, { ladoMaximo, qualidade }: Opcoes): Promise<File> {
+export async function reduzirImagem(
+  arquivo: File,
+  { limite, medida, qualidade }: Opcoes,
+): Promise<File> {
   let imagem: ImageBitmap
   try {
     imagem = await createImageBitmap(arquivo, { imageOrientation: 'from-image' })
   } catch {
-    throw new AppError('dados_invalidos', 'Não foi possível abrir a imagem. O arquivo pode estar corrompido.')
+    throw new AppError(
+      'dados_invalidos',
+      'Não foi possível abrir a imagem. O arquivo pode estar corrompido.',
+    )
   }
 
   try {
-    const { largura, altura, reduzir } = dimensoesReduzidas(imagem.width, imagem.height, ladoMaximo)
+    const { largura, altura, reduzir } = dimensoesReduzidas(
+      imagem.width,
+      imagem.height,
+      limite,
+      medida,
+    )
     if (!reduzir && arquivo.type === 'image/webp') return arquivo
 
     const canvas = document.createElement('canvas')

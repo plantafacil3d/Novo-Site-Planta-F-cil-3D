@@ -9,7 +9,15 @@ import type { DadosDeCompartilhamento } from '@/components/shared/ShareButton'
 
 import type { ItemGaleria } from '../types'
 
-/** "Galeria completa": grade de fotos; clicar em uma abre o visualizador em tela cheia. */
+/** Quantas fotos a grade mostra (2 fileiras de 4 no computador, como a referência do usuário de
+ *  2026-11-20). As demais continuam no visualizador em tela cheia. */
+const FOTOS_NA_GRADE = 8
+
+/**
+ * "Galeria completa": grade com as primeiras fotos; clicar em uma abre o visualizador em tela cheia,
+ * que percorre TODAS as fotos do projeto. 2 colunas no celular e 4 a partir de `lg`: com 8 fotos as
+ * fileiras sempre fecham (3 colunas deixariam a última pela metade).
+ */
 export function GaleriaCompleta({
   itens,
   compartilhar,
@@ -22,8 +30,8 @@ export function GaleriaCompleta({
 
   return (
     <Section title="Galeria completa" subtitle="Explore todos os detalhes do projeto.">
-      <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {itens.map((item, indice) => (
+      <ul className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {itens.slice(0, FOTOS_NA_GRADE).map((item, indice) => (
           <li key={item.id}>
             <button
               type="button"
@@ -35,7 +43,7 @@ export function GaleriaCompleta({
                 src={item.imagem.src}
                 alt=""
                 fill
-                sizes="(min-width: 1024px) 23vw, (min-width: 640px) 31vw, 46vw"
+                sizes="(min-width: 1024px) 23vw, 46vw"
                 className="object-cover transition-transform duration-250 ease-standard group-hover:scale-105"
               />
             </button>

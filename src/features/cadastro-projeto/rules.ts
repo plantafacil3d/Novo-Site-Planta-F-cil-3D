@@ -9,6 +9,8 @@ import type {
   CadastroCompletoDoBanco,
   CadastroGravavel,
   ComplementarGravavel,
+  LegendaDaObra,
+  ObraGravavel,
   ComplementarProjeto,
   DadosDoNomeDaImagem,
   DadosProjeto,
@@ -56,6 +58,14 @@ export const LIMITES = {
   complementarTituloMax: 80,
   complementarDescricaoMin: 10,
   complementarDescricaoMax: 300,
+  /** Aba Marketing: comentários com estrelas (a página mostra 3 por linha). */
+  comentariosMax: 30,
+  comentarioTextoMax: 300,
+  comentarioNomeMax: 40,
+  comentarioCidadeMax: 40,
+  /** Aba Marketing, "Obras de clientes": o mosaico da página mostra 5 fotos (1 grande + 4). */
+  obrasMax: 5,
+  obraCidadeMax: 40,
   /** Tamanho máximo da imagem JÁ gravada no Storage (depois de reduzida). */
   imagemMaxBytes: 2 * MB,
   /** Tamanho máximo da imagem que o usuário escolhe no computador, antes de ser reduzida. */
@@ -83,15 +93,20 @@ export const ARQUIVOS_DE_IMAGEM = {
 } as const
 
 /**
- * Como as imagens públicas são reduzidas ANTES de ir ao Storage: lado maior máximo (px) e qualidade do
- * WebP (0 a 1). Fotos e plantas separadas: planta tem linhas finas e texto, e ainda recebe zoom na tela
- * cheia. Nunca amplia: imagem menor que o limite mantém as dimensões, mas JPG e PNG sempre viram WebP
- * (só um WebP que já cabe no limite segue como está).
+ * Como as imagens públicas são reduzidas ANTES de ir ao Storage: limite em px (do lado maior, salvo
+ * indicação) e qualidade do WebP (0 a 1). Fotos e plantas separadas: planta tem linhas finas e texto, e
+ * ainda recebe zoom na tela cheia; as prévias do projeto (plantas e detalhamentos) usam o perfil
+ * `planta`. Os prints de clientes (aba Marketing) são conversas de celular, altas e estreitas, e a
+ * qualidade importa pouco: limite de 800 px na LARGURA (1080×2340 vira ~800×1733, ~100–200 KB). Limitar
+ * o lado maior a 800 daria 369 px de largura, menos que os ~530 px que o cartão de 264 px pede em tela
+ * nítida: a letra borraria. Nunca amplia: imagem menor que o limite mantém as dimensões, mas JPG e PNG
+ * sempre viram WebP (só um WebP que já cabe no limite segue como está).
  * Os mesmos números estão em `scripts/reduzir-fotos-storage.mjs` (as fotos antigas): mudou aqui, mude lá.
  */
 export const REDUCAO_DE_IMAGEM = {
-  foto: { ladoMaximo: 1920, qualidade: 0.85 },
-  planta: { ladoMaximo: 2400, qualidade: 0.9 },
+  foto: { limite: 1920, qualidade: 0.85 },
+  planta: { limite: 2400, qualidade: 0.9 },
+  print: { limite: 800, medida: 'largura', qualidade: 0.8 },
 } as const
 
 export const ARQUIVOS_DE_PDF = { extensoes: ['pdf'], accept: '.pdf,application/pdf' } as const
@@ -158,7 +173,11 @@ export function adicionarVarios(
   let ignorados = 0
   for (const parte of partes) {
     const limpo = semSimbolos(parte).trim()
-    const resultado = adicionarTexto(atual, limpo, { limite: opcoes.limite, repetido: '', cheio: '' })
+    const resultado = adicionarTexto(atual, limpo, {
+      limite: opcoes.limite,
+      repetido: '',
+      cheio: '',
+    })
     if (resultado.erro || limpo.length > opcoes.tamanhoMax) ignorados += 1
     else atual = resultado.lista
   }
@@ -337,6 +356,13 @@ export function dadosVazios(): DadosProjeto {
     areaGourmet: '',
     itens: [],
     arquivosExemplo: [],
+    imagensPrevia: [],
+    imagensDepoimento: [],
+    comentariosClientes: [],
+    imagensObra: [],
+    legendasObra: {},
+    provaSocialClientes: '',
+    provaSocialNota: '',
     complementares: [],
     entregaArquivos: [],
     entregaLink: '',
@@ -346,6 +372,15 @@ export function dadosVazios(): DadosProjeto {
 /** A aba tem algo preenchido? Só interessa às opcionais, que sem conteúdo não mostram check. */
 function temConteudo(etapa: EtapaId, dados: DadosProjeto): boolean {
   if (etapa === 'exemplos') return dados.arquivosExemplo.length > 0
+  if (etapa === 'previas') return dados.imagensPrevia.length > 0
+  if (etapa === 'marketing') {
+    return (
+      dados.imagensDepoimento.length > 0 ||
+      dados.comentariosClientes.length > 0 ||
+      dados.imagensObra.length > 0 ||
+      dados.provaSocialClientes.trim() !== ''
+    )
+  }
   if (etapa === 'complementares') return dados.complementares.length > 0
   if (etapa === 'plantaHumanizada') return dados.plantaHumanizada.length > 0
   return true
@@ -374,9 +409,9 @@ export const idDoCampo = (chave: string) => `campo-${chave.replaceAll('.', '-')}
 // ── Arquivos por papel ───────────────────────────────────────────────────────────────────────────
 
 export const ehImagem = (papel: PapelDoArquivo) =>
-  papel === 'principal' || papel === 'galeria' || papel === 'planta'
+  papel === 'principal' || papel === 'galeria' || ehImagemComNumero(papel)
 
-/** Imagens e plantas aparecem no site (público). Entrega e PDFs dos complementares são conteúdo pago (privado). */
+/** Imagens, plantas, prévias e prints de clientes aparecem no site (público). Entrega e PDFs dos complementares são conteúdo pago (privado). */
 export const acessoDoPapel = (papel: PapelDoArquivo): AcessoDoArquivo =>
   ehImagem(papel) ? 'publico' : 'privado'
 
@@ -414,9 +449,16 @@ export const caminhoDoArquivo = (
 // O nome vem só do cadastro (categoria, terreno, quartos): nunca do título, do código, do ID nem do
 // nome que o navegador enviou. Dado que falta é omitido.
 
-/** Só galeria e plantas são numeradas no nome. */
-export const ehImagemComNumero = (papel: PapelDoArquivo) =>
-  papel === 'galeria' || papel === 'planta'
+/** Só galeria, plantas, prévias, prints e fotos de obras de clientes são numerados no nome. */
+export function ehImagemComNumero(papel: PapelDoArquivo) {
+  return (
+    papel === 'galeria' ||
+    papel === 'planta' ||
+    papel === 'previa' ||
+    papel === 'depoimento' ||
+    papel === 'obra'
+  )
+}
 
 /** Quartos + suítes + suíte master: suíte também é quarto. */
 export const somaDeQuartos = (dados: DadosDoNomeDaImagem): number =>
@@ -465,10 +507,11 @@ export const sufixoDaImagem = (id: string) => id.replaceAll('-', '').slice(0, 6)
 const SUFIXO_NO_FIM = '(?:-[0-9a-f]{6})?'
 
 /**
- * Nome do arquivo (sem extensão). A principal é uma só e não leva número; galeria e plantas levam
- * número de dois dígitos (`-01`), contados à parte. As plantas começam com "planta-de-". Toda imagem
- * nova termina com o sufixo do arquivo (`-a1b2c3`): trocar a foto muda o endereço, e por isso o
- * Storage pode guardá-la em cache por um ano. As imagens gravadas antes não têm sufixo.
+ * Nome do arquivo (sem extensão). A principal é uma só e não leva número; galeria, plantas e prévias
+ * levam número de dois dígitos (`-01`), contados à parte. As plantas começam com "planta-de-", as
+ * prévias com "previa-", os prints de clientes com "depoimento-" e as obras de clientes com "obra-". Toda imagem nova termina com o sufixo do arquivo (`-a1b2c3`): trocar a foto
+ * muda o endereço, e por isso o Storage pode guardá-la em cache por um ano. As imagens gravadas
+ * antes não têm sufixo.
  */
 export function nomeDaImagem(
   papel: PapelDoArquivo,
@@ -479,8 +522,15 @@ export function nomeDaImagem(
   const base = nomeBaseDaImagem(dados)
   const comNumero =
     !ehImagemComNumero(papel) || numero === null ? base : `${base}-${doisDigitos(numero)}`
-  const nome = papel === 'planta' ? `planta-de-${comNumero}` : comNumero
-  return `${nome}-${sufixo}`
+  const prefixo = PREFIXO_DO_NOME[papel] ?? ''
+  return `${prefixo}${comNumero}-${sufixo}`
+}
+
+const PREFIXO_DO_NOME: Partial<Record<PapelDoArquivo, string>> = {
+  planta: 'planta-de-',
+  previa: 'previa-',
+  depoimento: 'depoimento-',
+  obra: 'obra-',
 }
 
 /** Caminho de uma imagem: a pasta do projeto e do papel continuam controladas pelo app. */
@@ -506,10 +556,7 @@ export function numeroDoCaminho(caminho: string): number | null {
  * Os próximos `quantidade` números livres (1, 2, 3...), pulando os que já estão ocupados. Compara só
  * o número: como os nomes novos têm sufixo e os antigos não, é o número que diz se `-02` já existe.
  */
-export function proximosNumerosLivres(
-  quantidade: number,
-  ocupados: ReadonlySet<number>,
-): number[] {
+export function proximosNumerosLivres(quantidade: number, ocupados: ReadonlySet<number>): number[] {
   const livres: number[] = []
   for (let numero = 1; livres.length < quantidade && numero <= 9999; numero++) {
     if (!ocupados.has(numero)) livres.push(numero)
@@ -549,6 +596,9 @@ export { formatoConfere } from '@/services/upload/assinaturas'
 type FontesDeArquivo<A extends MetaArquivo & { id: string }> = {
   imagemPrincipal: A | null
   imagens: A[]
+  imagensPrevia: A[]
+  imagensDepoimento: A[]
+  imagensObra: A[]
   plantaHumanizada: { id: string; imagem: A | null }[]
   entregaArquivos: A[]
   complementares: { id: string; pdf: A | null }[]
@@ -585,6 +635,9 @@ export function listarArquivosDoFormulario<A extends MetaArquivo & { id: string 
 
   if (dados.imagemPrincipal) incluir('principal', dados.imagemPrincipal, 0)
   dados.imagens.forEach((imagem, indice) => incluir('galeria', imagem, indice))
+  dados.imagensPrevia.forEach((imagem, indice) => incluir('previa', imagem, indice))
+  dados.imagensDepoimento.forEach((imagem, indice) => incluir('depoimento', imagem, indice))
+  dados.imagensObra.forEach((imagem, indice) => incluir('obra', imagem, indice))
   dados.plantaHumanizada.forEach((pavimento, indice) => {
     if (pavimento.imagem) incluir('planta', pavimento.imagem, indice, { pavimentoId: pavimento.id })
   })
@@ -616,6 +669,9 @@ export function montarPayload(dados: DadosProjeto, salvos: ReadonlySet<string>):
     ...dados,
     imagemPrincipal: dados.imagemPrincipal ? doPayload(dados.imagemPrincipal) : null,
     imagens: dados.imagens.map(doPayload),
+    imagensPrevia: dados.imagensPrevia.map(doPayload),
+    imagensDepoimento: dados.imagensDepoimento.map(doPayload),
+    imagensObra: dados.imagensObra.map(doPayload),
     plantaHumanizada: dados.plantaHumanizada.map((pavimento) => ({
       ...pavimento,
       imagem: pavimento.imagem ? doPayload(pavimento.imagem) : null,
@@ -704,7 +760,7 @@ const textoOuNulo = (texto: string) => {
 const simNaoParaBoolean = (valor: SimNao) => (valor === '' ? null : valor === 'sim')
 
 /** Dados já conferidos, no formato do banco: preço em centavos, número de verdade, vazio como `null`. */
-export function montarCadastro(dados: DadosValidaveis): CadastroGravavel {
+export function montarCadastro(dados: PayloadProjeto): CadastroGravavel {
   return {
     titulo: dados.titulo.trim(),
     codigoYoutube: textoOuNulo(dados.codigoYoutube.toUpperCase()),
@@ -736,7 +792,33 @@ export function montarCadastro(dados: DadosValidaveis): CadastroGravavel {
     areaGourmet: simNaoParaBoolean(dados.areaGourmet),
     itens: dados.itens.map((item) => item.trim()),
     entregaLink: textoOuNulo(dados.entregaLink),
+    comentariosClientes: dados.comentariosClientes.map((comentario) => ({
+      nota: comentario.nota,
+      texto: comentario.texto.trim(),
+      nome: comentario.nome.trim(),
+      cidade: comentario.cidade.trim(),
+    })),
+    obrasClientes: montarObras(dados.imagensObra, dados.legendasObra),
+    // A nota só existe junto com a quantidade de clientes (a faixa some sem ela).
+    provaSocialClientes: lerNumero(dados.provaSocialClientes),
+    provaSocialNota: lerNumero(dados.provaSocialClientes) ? lerNumero(dados.provaSocialNota) : null,
   }
+}
+
+/**
+ * Legendas das fotos de obras, na ordem das fotos: só as fotos que existem (a legenda de uma foto
+ * removida fica de fora) e só as que têm algo preenchido. Vazio vira `null`.
+ */
+export function montarObras(
+  imagens: readonly { id: string }[],
+  legendas: Readonly<Record<string, LegendaDaObra>>,
+): ObraGravavel[] {
+  return imagens.flatMap((imagem) => {
+    const legenda = legendas[imagem.id]
+    const etapa = textoOuNulo(legenda?.etapa ?? '')
+    const cidade = textoOuNulo(legenda?.cidade ?? '')
+    return etapa || cidade ? [{ arquivoId: imagem.id, etapa, cidade }] : []
+  })
 }
 
 export function montarComplementares(dados: DadosValidaveis): ComplementarGravavel[] {
@@ -877,6 +959,24 @@ export function paraDadosProjeto(
     checkoutUrl: cadastro.checkoutUrl ?? '',
     imagemPrincipal: principal ? paraImagem(principal, urlDoArquivo(principal)) : null,
     imagens: doPapel('galeria').map((arquivo) => paraImagem(arquivo, urlDoArquivo(arquivo))),
+    imagensPrevia: doPapel('previa').map((arquivo) => paraImagem(arquivo, urlDoArquivo(arquivo))),
+    imagensDepoimento: doPapel('depoimento').map((arquivo) =>
+      paraImagem(arquivo, urlDoArquivo(arquivo)),
+    ),
+    provaSocialClientes: numeroParaTexto(cadastro.provaSocialClientes),
+    provaSocialNota: numeroParaTexto(cadastro.provaSocialNota),
+    imagensObra: doPapel('obra').map((arquivo) => paraImagem(arquivo, urlDoArquivo(arquivo))),
+    legendasObra: Object.fromEntries(
+      cadastro.obrasClientes.map((obra) => [
+        obra.arquivoId,
+        { etapa: obra.etapa ?? '', cidade: obra.cidade ?? '' },
+      ]),
+    ),
+    // O banco não guarda id do comentário (a ordem da lista basta); a tela só precisa de uma chave.
+    comentariosClientes: cadastro.comentariosClientes.map((comentario, indice) => ({
+      id: `comentario-${indice}`,
+      ...comentario,
+    })),
     plantaHumanizada: pavimentos,
     larguraTerreno: numeroParaTexto(cadastro.larguraM),
     profundidadeTerreno: numeroParaTexto(cadastro.profundidadeM),
