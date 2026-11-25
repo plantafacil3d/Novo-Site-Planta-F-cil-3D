@@ -6,7 +6,7 @@ export {
   rotuloDaEtapaDaObra,
 } from './catalogo'
 export { publicarProjeto } from './actions'
-export { buscarProjetoParaEditar } from './queries'
+export { buscarProjetoParaEditar, dadosDeProjetoNovo } from './queries'
 export {
   acessoDoPapel,
   nomePadraoPavimento,

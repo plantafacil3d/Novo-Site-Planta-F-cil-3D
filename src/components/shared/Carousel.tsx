@@ -146,8 +146,10 @@ export function Carousel({
           // Sem isto, o navegador "pega" a foto ou o link para arrastar em vez de rolar a faixa.
           onDragStart: (event: DragEvent) => event.preventDefault(),
         })}
+        // `relative`: textos só para leitores de tela (posição absoluta, ex.: "abre em nova aba" do
+        // botão) ficam presos na faixa; sem isso escapam dela e alargam a página no celular.
         className={cn(
-          'flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden',
+          'relative flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden',
           dragToScroll && 'select-none md:cursor-grab md:active:cursor-grabbing',
         )}
       >

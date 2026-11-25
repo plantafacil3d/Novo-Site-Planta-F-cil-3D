@@ -191,7 +191,8 @@ export async function salvarProduto(
     }
     if (fotoNova && fotoAtual) await apagarFoto(fotoAtual)
 
-    if (projetoIds) {
+    // Com "Em todos os projetos", quem liga é o banco (e as exceções feitas na aba Produtos ficam).
+    if (projetoIds && !campos.emTodosProjetos) {
       await produtoAdminRepository.sincronizarProjetosDoProduto(produtoId, projetoIds)
     }
 

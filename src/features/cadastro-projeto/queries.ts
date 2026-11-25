@@ -5,7 +5,7 @@ import { projetoAdminRepository } from '@/repositories/projetos-admin'
 import { authService } from '@/services/auth'
 import { fileStorage } from '@/services/storage'
 
-import { acessoDoPapel, paraDadosProjeto } from './rules'
+import { acessoDoPapel, dadosVazios, paraDadosProjeto } from './rules'
 import type { ArquivoCompletoDoBanco, DadosProjeto } from './types'
 
 // Loader para a tela de edição. Confere o administrador aqui (skill `seguranca` §5): o `id` vem da
@@ -45,4 +45,15 @@ export async function buscarProjetoParaEditar(
     (arquivo: ArquivoCompletoDoBanco) => urls.get(arquivo.id) ?? '',
   )
   return { dados: { ...dados, produtosLigados }, slug: cadastro.slug }
+}
+
+/**
+ * Formulário de projeto novo. A aba Produtos já nasce com os produtos marcados "Em todos os
+ * projetos" (dá para tirar algum antes de salvar). `null` se não for administrador.
+ */
+export async function dadosDeProjetoNovo(): Promise<DadosProjeto | null> {
+  const usuario = await authService.usuarioAtual()
+  if (!usuario?.ehAdmin) return null
+  const produtosLigados = await produtoAdminRepository.listarEmTodosOsProjetos()
+  return { ...dadosVazios(), produtosLigados }
 }

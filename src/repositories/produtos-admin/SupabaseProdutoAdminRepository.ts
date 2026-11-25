@@ -33,7 +33,7 @@ const ORDEM_NO_FIM = 10000
 const USOS_MAXIMO = 5000
 
 const COLUNAS =
-  'id, nome, foto_caminho, categoria, ambientes, ativo, origem, link, produto_projetos(count)'
+  'id, nome, foto_caminho, categoria, ambientes, ativo, origem, link, em_todos_projetos, produto_projetos(count)'
 
 type Linha = {
   id: string
@@ -44,6 +44,7 @@ type Linha = {
   ativo: boolean
   origem: OrigemProduto
   link: string
+  em_todos_projetos: boolean
   /** Contagem agregada do Postgrest: sempre um item só. */
   produto_projetos: { count: number }[]
 }
@@ -87,6 +88,7 @@ async function paraLinha(linha: Linha): Promise<LinhaProdutoAdmin> {
     projetos: linha.produto_projetos[0]?.count ?? 0,
     origem: linha.origem,
     link: linha.link,
+    emTodosProjetos: linha.em_todos_projetos,
   }
 }
 
@@ -103,6 +105,7 @@ function paraColunas(produto: ProdutoGravavel) {
     ambientes: produto.ambientes,
     origem: produto.origem,
     ativo: produto.ativo,
+    em_todos_projetos: produto.emTodosProjetos,
     foto_caminho: produto.fotoCaminho,
   }
 }
@@ -155,7 +158,7 @@ export class SupabaseProdutoAdminRepository implements ProdutoAdminRepository {
     const { data, error } = await supabase
       .from('produtos')
       .select(
-        'id, nome, link, categoria, ambientes, origem, ativo, foto_caminho, ' +
+        'id, nome, link, categoria, ambientes, origem, ativo, em_todos_projetos, foto_caminho, ' +
           'produto_projetos (projetos (id, codigo, codigo_youtube, titulo, status))',
       )
       .eq('id', id)
@@ -176,6 +179,7 @@ export class SupabaseProdutoAdminRepository implements ProdutoAdminRepository {
       ambientes: ordenarAmbientes(data.ambientes),
       origem: data.origem,
       ativo: data.ativo,
+      emTodosProjetos: data.em_todos_projetos,
       foto: { caminho: data.foto_caminho, url: await urlDaFoto(data.foto_caminho) },
       projetos: data.produto_projetos.map(({ projetos: projeto }) => ({
         id: projeto.id,
@@ -306,6 +310,19 @@ export class SupabaseProdutoAdminRepository implements ProdutoAdminRepository {
       .overrideTypes<{ ordem: number; produtos: Linha }[], { merge: false }>()
     if (error) throw traduzir(error)
     return Promise.all(data.map((linha) => paraLigado(linha.produtos)))
+  }
+
+  async listarEmTodosOsProjetos(): Promise<ProdutoLigado[]> {
+    const supabase = await criarClienteServidor()
+    const { data, error } = await supabase
+      .from('produtos')
+      .select(COLUNAS)
+      .eq('em_todos_projetos', true)
+      .order('criado_em', { ascending: true })
+      .limit(LIMITES_PRODUTO.porProjetoMax)
+      .overrideTypes<Linha[], { merge: false }>()
+    if (error) throw traduzir(error)
+    return Promise.all(data.map(paraLigado))
   }
 
   async sincronizarProdutosDoProjeto(projetoId: string, produtoIds: string[]): Promise<void> {

@@ -83,13 +83,13 @@ export function FormularioProduto({
         <div className="grid gap-5 sm:grid-cols-[12rem_1fr]">
           <div className="flex flex-col gap-2">
             {form.foto ? (
-              <div className="relative aspect-square overflow-hidden rounded-lg border border-border bg-subtle">
+              <div className="relative aspect-square overflow-hidden rounded-lg border border-border bg-surface">
                 <Image
                   src={form.foto.url}
                   alt="Foto do produto"
                   fill
                   sizes="192px"
-                  className="object-cover"
+                  className="object-contain p-2"
                 />
               </div>
             ) : (
@@ -212,8 +212,10 @@ export function FormularioProduto({
               />
             )}
 
+            {/* `self-start`: só a caixa e o texto são clicáveis, não o vazio da linha inteira. */}
             <Checkbox
               label="Ativo (aparece no site)"
+              className="self-start"
               checked={campos.ativo}
               onChange={(evento) => form.atualizar({ ativo: evento.target.checked })}
             />
@@ -260,7 +262,17 @@ export function FormularioProduto({
           titulo="Aparece nos projetos"
           dica="O produto entra na seção “Decore como no projeto” destes projetos, no fim da lista. A ordem se ajusta na aba Produtos de cada projeto."
         >
-          <SeletorDeProjetos projetos={form.projetos} aoMudar={form.setProjetos} />
+          <span className="flex items-center gap-2 self-start">
+            <Checkbox
+              label="Em todos os projetos"
+              checked={campos.emTodosProjetos}
+              onChange={(evento) => form.atualizar({ emTodosProjetos: evento.target.checked })}
+            />
+            <Dica texto="Entra em todos os projetos de hoje e em cada projeto novo que você cadastrar. Para tirar de um projeto só, use a aba Produtos daquele projeto." />
+          </span>
+          {!campos.emTodosProjetos && (
+            <SeletorDeProjetos projetos={form.projetos} aoMudar={form.setProjetos} />
+          )}
         </Grupo>
       )}
 

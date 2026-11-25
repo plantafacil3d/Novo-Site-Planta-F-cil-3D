@@ -44,8 +44,8 @@ function LinhaDoProduto({
           <Icon name="grip" />
         </button>
       )}
-      <span className="relative size-12 shrink-0 overflow-hidden rounded-md bg-subtle">
-        <Image src={produto.fotoUrl} alt="" fill sizes="48px" className="object-cover" />
+      <span className="relative size-12 shrink-0 overflow-hidden rounded-md border border-border bg-surface">
+        <Image src={produto.fotoUrl} alt="" fill sizes="48px" className="object-contain" />
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-sm font-medium">{produto.nome}</span>

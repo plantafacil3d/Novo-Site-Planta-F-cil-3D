@@ -37,6 +37,8 @@ export interface ProdutoAdminRepository {
   sincronizarProjetosDoProduto(produtoId: string, projetoIds: string[]): Promise<void>
   /** Produtos ligados a um projeto, na ordem da aba Produtos (inclui inativos). */
   listarDoProjeto(projetoId: string): Promise<ProdutoLigado[]>
+  /** Produtos marcados "Em todos os projetos": a aba Produtos de um projeto novo já nasce com eles. */
+  listarEmTodosOsProjetos(): Promise<ProdutoLigado[]>
   /** Deixa os produtos do projeto exatamente como a lista, nesta ordem (aba Produtos). */
   sincronizarProdutosDoProjeto(projetoId: string, produtoIds: string[]): Promise<void>
 

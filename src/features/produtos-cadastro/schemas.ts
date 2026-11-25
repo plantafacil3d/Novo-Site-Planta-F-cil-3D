@@ -73,6 +73,7 @@ export const schemaCamposDoProduto = z.object({
     .transform((lista) => [...new Set(lista)]),
   origem: z.enum(valoresDe(origensDeProduto), 'Escolha a origem.'),
   ativo: z.boolean(),
+  emTodosProjetos: z.boolean(),
 })
 
 const ids = (maximo: number) =>
@@ -81,7 +82,10 @@ const ids = (maximo: number) =>
     .max(maximo)
     .transform((lista) => [...new Set(lista.map((id) => id.toLowerCase()))])
 
-/** O que o formulário envia para salvar. `projetoIds` ausente = não mexer nas ligações. */
+/**
+ * O que o formulário envia para salvar. `projetoIds` ausente = não mexer nas ligações (e é ignorado
+ * com `emTodosProjetos`: o banco liga o produto a todos os projetos).
+ */
 export const schemaSalvarProduto = schemaCamposDoProduto.extend({
   id: z.uuid().nullable(),
   fotoCaminho: z.string().refine(ehCaminhoDeFoto, 'Escolha a foto do produto.'),

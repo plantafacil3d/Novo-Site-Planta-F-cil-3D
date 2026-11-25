@@ -61,13 +61,13 @@ export function TabelaProdutosAdmin({ linhas }: { linhas: LinhaProdutoAdmin[] })
               <TableRow key={linha.id}>
                 <TableCell className="min-w-64 font-medium">
                   <span className="flex items-center gap-3">
-                    <span className="relative size-12 shrink-0 overflow-hidden rounded-md border border-border bg-subtle">
+                    <span className="relative size-12 shrink-0 overflow-hidden rounded-md border border-border bg-surface">
                       <Image
                         src={linha.fotoUrl}
                         alt=""
                         fill
                         sizes="48px"
-                        className="object-cover"
+                        className="object-contain"
                       />
                     </span>
                     <span className="line-clamp-2">{linha.nome}</span>
@@ -88,7 +88,7 @@ export function TabelaProdutosAdmin({ linhas }: { linhas: LinhaProdutoAdmin[] })
                   )}
                 </TableCell>
                 <TableCell className="whitespace-nowrap text-fg-muted">
-                  {contarProjetos(linha.projetos)}
+                  {linha.emTodosProjetos ? 'Todos' : contarProjetos(linha.projetos)}
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu

@@ -18,6 +18,7 @@ type Campos = {
   ambientes: string[]
   origem: OrigemProduto
   ativo: boolean
+  emTodosProjetos: boolean
 }
 
 const camposVazios: Campos = {
@@ -27,6 +28,7 @@ const camposVazios: Campos = {
   ambientes: [],
   origem: 'afiliado',
   ativo: true,
+  emTodosProjetos: false,
 }
 
 type Foto = { caminho: string; url: string }
@@ -41,6 +43,7 @@ function camposDe(produto: ProdutoParaEditar): Campos {
     ambientes: produto.ambientes,
     origem: produto.origem,
     ativo: produto.ativo,
+    emTodosProjetos: produto.emTodosProjetos,
   }
 }
 

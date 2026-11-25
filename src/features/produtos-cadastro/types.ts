@@ -24,6 +24,7 @@ export type ProdutoLigado = {
 export type LinhaProdutoAdmin = ProdutoLigado & {
   origem: OrigemProduto
   link: string
+  emTodosProjetos: boolean
 }
 
 /** Projeto no "Aparece nos projetos" do formulário. */
@@ -44,6 +45,8 @@ export type ProdutoParaEditar = {
   ambientes: string[]
   origem: OrigemProduto
   ativo: boolean
+  /** Entra em todos os projetos, inclusive nos cadastrados depois. */
+  emTodosProjetos: boolean
   foto: { caminho: string; url: string }
   projetos: ProjetoParaLigar[]
 }
@@ -56,6 +59,7 @@ export type ProdutoGravavel = {
   ambientes: string[]
   origem: OrigemProduto
   ativo: boolean
+  emTodosProjetos: boolean
   fotoCaminho: string
 }
 

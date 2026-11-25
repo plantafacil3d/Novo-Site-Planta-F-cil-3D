@@ -21,15 +21,16 @@ type ProdutoCardProps = {
 export function ProdutoCard({ produto, rotulo, hrefOferta, imageSizes }: ProdutoCardProps) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
-      <div className="relative aspect-square overflow-hidden bg-subtle">
+      {/* Foto inteira, sem cortar (`contain`), sobre fundo branco como nas lojas. */}
+      <div className="relative aspect-square overflow-hidden bg-surface">
         <Image
           src={produto.foto.src}
           alt={produto.foto.alt}
           fill
           sizes={imageSizes}
-          quality={70}
+          quality={75}
           draggable={false}
-          className="object-cover"
+          className="object-contain p-2"
         />
       </div>
 
