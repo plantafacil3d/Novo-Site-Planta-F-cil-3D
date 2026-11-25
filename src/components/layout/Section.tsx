@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useId, type ReactNode } from 'react'
 
 import { cn } from '../ui/cn'
+import { Eyebrow } from '../ui/Eyebrow'
 import { Icon } from '../ui/Icon'
 
 const sectionStyles = cva('py-12 md:py-16', {
@@ -17,16 +18,39 @@ const sectionStyles = cva('py-12 md:py-16', {
   defaultVariants: { tone: 'page' },
 })
 
-type SectionProps = VariantProps<typeof sectionStyles> & {
-  title: string
-  subtitle?: string
-  /** Link "Ver todos" à direita do título. */
-  action?: { label: string; href: string }
-  children: ReactNode
-}
+/** Distância entre o cabeçalho (título/subtítulo) e o conteúdo. */
+const contentStyles = cva('', {
+  variants: {
+    contentSpacing: {
+      default: 'mt-8',
+      /** Conteúdo mais perto do subtítulo (ex.: "Mesmo projeto, outros terrenos"). */
+      tight: 'mt-6',
+    },
+  },
+  defaultVariants: { contentSpacing: 'default' },
+})
+
+type SectionProps = VariantProps<typeof sectionStyles> &
+  VariantProps<typeof contentStyles> & {
+    /** Rótulo curto em caixa alta acima do título (ex.: "Mesmo projeto, outros terrenos"). */
+    eyebrow?: string
+    title: string
+    subtitle?: string
+    /** Link "Ver todos" à direita do título. */
+    action?: { label: string; href: string }
+    children: ReactNode
+  }
 
 /** Seção da página: título (h2), subtítulo, link "Ver todos" e conteúdo. */
-export function Section({ tone, title, subtitle, action, children }: SectionProps) {
+export function Section({
+  tone,
+  contentSpacing,
+  eyebrow,
+  title,
+  subtitle,
+  action,
+  children,
+}: SectionProps) {
   const headingId = useId()
 
   return (
@@ -34,6 +58,11 @@ export function Section({ tone, title, subtitle, action, children }: SectionProp
       <div className="mx-auto max-w-content px-4">
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
           <div>
+            {eyebrow && (
+              <Eyebrow tone={tone === 'inverse' ? 'onDark' : 'onLight'} className="mb-1.5">
+                {eyebrow}
+              </Eyebrow>
+            )}
             <h2 id={headingId} className="text-2xl">
               {title}
             </h2>
@@ -56,7 +85,7 @@ export function Section({ tone, title, subtitle, action, children }: SectionProp
             </Link>
           )}
         </div>
-        <div className="mt-8">{children}</div>
+        <div className={contentStyles({ contentSpacing })}>{children}</div>
       </div>
     </section>
   )

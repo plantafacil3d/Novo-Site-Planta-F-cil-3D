@@ -12,6 +12,7 @@ import type { ArquivoDeExemplo, DadosProjeto, EtapaId } from '../types'
 import { EtapaArquivosExemplo } from './EtapaArquivosExemplo'
 import { EtapaCaracteristicas } from './EtapaCaracteristicas'
 import { EtapaComplementares } from './EtapaComplementares'
+import { EtapaDecoracao } from './EtapaDecoracao'
 import { EtapaEntrega } from './EtapaEntrega'
 import { EtapaImagens } from './EtapaImagens'
 import { EtapaInformacoesGerais } from './EtapaInformacoesGerais'
@@ -19,6 +20,7 @@ import { EtapaItensIncluidos } from './EtapaItensIncluidos'
 import { EtapaMarketing } from './EtapaMarketing'
 import { EtapaPlantaHumanizada } from './EtapaPlantaHumanizada'
 import { EtapaPrevias } from './EtapaPrevias'
+import { EtapaVariacoes } from './EtapaVariacoes'
 
 type FormularioProjetoProps = {
   /** Projeto para editar: o formulário já vem preenchido. Sem ele, cadastro novo, tudo vazio. */
@@ -34,7 +36,7 @@ type FormularioProjetoProps = {
 }
 
 /**
- * Cadastro de projeto em 10 abas (menu ao lado, só a aba escolhida aparece), com Anterior, Próxima
+ * Cadastro de projeto em 11 abas (menu ao lado, só a aba escolhida aparece), com Anterior, Próxima
  * etapa, Salvar rascunho e Salvar. O mesmo formulário serve para criar e para editar.
  */
 export function FormularioProjeto({
@@ -68,6 +70,8 @@ export function FormularioProjeto({
     previas: <EtapaPrevias form={form} />,
     marketing: <EtapaMarketing form={form} />,
     complementares: <EtapaComplementares form={form} />,
+    variacoes: <EtapaVariacoes form={form} />,
+    decoracao: <EtapaDecoracao form={form} />,
     entrega: <EtapaEntrega form={form} />,
   }
 

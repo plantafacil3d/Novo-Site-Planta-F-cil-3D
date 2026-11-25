@@ -1,10 +1,12 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 
+import { TAG_PRODUTOS } from '@/features/produtos-cadastro'
 import { invalidarCatalogo } from '@/features/projetos'
 import { executarComLimite } from '@/lib/executarComLimite'
+import { produtoAdminRepository } from '@/repositories/produtos-admin'
 import { projetoAdminRepository } from '@/repositories/projetos-admin'
 import { authService } from '@/services/auth'
 import { fileStorage } from '@/services/storage'
@@ -30,18 +32,20 @@ import {
   montarComplementares,
   montarPavimentos,
   nomeDaImagem,
+  paraProjetoVinculado,
   numeroDoCaminho,
   proximosNumerosLivres,
   sufixoDaImagem,
   tipoDeConteudoDaExtensao,
 } from './rules'
-import { lerPayload, validarEtapas } from './schemas'
+import { lerPayload, schemaBuscaDeVariacoes, schemaCodigoDoProjeto, validarEtapas } from './schemas'
 import type {
   ArquivoGravado,
   CadastroGravavel,
   DadosDoNomeDaImagem,
   PayloadProjeto,
   ProjetoCriado,
+  ProjetoVinculado,
   ResultadoCadastro,
   ResultadoDoItem,
 } from './types'
@@ -375,10 +379,62 @@ export async function salvarProjeto(
     await sincronizarArquivos(id, payload)
     await projetoAdminRepository.sincronizarComplementares(id, montarComplementares(payload))
     await projetoAdminRepository.sincronizarArquivosExemplo(id, payload.arquivosExemplo)
+    await projetoAdminRepository.sincronizarVariacoes(
+      id,
+      payload.variacoesManuais.map((outro) => outro.toLowerCase()),
+    )
+    await produtoAdminRepository.sincronizarProdutosDoProjeto(
+      id,
+      payload.produtosLigados.map((produto) => produto.toLowerCase()),
+    )
 
     revalidatePath('/admin/projetos')
     invalidarCatalogo()
+    // A seção "Decore como no projeto" e a contagem de projetos do menu Produtos.
+    revalidateTag(TAG_PRODUTOS, { expire: 0 })
+    revalidatePath('/admin/produtos')
     return { ok: true, mensagem: 'Informações salvas.', projetoId: id }
+  })
+}
+
+// ── Variações do projeto ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Projetos com o mesmo "Código do projeto" (as variações automáticas), menos o próprio. Recebe o
+ * código como está digitado na aba 1, mesmo antes de salvar, para a aba mostrar o que vai acontecer.
+ */
+export async function listarVariacoesAutomaticas(
+  codigo: unknown,
+  projetoId: unknown,
+): Promise<ResultadoCadastro<{ projetos: ProjetoVinculado[] }>> {
+  return rodarComoAdmin<{ projetos: ProjetoVinculado[] }>(async () => {
+    const codigoLido = schemaCodigoDoProjeto.safeParse(codigo)
+    const idLido = schemaId.nullable().safeParse(projetoId)
+    if (!codigoLido.success || !idLido.success) return falha('Pedido inválido.')
+
+    const projetos = await projetoAdminRepository.listarPorCodigo(
+      codigoLido.data,
+      idLido.data,
+      LIMITES.variacoesMax,
+    )
+    return { ok: true, mensagem: '', projetos: projetos.map(paraProjetoVinculado) }
+  })
+}
+
+/** Busca por nome ou código para ligar à mão (aba "Variações"). Poucos por vez. */
+export async function buscarProjetosParaVariacao(
+  texto: unknown,
+): Promise<ResultadoCadastro<{ projetos: ProjetoVinculado[] }>> {
+  return rodarComoAdmin<{ projetos: ProjetoVinculado[] }>(async () => {
+    const lido = schemaBuscaDeVariacoes.safeParse(texto)
+    if (!lido.success) return falha('Digite ao menos 2 letras para buscar.')
+
+    const pagina = await projetoAdminRepository.listar({
+      busca: lido.data,
+      pagina: 1,
+      porPagina: LIMITES.buscaDeVariacoesMax,
+    })
+    return { ok: true, mensagem: '', projetos: pagina.itens.map(paraProjetoVinculado) }
   })
 }
 

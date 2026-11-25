@@ -9,12 +9,13 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ### Button
 
 - **Propósito:** disparar ação ou navegar (com `href` vira `<Link>`, ou `<a target="_blank">` se o destino for externo).
-- **Variantes:** `primary` (preto sólido, para fundo claro), `secondary` (contorno), `secondary-inverse` (contorno claro, para fundo escuro), `ghost` (texto), `accent` (verde vivo com texto preto, para fundo escuro, onde o preto sumiria), `whatsapp` (mesmo estilo do `accent` + ícone do WhatsApp automático, para faixas escuras), `danger` (vermelho sólido com texto claro). Tamanhos: `md` (padrão), `lg`. Ícone à esquerda (`iconLeft`) e à direita (`iconRight`).
+- **Variantes:** `primary` (preto sólido, para fundo claro), `secondary` (contorno), `secondary-inverse` (contorno claro, para fundo escuro), `ghost` (texto), `accent` (verde vivo com texto preto, para fundo escuro, onde o preto sumiria), `whatsapp` (mesmo estilo do `accent` + ícone do WhatsApp automático, para faixas escuras), `danger` (vermelho sólido com texto claro). Tamanhos: `sm` (33px de altura, 13px semibold), `md` (padrão), `lg`. **O `sm` fica abaixo dos 44px de toque:** só use quando o alvo real for maior, como no card inteiro clicável (`after:absolute after:inset-0`); nasceu no "Ver detalhes" do card da variação do projeto. Ícone à esquerda (`iconLeft`) e à direita (`iconRight`).
 - **Quando usar `danger`:** só para **confirmar** o que não tem volta, dentro do `DialogoDeConfirmacao`. O botão que _abre_ a confirmação fica `ghost` ou `secondary` — se cada linha de uma tabela fosse vermelha, o vermelho perderia o sentido.
 - **Estados:** repouso, hover, foco, ativo, disabled, loading (`loading` desabilita, mostra spinner e `aria-busy`).
 - **Tokens:** `--color-primary(-hover)`, `--color-accent(-hover)`, `--color-danger-solid`, `--color-danger-hover`, `--color-fg`, `--color-fg-inverse`, `--color-border`, `--radius-md`, `min-h-11 px-4 py-3`, `--color-ring`.
 - **Nota:** para "card inteiro clicável", passe `after:absolute after:inset-0` no `className` (o card precisa ser `relative`).
 - **Link externo:** abre em nova aba (`noopener noreferrer`) e ganha um texto só para leitor de tela: "(abre em uma nova aba)".
+- **Nova aba para endereço do próprio site:** com `target="_blank"`, também vira `<a>` simples (sem o pré-carregamento do `next/link`), e um `rel` passado substitui o padrão. Nasceu no "Ver oferta" dos produtos, que passa por `/ir/produto/...` para anotar o clique: o pré-carregamento contaria cliques que não aconteceram.
 
 ### IconButton
 
@@ -54,7 +55,7 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 - **Propósito:** único ponto que conhece a biblioteca de ícones (`lucide-react`). `<Icon name="search" />`, decorativo (`aria-hidden`), 20px por padrão (`className="size-6"` para mudar).
 - **Marcas** (WhatsApp, Instagram, YouTube, Facebook) não existem no Lucide: SVG próprio em `ui/icons/brand.tsx`, mesmo formato de traço.
 - **Bandeiras** (`flag-us`, `flag-br`, `flag-es`, `flag-fr`, `flag-it`, `flag-de`, `flag-ru`, `flag-jp`, `flag-cn`) também são SVG próprio, em `ui/icons/flags.tsx`: cor própria (não `currentColor`), como o "G" do Google — emoji de bandeira não renderiza como cor no Chrome/Windows, some e vira sigla (ex.: "US").
-- **Novo ícone:** adicione ao registro em `Icon.tsx`; o tipo `IconName` se atualiza sozinho. `star` (estrela, do Lucide) nasceu nos comentários dos depoimentos: cheia com `fill-current` na classe, vazia sem ela.
+- **Novo ícone:** adicione ao registro em `Icon.tsx`; o tipo `IconName` se atualiza sozinho. `star` (estrela, do Lucide) nasceu nos comentários dos depoimentos: cheia com `fill-current` na classe, vazia sem ela. `arrow-up-right` (↗) nasceu no "Ver oferta" dos produtos: link que abre outro site em nova aba.
 
 ### Avatar
 
@@ -67,8 +68,9 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 ### Badge
 
 - **Propósito:** selo sobre a imagem (Mais vendido, Lançamento).
-- **Variantes:** `solid` (preto), `accent` (verde vivo, texto preto), `success` (verde suave, para status como Publicado), `draft` (cinza com borda, para Rascunho), `discount` (verde escuro sólido `--green-700` com texto branco — nasceu porque o verde vivo do `accent` só dá 2,3:1 com texto branco, abaixo do mínimo de acessibilidade; usado só no selo de desconto do `PriceTag`, ex.: "40% OFF") e `neutral` (cinza claro com borda, texto `fg-muted` — tag informativa sem peso promocional, ex.: categoria/estilo no `ProjetoHero`; distinto do `draft`, que é só para o status "Rascunho"). `success` e `draft` nasceram no painel do administrador.
-- **Tokens:** `--color-primary`, `--color-accent`, `--color-badge-success-*`, `--color-badge-draft-*`, `--color-badge-discount-*`, `--color-draft-border`, `--color-border`, `--color-subtle`, `--color-fg-muted`, `--radius-sm`, `--text-xs`.
+- **Variantes:** `solid` (preto), `accent` (verde vivo, texto preto), `success` (verde suave, para status como Publicado), `draft` (cinza com borda, para Rascunho), `discount` (verde escuro sólido `--green-700` com texto branco — nasceu porque o verde vivo do `accent` só dá 2,3:1 com texto branco, abaixo do mínimo de acessibilidade; usado só no selo de desconto do `PriceTag`, ex.: "40% OFF") e `neutral` (cinza claro com borda, texto `fg-muted` — tag informativa sem peso promocional, ex.: categoria/estilo no `ProjetoHero`; distinto do `draft`, que é só para o status "Rascunho"). `success` e `draft` nasceram no painel do administrador. `surface` (pílula branca com texto escuro sobre foto, `--radius-md` e entrelinha 1,5, um pouco mais alta que os outros selos, como no layout — "Você está vendo" no card da variação do projeto).
+- **Tamanhos (`size`):** `sm` (padrão, 12px semibold) e `md` (14px negrito, entrelinha justa: mesma altura do `sm` com texto maior — medida do terreno "12×30m" no card da variação do projeto).
+- **Tokens:** `--color-surface`, `--color-primary`, `--color-accent`, `--color-badge-success-*`, `--color-badge-draft-*`, `--color-badge-discount-*`, `--color-draft-border`, `--color-border`, `--color-subtle`, `--color-fg-muted`, `--radius-sm`, `--text-xs`.
 
 ### Dica
 
@@ -80,8 +82,9 @@ Formato de cada entrada: propósito, variantes, estados, tokens usados, onde viv
 
 ### Eyebrow
 
-- **Propósito:** rótulo em caixa alta acima de títulos (hero e banners). Cor `--color-accent`, só para fundo escuro.
-- **Tokens:** `--color-accent`, `--text-xs`; `tracking-[0.12em]` (definido em `tokens.md`).
+- **Propósito:** rótulo em caixa alta acima de títulos.
+- **Tons (`tone`):** `onDark` (padrão: verde vivo `--color-accent`, semibold, `tracking-eyebrow`; hero e banners) e `onLight` (verde discreto `--color-accent-muted`, negrito, `tracking-eyebrow-light`; títulos de seção sobre fundo claro, via `Section eyebrow`).
+- **Tokens:** `--color-accent`, `--color-accent-muted`, `--text-xs`, `--tracking-eyebrow`, `--tracking-eyebrow-light`.
 
 ### Chip
 
@@ -193,6 +196,9 @@ Logo, links de navegação, redes sociais, direitos autorais e localização. Fu
 
 Container de seção: título (h2), subtítulo, link "Ver todos" e conteúdo. Variantes de fundo (`tone`): `page`, `subtle`, `tint`, `inverse`.
 
+- **Prop `eyebrow`:** rótulo em caixa alta acima do título: `Eyebrow` `onLight` nos fundos claros e `onDark` no `inverse`. Nasceu em "Mesmo projeto, outros terrenos".
+- **Prop `contentSpacing`:** distância entre o cabeçalho e o conteúdo: `default` (32px) ou `tight` (24px, conteúdo mais perto do subtítulo; "Mesmo projeto, outros terrenos").
+
 ### SecaoDestacada (`layout/`)
 
 Seção dentro de uma moldura tracejada violeta (`border-2 border-dashed border-highlight`, `rounded-highlight`) com um selo sobre a borda, no canto esquerdo (fundo `--color-highlight`, texto `--color-highlight-fg`, Poppins 12px negrito em caixa alta, centrado na linha da borda). Mesma ideia do `Section` (título h2, subtítulo, conteúdo), mas a moldura envolve também o título, então é um componente à parte. Props: `selo`, `title`, `subtitle?`, `children`. Fundo `--color-page`, mesmo respiro vertical do `Section`. Nasceu em `PreviasDoProjeto` e passou para cá quando `DepoimentosDeClientes` pediu o mesmo. Server Component (só `useId`). Não decide se aparece: quem usa devolve `null` antes, quando não há conteúdo.
@@ -300,6 +306,13 @@ Lista com marcador de check: círculo `--color-accent` (só preenchimento) com o
 ### Carousel
 
 `'use client'`. Faixa horizontal rolável com encaixe item a item. No celular rola com o dedo; a partir de `md` aparecem setas Anterior/Próximo (`IconButton`) só quando há mais itens para aquele lado. Respeita `prefers-reduced-motion`. Props: `label`, `itemClassName` (largura de cada item, ex.: `w-72`; use `grid` para itens de mesma altura) e os itens como `children`.
+
+- **Prop `dragToScroll`:** no computador, clicar e arrastar com o mouse rola a faixa (cursor de "mãozinha"); ao soltar, desliza até o card mais próximo, e soltar depois de arrastar não abre o link do card. Abaixo de 5px de movimento ainda é clique. Nasceu em "Mesmo projeto, outros terrenos" (`VariacoesDoProjeto`); "Projetos relacionados" ainda não usa.
+- **Prop `desktopColumns`:** a partir de `lg`, quantos itens cabem inteiros lado a lado (`4` ou `6`; o `6` nasceu na seção "Decore como no projeto"). A conta da largura (descontando os vãos de 16px) fica dentro do `Carousel`, porque depende do vão dele; no celular vale a largura de `itemClassName`.
+
+### Card de variação do projeto (`features/projetos/components/VariacoesDoProjeto.tsx`)
+
+Card exclusivo da seção "Mesmo projeto, outros terrenos"; fica na feature, não em `shared/`, porque só ela usa. Foto 4:3 com `Badge` `md` (medida do terreno), título Inter 16px médio ("P18 · Terreno 12×30m"), `text-label` `fg-muted` (quartos · vagas · área), preço 18px negrito e `Button` `sm` "Ver detalhes" (card inteiro clicável). Projeto aberto: borda `--color-primary`, `Badge` `surface` "Você está vendo" e "Projeto atual" no lugar do botão; os outros: borda `--color-border`, `shadow-sm` e `shadow-md` no hover. Raio `--radius-lg`. Não usa o `ProjectCard`: o layout pedido é outro (sem favoritar, sem lista de ícones).
 
 ### AreaComZoom
 
@@ -432,6 +445,17 @@ Site traduzido pelo widget gratuito do Google Translate (Website Translator), es
 - `ReaplicarTraducaoNaRota`: sem interface. O Next troca de rota sem recarregar a página, então o Google só traduziu o HTML da rota anterior; a cada mudança de caminho ou busca (`usePathname`/`useSearchParams`), reaplica o idioma salvo ao conteúdo novo.
 - Os três são montados uma vez no `SiteShell` (não no layout raiz): a tradução é só para as páginas públicas, o painel do administrador (layout próprio) não carrega o widget.
 - **Sem token novo.** 6 bandeiras novas no registro do `Icon` (`flag-fr`, `flag-it`, `flag-de`, `flag-ru`, `flag-jp`, `flag-cn`), mesmo estilo SVG das 3 que já existiam — emoji de bandeira não renderiza como cor no Chrome/Windows (nota já registrada no `Icon` acima).
+
+## Produtos (`features/produtos/components/` e `features/produtos-cadastro/components/`)
+
+- `ProdutoCard`: card de produto da Loja e da seção "Decore como no projeto". Foto quadrada (`bg-subtle` enquanto carrega), rótulo `text-sm` `fg-muted` (o ambiente no projeto; "Categoria · Ambiente" na Loja), nome Inter 14px (16px do `sm`) médio em até 2 linhas, `Button` `primary` largura total "Ver oferta" com `arrow-up-right`, em nova aba. Superfície `--color-surface`, borda `--color-border`, `--radius-lg`, `shadow-sm`. **Sem preço e sem nome de loja.** Fica na feature (só produtos usam).
+- `DecoreComoNoProjeto`: `Section` `tint` + filtros por ambiente (`Button` `primary` no ativo, `secondary` nos outros, `aria-pressed`; só aparecem com 2+ ambientes) + `Carousel` (`desktopColumns={6}`, ~2,5 cards no celular, 3,5 no `sm`, 4,5 no `md`) + aviso de afiliado `text-sm` `fg-muted`. Trocar o filtro remonta o carrossel (volta ao início).
+- `FormularioDeFiltrosLoja`: o mesmo visual dos filtros de `/projetos` (cartão com borda, `Input`/`Select` com rótulo), mas **na horizontal** do `lg` em diante (grid `2fr 1fr 1fr auto`); no celular fica empilhado dentro do `CollapsiblePanel` "Filtros".
+- `GradeDeProdutos`: grade 2/3/4/6 colunas (celular/`sm`/`md`/`lg`). 24 por página, que divide por todas, então as linhas ficam completas. `LojaSkeleton` tem o mesmo formato.
+- `FormularioProduto` (painel): **página própria, sem janela flutuante** (padrão do cadastro de projetos): `/admin/produtos/novo` e `/admin/produtos/<id>/editar`, cartão branco com grupos (Dados do produto com foto quadrada `FileInput`/prévia, nome, link, categoria, origem e ativo; Ambientes em `Checkbox`; Aparece nos projetos com `SeletorDeProjetos`), `Dica` nos títulos e Cancelar/Salvar no rodapé. Na aba Decoração do cadastro de projeto, o mesmo formulário abre **dentro da aba**, no lugar da lista. Não é um `<form>` (fica dentro do formulário do projeto): salva pelo botão.
+- `EditorDeOpcoes` (painel): "Editar categorias" / "Editar ambientes" (`Button` `ghost` com `pencil`) abaixo do campo, no próprio formulário de produto. Abre **no lugar, sem janela flutuante**, um bloco `bg-subtle` com `Input` + "Adicionar" (Enter também adiciona) e a lista (linhas `bg-surface`, "N produtos" em `text-xs` `fg-muted`, lixeira `IconButton` `quiet`). Apagar confirma com `DialogoDeConfirmacao`; categoria em uso fica com a lixeira desativada. O que é criado já vem marcado/escolhido no produto. Ambientes são opcionais.
+- `TabelaProdutosAdmin` (ações no `DropdownMenu`, como a tabela de projetos) e `ProdutosDoProjeto` (lista da aba Decoração, com alça `grip` para arrastar): mesmos padrões da tabela de Projetos e da aba Variações (linhas com borda, `IconButton` `quiet`, `Badge` `neutral` para "Inativo").
+- **Sem token novo.**
 
 ## Registro
 

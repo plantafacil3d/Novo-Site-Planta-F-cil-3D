@@ -30,4 +30,9 @@ export interface ProjetoRepository {
    * projeto já carregado pela página, em vez do slug, para não repetir a busca que os obteve.
    */
   listarRelacionados(id: string, categoria: string): Promise<Projeto[]>
+  /**
+   * A mesma casa em outros terrenos: o próprio projeto, os publicados com o mesmo "Código do
+   * projeto" (`codigo`, quando houver) e os ligados à mão no cadastro. Ordem não garantida.
+   */
+  listarVariacoes(id: string, codigo: string | undefined): Promise<Projeto[]>
 }

@@ -4,6 +4,27 @@ Registre toda decisão que muda token, regra de UX ou catálogo. Mais recente pr
 
 Formato: `AAAA-MM-DD · o quê · por quê`
 
+## 2026-11-25 (produtos: categorias e ambientes editáveis)
+
+- Categorias e ambientes dos produtos deixam de ser lista fixa: o administrador cria e apaga pelo `EditorDeOpcoes`, dentro do formulário de produto (sem janela flutuante). Ambientes viram "(opcional)". Por quê: pedido do usuário, que quer liberdade para montar as próprias listas.
+- **Sem token novo.**
+
+## 2026-11-25 (produtos recomendados: Loja e "Decore como no projeto")
+
+- Página `/loja` e seção "Decore como no projeto" (página do projeto, entre as variações e os relacionados), seguindo `referencias/mockup-loja.html` e o print da seção. Card novo `ProdutoCard` (foto quadrada, rótulo, nome, "Ver oferta ↗"), sem preço e sem nome de loja. Seção com fundo `tint`, como pede o escopo.
+- Filtros da Loja **na horizontal** (mockup), com os mesmos campos e visual dos filtros de `/projetos`. Por quê: a Loja tem só três filtros; a coluna lateral deixaria a grade estreita.
+- `Carousel` `desktopColumns` aceita `6`. `Button` com `target="_blank"` vira `<a>` simples mesmo para endereço do próprio site. Por quê: o "Ver oferta" passa por `/ir/produto/...` para anotar o clique, e o pré-carregamento do `next/link` contaria cliques falsos. Ícone novo `arrow-up-right` (↗).
+- Cadastro de produto em página própria (`/admin/produtos/novo` e `/editar`), não em janela flutuante; na aba Decoração, o formulário abre dentro da aba. Por quê: pedido do usuário, janela flutuante foge do padrão do painel (o cadastro de projetos é página).
+- **Sem token novo.**
+
+## 2026-11-25 (variações do projeto: "Mesmo projeto, outros terrenos")
+
+- Seção nova na página do projeto, depois de "Gostou deste projeto?", igual a `referencias/Projeto variações.png` (medida no print, que estava em zoom de 125%). Card próprio da seção (`features/projetos/components/VariacoesDoProjeto.tsx`, não é o `ProjectCard`): foto 4:3 com a medida do terreno num `Badge`, "P18 · Terreno 12×30m", "3 Quartos · 2 Vagas · 190 m²", preço e "Ver detalhes" baixo (33px; o card inteiro é o link, então o alvo de toque é o card). O projeto aberto tem borda `--color-primary`, selo branco "Você está vendo" e "Projeto atual" no lugar do botão. Do menor para o maior terreno; no computador 4 por vez, com setas e arraste pelo mouse; no celular, faixa de deslizar.
+- Token novo: `--sage-700` / `--color-accent-muted` (#4b7a5e, verde discreto do rótulo sobre fundo claro; 4,6:1 sobre `--color-subtle`). Por quê: o `accent` só serve em fundo escuro. É uma família própria ("sálvia"), não um tom da escala `--green-*`, porque é bem mais apagado.
+- Tokens novos de espaçamento entre letras: `--tracking-eyebrow` (0,12em, o valor que o `Eyebrow` já usava solto) e `--tracking-eyebrow-light` (0,065em).
+- `cn` agora conhece os tamanhos de fonte `caption`, `label` e `comment` e os espaçamentos `eyebrow`/`eyebrow-light`. Por quê: o tailwind-merge achava que `text-label` era cor e apagava a cor do elemento (o texto do botão sumia).
+- Arrumação depois da aprovação do visual (o usuário pediu "tudo padronizado"): os ajustes que estavam só na tela viraram opções oficiais dos componentes: `Badge` `surface` e `size` `md`; `Button` `size` `sm`; `Eyebrow` `tone` (`onDark`/`onLight`); `Section` `eyebrow` e `contentSpacing`; `Carousel` `dragToScroll` e `desktopColumns`. Nada mudou no visual dos componentes que já existiam.
+
 ## 2026-11-20 (selos em cartão menos quadrados)
 
 - Os cartões Compra segura / Entrega imediata / Suporte ficavam estreitos (~180px) e quadrados: o site tem 1200px de largura, menos que o print. No `xl`, a coluna de informações do topo passa a 6/11 da largura (fotos 5/11) e o cartão fica mais justo (`p-3`, `gap-2.5`, cartões com `gap-2`): ~200px por cartão, o texto quebra em 3, 3 e 4 linhas como em `referencias/adicionar isso.png`. Por quê: pedido do usuário.

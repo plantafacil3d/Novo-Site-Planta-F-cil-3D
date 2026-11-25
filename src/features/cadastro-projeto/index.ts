@@ -7,7 +7,12 @@ export {
 } from './catalogo'
 export { publicarProjeto } from './actions'
 export { buscarProjetoParaEditar } from './queries'
-export { acessoDoPapel, nomePadraoPavimento, textoAlternativoDaImagem } from './rules'
+export {
+  acessoDoPapel,
+  nomePadraoPavimento,
+  paraProjetoVinculado,
+  textoAlternativoDaImagem,
+} from './rules'
 export type {
   ArquivoCompletoDoBanco,
   ArquivoDeExemplo,
@@ -27,5 +32,6 @@ export type {
   PavimentoDoBanco,
   PavimentoGravavel,
   ProjetoCriado,
+  ProjetoVinculado,
 } from './types'
 export type { CategoriaDoCadastro, EstiloDoCadastro } from './catalogo'

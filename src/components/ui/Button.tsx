@@ -23,6 +23,8 @@ const buttonStyles = cva(
         danger: 'bg-danger-solid text-fg-inverse hover:bg-danger-hover',
       },
       size: {
+        // Abaixo dos 44px de toque: só onde o alvo real é maior (ex.: o link estica sobre o card todo).
+        sm: 'px-3 py-2 text-label font-semibold',
         md: 'min-h-11 px-4 py-3 text-sm',
         lg: 'min-h-12 px-6 py-3 text-base',
       },
@@ -70,7 +72,9 @@ export function Button({
 
   if (props.href !== undefined) {
     const { href, ...anchorProps } = props as Omit<ButtonAsLink, keyof BaseProps>
-    if (isExternal(href)) {
+    // Nova aba também para endereço do próprio site (ex.: o "Ver oferta", que passa por `/ir/...`):
+    // `<a>` simples, sem o pré-carregamento do `next/link`. Um `rel` passado substitui o padrão.
+    if (isExternal(href) || anchorProps.target === '_blank') {
       return (
         <a
           href={href}

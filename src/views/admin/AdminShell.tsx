@@ -7,11 +7,12 @@ import { Button } from '@/components/ui/Button'
 import { sairDoPainel } from '@/features/admin'
 import { siteConfig } from '@/features/site'
 
-// Os outros itens (sem Projetos e Biblioteca) aparecem como estáticos ("Em breve").
+// Itens sem link aparecem como estáticos ("Em breve").
 const itensDoMenu: SidebarItem[] = [
   { label: 'Dashboard', icon: 'dashboard' },
   { label: 'Projetos', icon: 'folder', href: '/admin/projetos' },
   { label: 'Biblioteca', icon: 'layers', href: '/admin/biblioteca' },
+  { label: 'Produtos', icon: 'sofa', href: '/admin/produtos' },
   { label: 'Vendas', icon: 'cart' },
   { label: 'Analytics', icon: 'chart' },
 ]

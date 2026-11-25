@@ -54,6 +54,14 @@ export interface ProjetoAdminRepository {
    * biblioteca em si, só a linha de vínculo.
    */
   sincronizarArquivosExemplo(projetoId: string, arquivoIds: string[]): Promise<void>
+  /**
+   * Deixa as variações ligadas à mão (aba "Variações") exatamente como a lista de ids:
+   * liga o que é novo e desliga o que saiu. A ligação vale para os dois lados (ligar A a B já liga
+   * B a A), então desligar aqui também some da aba do outro projeto.
+   */
+  sincronizarVariacoes(projetoId: string, projetoIds: string[]): Promise<void>
+  /** Projetos com este "Código do projeto", exato (até `limite`), menos o próprio. */
+  listarPorCodigo(codigo: string, excetoId: string | null, limite: number): Promise<ProjetoAdmin[]>
   listarArquivos(projetoId: string): Promise<ArquivoGravado[]>
   /**
    * Os arquivos gravados de vários projetos, só com o que o Storage precisa. Serve à exclusão, que

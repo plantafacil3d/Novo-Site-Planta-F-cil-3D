@@ -51,6 +51,10 @@ export class InMemoryProjetoRepository implements ProjetoRepository {
     return []
   }
 
+  async listarVariacoes() {
+    return []
+  }
+
   async listarComplementares() {
     return complementares
   }

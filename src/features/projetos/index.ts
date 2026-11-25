@@ -22,6 +22,7 @@ export { ProjetosDestaque } from './components/ProjetosDestaque'
 export { ProjetosRelacionados } from './components/ProjetosRelacionados'
 export { ProjetosSkeleton } from './components/ProjetosSkeleton'
 export { SobreProjeto } from './components/SobreProjeto'
+export { VariacoesDoProjeto } from './components/VariacoesDoProjeto'
 export { lerFotoOriginal } from './fotos'
 export { opcoesDeQuantidade, ordenacoesDeProjetos } from './catalogo'
 export type { OrdenacaoProjetos } from './catalogo'
@@ -35,6 +36,7 @@ export {
   listarProjetosEmDestaque,
   listarProjetosRelacionados,
   listarSlugsProjetos,
+  listarVariacoesDoProjeto,
 } from './queries'
 export {
   PROJETOS_POR_PAGINA,

@@ -1008,6 +1008,8 @@ export function useFormularioProjeto({ projetoInicial, projetoIdInicial, slugAtu
 
   return {
     dados,
+    /** `null` num projeto novo, até o primeiro "Salvar". */
+    projetoId,
     /** `null` num projeto novo (o slug só existe depois do primeiro "Salvar"). */
     slugAtual: slugAtual ?? null,
     atualizar,

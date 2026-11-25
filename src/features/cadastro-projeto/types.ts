@@ -1,3 +1,5 @@
+import type { ProdutoLigado } from '@/features/produtos-cadastro'
+
 export type EtapaId =
   | 'informacoes'
   | 'imagens'
@@ -8,6 +10,8 @@ export type EtapaId =
   | 'previas'
   | 'marketing'
   | 'complementares'
+  | 'variacoes'
+  | 'decoracao'
   | 'entrega'
 
 /** Situação de uma aba no menu: completa, com pendência ou opcional ainda sem conteúdo. */
@@ -92,6 +96,16 @@ export type LegendaDaObra = {
   cidade: string
 }
 
+/** Outro projeto ligado a este como variação (aba "Variações"): o que a aba mostra dele. */
+export type ProjetoVinculado = {
+  id: string
+  /** "Código do projeto" digitado no cadastro; sem ele, o PF-xxxx automático. */
+  codigo: string
+  titulo: string
+  /** Rascunho não aparece no site, mesmo ligado. */
+  publicado: boolean
+}
+
 /**
  * Tudo que o formulário guarda. Números e preços ficam como texto digitado; a conversão e a
  * conferência são feitas em `schemas.ts`. O formulário nasce vazio (`dadosVazios`).
@@ -157,6 +171,12 @@ export type DadosProjeto = {
   provaSocialNota: string
   // 6. Complementares
   complementares: ComplementarProjeto[]
+  // 6.1 Variações do projeto (aba própria, opcional): projetos ligados À MÃO. Os de mesmo
+  // `codigoYoutube` entram sozinhos e não ficam aqui.
+  variacoesManuais: ProjetoVinculado[]
+  // 6.2 Produtos (aba própria, opcional): produtos do cadastro geral ligados a este projeto, na
+  // ordem da seção "Decore como no projeto". Gravados junto com o projeto.
+  produtosLigados: ProdutoLigado[]
   // 7. Entrega
   entregaArquivos: AnexoProjeto[]
   entregaLink: string
@@ -215,11 +235,25 @@ type DadosComArquivos<A extends MetaArquivo> = Omit<
   complementares: (Omit<ComplementarProjeto, 'pdf'> & { pdf: A | null })[]
 }
 
-/** Dados vistos pela conferência (`schemas.ts`): só o que ela lê dos arquivos. */
-export type DadosValidaveis = DadosComArquivos<MetaArquivo>
+/** Dados vistos pela conferência (`schemas.ts`): só o que ela lê dos arquivos. As variações só
+ *  contam (na tela são projetos; no payload, ids), por isso aceitam qualquer um dos dois. */
+export type DadosValidaveis = Omit<
+  DadosComArquivos<MetaArquivo>,
+  'variacoesManuais' | 'produtosLigados'
+> & {
+  variacoesManuais: readonly unknown[]
+  produtosLigados: readonly unknown[]
+}
 
-/** O que o formulário envia ao servidor para gravar. */
-export type PayloadProjeto = DadosComArquivos<ArquivoDoPayload>
+/** O que o formulário envia ao servidor para gravar. Das variações, só os ids. */
+export type PayloadProjeto = Omit<
+  DadosComArquivos<ArquivoDoPayload>,
+  'variacoesManuais' | 'produtosLigados'
+> & {
+  variacoesManuais: string[]
+  /** Ids dos produtos da aba Produtos, na ordem da seção. */
+  produtosLigados: string[]
+}
 
 // ── Gravação ─────────────────────────────────────────────────────────────────────────────────────
 
@@ -338,6 +372,8 @@ export type CadastroCompletoDoBanco = CadastroGravavel & {
   arquivos: ArquivoCompletoDoBanco[]
   /** Ids dos arquivos da biblioteca vinculados a este projeto (aba 5). */
   arquivosExemplo: string[]
+  /** Projetos ligados à mão (aba "Variações"), dos dois lados do par. */
+  variacoesManuais: ProjetoVinculado[]
 }
 
 /** Os dados do cadastro que entram no nome e no texto alternativo das imagens. */

@@ -21,19 +21,60 @@ import {
   ProjetoHero,
   ProjetosRelacionados,
   SobreProjeto,
+  VariacoesDoProjeto,
   checkoutSeguro,
   exibirPreco,
   hrefProjeto,
   listarProjetosRelacionados,
+  listarVariacoesDoProjeto,
   mensagemDuvidaProjeto,
   type ProjetoDetalhe,
 } from '@/features/projetos'
+import { DecoreComoNoProjeto, listarProdutosDoProjeto } from '@/features/produtos'
 import { siteConfig, siteUrl, urlWhatsapp } from '@/features/site'
+
+/**
+ * Seções secundárias: se o banco falhar ao buscá-las, a página sai sem elas (lista vazia = a seção
+ * some) em vez de a página inteira dar erro. O erro fica no log do servidor, e a seção volta na
+ * próxima vez que a página for refeita (ao salvar um projeto ou no prazo do cache).
+ */
+async function listaOuVazia<T>(secao: string, buscar: () => Promise<T[]>): Promise<T[]> {
+  try {
+    return await buscar()
+  } catch (erro) {
+    console.error(`Seção "${secao}" ficou de fora da página do projeto:`, erro)
+    return []
+  }
+}
 
 /** Seção à parte: carrega depois do resto da página, sem travar o carregamento principal nela. */
 async function SecaoRelacionados({ projeto }: { projeto: ProjetoDetalhe }) {
-  const relacionados = await listarProjetosRelacionados(projeto)
+  const relacionados = await listaOuVazia('Projetos relacionados', () =>
+    listarProjetosRelacionados(projeto),
+  )
   return <ProjetosRelacionados projetos={relacionados} />
+}
+
+/** "Mesmo projeto, outros terrenos": também à parte, como os relacionados. */
+async function SecaoVariacoes({ projeto }: { projeto: ProjetoDetalhe }) {
+  const variacoes = await listaOuVazia('Mesmo projeto, outros terrenos', () =>
+    listarVariacoesDoProjeto(projeto),
+  )
+  return <VariacoesDoProjeto projeto={projeto} variacoes={variacoes} />
+}
+
+/** "Decore como no projeto": produtos ligados no cadastro (aba Produtos), também à parte. */
+async function SecaoDecoracao({ projeto }: { projeto: ProjetoDetalhe }) {
+  const produtos = await listaOuVazia('Decore como no projeto', () =>
+    listarProdutosDoProjeto(projeto.id),
+  )
+  return (
+    <DecoreComoNoProjeto
+      projetoId={projeto.id}
+      codigo={projeto.codigoYoutube ?? projeto.codigo}
+      produtos={produtos}
+    />
+  )
 }
 
 /** Página pública de um projeto. A ordem das seções segue a referência visual aprovada. */
@@ -129,6 +170,14 @@ export async function ProjetoView({ projeto }: { projeto: ProjetoDetalhe }) {
           action={{ label: 'Comprar projeto', href: checkoutUrl, iconLeft: 'cart' }}
         />
       )}
+
+      <Suspense fallback={null}>
+        <SecaoVariacoes projeto={projeto} />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <SecaoDecoracao projeto={projeto} />
+      </Suspense>
 
       <Suspense fallback={null}>
         <SecaoRelacionados projeto={projeto} />

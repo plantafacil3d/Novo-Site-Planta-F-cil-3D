@@ -1,6 +1,7 @@
 import {
   Armchair,
   ArrowRight,
+  ArrowUpRight,
   Bath,
   BedDouble,
   BedSingle,
@@ -104,6 +105,7 @@ import {
 const icons = {
   armchair: Armchair,
   'arrow-right': ArrowRight,
+  'arrow-up-right': ArrowUpRight,
   bath: Bath,
   'bed-double': BedDouble,
   'bed-single': BedSingle,

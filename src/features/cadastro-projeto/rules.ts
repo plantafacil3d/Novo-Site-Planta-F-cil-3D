@@ -1,3 +1,4 @@
+import type { ProjetoAdmin } from '@/features/admin'
 import { extensaoDe, formatarTamanho } from '@/services/upload/arquivos'
 import type { AcessoDoArquivo } from '@/types/envio'
 
@@ -25,6 +26,7 @@ import type {
   PavimentoGravavel,
   PavimentoProjeto,
   PayloadProjeto,
+  ProjetoVinculado,
   SimNao,
   SituacaoDaEtapa,
 } from './types'
@@ -66,6 +68,13 @@ export const LIMITES = {
   /** Aba Marketing, "Obras de clientes": o mosaico da página mostra 5 fotos (1 grande + 4). */
   obrasMax: 5,
   obraCidadeMax: 40,
+  /** Aba "Variações": projetos ligados à mão (os de mesmo código não contam aqui). */
+  variacoesMax: 20,
+  /** Quantos projetos a busca da aba de variações mostra por vez. */
+  buscaDeVariacoesMax: 8,
+  /** Texto da busca da aba de variações: mínimo para buscar e teto (skill `seguranca` §8.1). */
+  buscaDeVariacoesMin: 2,
+  buscaDeVariacoesTextoMax: 100,
   /** Tamanho máximo da imagem JÁ gravada no Storage (depois de reduzida). */
   imagemMaxBytes: 2 * MB,
   /** Tamanho máximo da imagem que o usuário escolhe no computador, antes de ser reduzida. */
@@ -320,6 +329,18 @@ export function ehLinkDeVideo(texto: string): boolean {
 
 // ── Formulário ───────────────────────────────────────────────────────────────────────────────────
 
+/** O que a aba "Variações" mostra de um projeto (ligado ou achado na busca). */
+export function paraProjetoVinculado(
+  projeto: Pick<ProjetoAdmin, 'id' | 'codigo' | 'titulo' | 'status'>,
+): ProjetoVinculado {
+  return {
+    id: projeto.id,
+    codigo: projeto.codigo,
+    titulo: projeto.titulo,
+    publicado: projeto.status === 'publicado',
+  }
+}
+
 /** O formulário nasce vazio: nenhum campo vem com dado de exemplo. */
 export function dadosVazios(): DadosProjeto {
   return {
@@ -364,6 +385,8 @@ export function dadosVazios(): DadosProjeto {
     provaSocialClientes: '',
     provaSocialNota: '',
     complementares: [],
+    variacoesManuais: [],
+    produtosLigados: [],
     entregaArquivos: [],
     entregaLink: '',
   }
@@ -382,6 +405,10 @@ function temConteudo(etapa: EtapaId, dados: DadosProjeto): boolean {
     )
   }
   if (etapa === 'complementares') return dados.complementares.length > 0
+  // Só conta o que foi escolhido à mão: ter código não garante que exista outro projeto com ele,
+  // e o check acenderia antes de haver qualquer variação.
+  if (etapa === 'variacoes') return dados.variacoesManuais.length > 0
+  if (etapa === 'decoracao') return dados.produtosLigados.length > 0
   if (etapa === 'plantaHumanizada') return dados.plantaHumanizada.length > 0
   return true
 }
@@ -681,6 +708,9 @@ export function montarPayload(dados: DadosProjeto, salvos: ReadonlySet<string>):
       ...complementar,
       pdf: complementar.pdf ? doPayload(complementar.pdf) : null,
     })),
+    // Nome e código servem só para a tela; ao servidor vai o id.
+    variacoesManuais: dados.variacoesManuais.map((projeto) => projeto.id),
+    produtosLigados: dados.produtosLigados.map((produto) => produto.id),
   }
 }
 
@@ -995,6 +1025,9 @@ export function paraDadosProjeto(
     itens: [...cadastro.itens],
     arquivosExemplo: [...cadastro.arquivosExemplo],
     complementares,
+    variacoesManuais: [...cadastro.variacoesManuais],
+    // Carregados à parte (cadastro de produtos), em `buscarProjetoParaEditar`.
+    produtosLigados: [],
     entregaArquivos: doPapel('entrega').map(paraArquivoEscolhido),
     entregaLink: cadastro.entregaLink ?? '',
   }

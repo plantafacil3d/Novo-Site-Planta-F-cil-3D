@@ -8,9 +8,10 @@ export async function proxy(request: NextRequest) {
 
 // Antes, só o painel logava (matcher restrito a `/admin`). Agora qualquer conta Google pode
 // manter sessão e navegar o site inteiro (favoritos), então a sessão precisa se renovar em toda
-// rota — exceto arquivos estáticos e `/fotos` (entrega das fotos do Storage), que não leem cookie nenhum.
+// rota — exceto arquivos estáticos, `/fotos` (entrega das fotos do Storage) e `/ir` (redireciona o
+// "Ver oferta" dos produtos), que não leem cookie nenhum.
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|fotos/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|avif|ico)$).*)',
+    '/((?!_next/static|_next/image|fotos/|ir/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|avif|ico)$).*)',
   ],
 }

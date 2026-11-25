@@ -5,7 +5,7 @@ import { cache } from 'react'
 
 import { projetoRepository } from '@/repositories/projetos'
 
-import { montarConsulta } from './rules'
+import { montarConsulta, ordenarVariacoes } from './rules'
 import type { ParametrosListagem, ProjetoDetalhe } from './types'
 
 // Loaders para Server Components: o conteúdo público é renderizado no servidor (SEO).
@@ -46,6 +46,12 @@ const buscarProjetoEmCache = unstable_cache(
 const listarRelacionadosEmCache = unstable_cache(
   (id: string, categoria: string) => projetoRepository.listarRelacionados(id, categoria),
   ['projetos-relacionados'],
+  { tags: [TAG_CATALOGO], revalidate: SEGUNDOS_DE_CACHE },
+)
+
+const listarVariacoesEmCache = unstable_cache(
+  (id: string, codigo: string | undefined) => projetoRepository.listarVariacoes(id, codigo),
+  ['variacoes-do-projeto'],
   { tags: [TAG_CATALOGO], revalidate: SEGUNDOS_DE_CACHE },
 )
 
@@ -92,4 +98,12 @@ export function listarSlugsProjetos() {
 /** Recebe o projeto já carregado (não busca de novo id/categoria, que a página já tem). */
 export function listarProjetosRelacionados(projeto: ProjetoDetalhe) {
   return listarRelacionadosEmCache(projeto.id, projeto.categoriaRotulo)
+}
+
+/**
+ * A mesma casa em outros terrenos (seção "Mesmo projeto, outros terrenos"), já do menor para o
+ * maior terreno e incluindo o próprio projeto. Só ele na lista = a seção não aparece.
+ */
+export async function listarVariacoesDoProjeto(projeto: ProjetoDetalhe) {
+  return ordenarVariacoes(await listarVariacoesEmCache(projeto.id, projeto.codigoYoutube))
 }

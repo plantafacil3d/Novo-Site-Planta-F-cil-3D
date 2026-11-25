@@ -198,6 +198,8 @@ export const etapasDoCadastro: readonly { id: EtapaId; rotulo: string; opcional:
   { id: 'previas', rotulo: 'Prévias do Projeto', opcional: true },
   { id: 'marketing', rotulo: 'Marketing', opcional: true },
   { id: 'complementares', rotulo: 'Complementares', opcional: true },
+  { id: 'variacoes', rotulo: 'Variações', opcional: true },
+  { id: 'decoracao', rotulo: 'Produtos', opcional: true },
   { id: 'entrega', rotulo: 'Entrega do Projeto', opcional: false },
 ]
 

@@ -19,6 +19,10 @@
   /* Verde claro para texto sobre fundo escuro (selo das fotos de "Do projeto à obra"). Medido no layout
      enviado pelo usuário (2026-11-20); sobre o `--color-overlay-strong` passa de 10:1. */
   --green-300: #8ff08d;
+  /* Verde acinzentado ("sálvia"), família própria: mais apagado que os --green-*. Rótulo em caixa
+     alta sobre fundo claro ("MESMO PROJETO, OUTROS TERRENOS"). Medido no layout enviado pelo
+     usuário (2026-11-25); sobre o --gray-50 dá 4,6:1 (passa AA). */
+  --sage-700: #4b7a5e;
   /* Só o destaque de seção (contorno tracejado e selo). Tirado do layout enviado pelo usuário
      (2026-11-20); branco sobre este violeta dá 5,7:1 (passa AA). */
   --violet-600: #7c3aed;
@@ -130,6 +134,8 @@
   --color-verified: var(--green-700);
   /* Texto verde sobre fundo escuro ou foto (situação da obra no selo da foto). */
   --color-accent-on-inverse: var(--green-300);
+  /* Rótulo em caixa alta (Eyebrow) sobre fundo claro: o `accent` só funciona sobre fundo escuro. */
+  --color-accent-muted: var(--sage-700);
 
   /* Estados: -solid (ícone, borda de campo, botão), -subtle (fundo), -border, -fg (texto sobre o subtle). */
   --color-success-solid: var(--success-600);
@@ -235,6 +241,11 @@
   --text-3xl--line-height: 1.2;
   --text-4xl: 2.75rem;
   --text-4xl--line-height: 1.15;
+
+  /* Espaçamento entre letras do rótulo em caixa alta (`Eyebrow`): o padrão (fundo escuro) e o mais
+     justo da versão sobre fundo claro, medido no layout das variações do projeto (2026-11-25). */
+  --tracking-eyebrow: 0.12em;
+  --tracking-eyebrow-light: 0.065em;
 
   /* Layout e movimento */
   --container-content: 1200px;

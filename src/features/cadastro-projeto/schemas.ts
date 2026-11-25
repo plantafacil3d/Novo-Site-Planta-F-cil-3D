@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { LIMITES_PRODUTO } from '@/features/produtos-cadastro'
+
 import {
   FAMILIA_CAPACIDADE,
   PROVA_SOCIAL,
@@ -122,6 +124,16 @@ const codigoYoutubeOpcional = z
     (texto) => texto === '' || CODIGO_YOUTUBE_REGEX.test(texto),
     `Use letras, números e hífen, até ${LIMITES.codigoYoutubeMax} caracteres.`,
   )
+
+/** "Código do projeto" já preenchido (a busca das variações automáticas exige um código válido). */
+export const schemaCodigoDoProjeto = z.string().trim().toUpperCase().regex(CODIGO_YOUTUBE_REGEX)
+
+/** Texto da busca de projetos na aba "Variações". */
+export const schemaBuscaDeVariacoes = z
+  .string()
+  .trim()
+  .min(LIMITES.buscaDeVariacoesMin)
+  .max(LIMITES.buscaDeVariacoesTextoMax)
 
 /** Metadados de um arquivo. Um `File` do navegador já se encaixa aqui. */
 const dadosDoArquivo = { nomeArquivo: z.string(), tamanho: z.number(), tipo: z.string() }
@@ -290,6 +302,22 @@ const schemaItens = z.object({
 // ── 5. Arquivos de exemplo (opcional, sem regra: só escolher os que já existem) ──────────────────
 
 const schemaExemplos = z.object({ arquivosExemplo: z.array(z.string()) })
+
+// ── 6.1 Variações do projeto ─────────────────────────────────────────────────────────────────────
+
+const MENSAGEM_VARIACOES_MAX = `Ligue no máximo ${LIMITES.variacoesMax} projetos à mão.`
+
+const schemaVariacoes = z.object({
+  variacoesManuais: z.array(z.unknown()).max(LIMITES.variacoesMax, MENSAGEM_VARIACOES_MAX),
+})
+
+// ── 6.2 Produtos ─────────────────────────────────────────────────────────────────────────────────
+
+const MENSAGEM_PRODUTOS_MAX = `Ligue no máximo ${LIMITES_PRODUTO.porProjetoMax} produtos ao projeto.`
+
+const schemaDecoracao = z.object({
+  produtosLigados: z.array(z.unknown()).max(LIMITES_PRODUTO.porProjetoMax, MENSAGEM_PRODUTOS_MAX),
+})
 
 // ── 5.1 Prévias do projeto (opcional: 0 fotos é válido; cada foto enviada confere como a galeria) ──
 
@@ -464,6 +492,8 @@ const schemasPorEtapa: Record<EtapaId, z.ZodType> = {
   previas: schemaPrevias,
   marketing: schemaMarketing,
   complementares: schemaComplementares,
+  variacoes: schemaVariacoes,
+  decoracao: schemaDecoracao,
   entrega: schemaEntrega,
 }
 
@@ -582,6 +612,16 @@ const schemaPayload = z
         pdf: arquivoDoPayload.nullable(),
       }),
     ),
+    // Ids sem repetição. Ligar o projeto a ele mesmo é barrado na ação (que sabe o id) e no banco.
+    variacoesManuais: z
+      .array(z.uuid())
+      .max(LIMITES.variacoesMax, MENSAGEM_VARIACOES_MAX)
+      .refine((ids) => new Set(ids).size === ids.length, 'Há um projeto repetido nas variações.'),
+    // Ids sem repetição, na ordem da seção "Decore como no projeto".
+    produtosLigados: z
+      .array(z.uuid())
+      .max(LIMITES_PRODUTO.porProjetoMax, MENSAGEM_PRODUTOS_MAX)
+      .refine((ids) => new Set(ids).size === ids.length, 'Há um produto repetido na aba Produtos.'),
     entregaArquivos: z.array(arquivoDoPayload),
     entregaLink: linkHttpsOpcional,
   })

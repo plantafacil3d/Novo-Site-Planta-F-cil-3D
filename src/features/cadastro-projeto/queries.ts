@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { produtoAdminRepository } from '@/repositories/produtos-admin'
 import { projetoAdminRepository } from '@/repositories/projetos-admin'
 import { authService } from '@/services/auth'
 import { fileStorage } from '@/services/storage'
@@ -21,7 +22,10 @@ export async function buscarProjetoParaEditar(
   const usuario = await authService.usuarioAtual()
   if (!usuario?.ehAdmin) return null
 
-  const cadastro = await projetoAdminRepository.buscarCadastroCompleto(id)
+  const [cadastro, produtosLigados] = await Promise.all([
+    projetoAdminRepository.buscarCadastroCompleto(id),
+    produtoAdminRepository.listarDoProjeto(id),
+  ])
   if (!cadastro) return null
 
   // Só as imagens (principal, galeria, plantas) precisam de URL: PDFs e outros anexos, sendo
@@ -40,5 +44,5 @@ export async function buscarProjetoParaEditar(
     cadastro,
     (arquivo: ArquivoCompletoDoBanco) => urls.get(arquivo.id) ?? '',
   )
-  return { dados, slug: cadastro.slug }
+  return { dados: { ...dados, produtosLigados }, slug: cadastro.slug }
 }

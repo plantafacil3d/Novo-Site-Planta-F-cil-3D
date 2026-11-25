@@ -34,6 +34,7 @@ A marca é preto e branco, minimalista; o verde vivo é a única cor de destaque
 | `--gray-100` / `--gray-300` / `--gray-400`        | fundo desabilitado / borda de campo / texto desabilitado                                                                 |
 | `--green-300`                                     | só texto verde sobre fundo escuro ou foto (situação da obra no selo das fotos de "Do projeto à obra"); medido no layout |
 | `--tile-slate` / `-red` / `-orange` / `-pink` / `-cyan` / `-teal` | só os quadrados do `IconeEmBloco` (ícones dos projetos complementares e dos selos em cartão)                            |
+| `--sage-700`                                      | verde acinzentado ("sálvia"), família própria, mais apagada que os `--green-*`: só o rótulo em caixa alta sobre fundo claro (`Eyebrow onLight`); medido no layout |
 | `--violet-50`                                     | só o fundo lilás da faixa de prova social (topo da página do projeto); medido no layout                                    |
 | `--violet-600`                                    | só o destaque de seção (contorno tracejado e selo); branco sobre ele dá 5,7:1                                            |
 | `--avatar-green` / `--avatar-blue` / `--avatar-amber` | só os avatares com iniciais dos depoimentos (decorativos; o nome aparece em texto ao lado)                            |
@@ -73,6 +74,7 @@ Cinzas e pretos com leve tom esverdeado, para combinar com a marca. Exceção in
 | `--color-rating`                              | `--amber-500`               | estrelas da nota de um comentário (ícone, não texto)                                                                            |
 | `--color-verified`                            | `--green-700`               | texto "Compra verificada" (4,8:1 sobre branco, passa AA)                                                                        |
 | `--color-accent-on-inverse`                   | `--green-300`               | texto verde sobre fundo escuro ou foto (situação da obra no selo de `ObrasDeClientes`; >10:1 sobre `--color-overlay-strong`)     |
+| `--color-accent-muted`                        | `--sage-700`                | rótulo em caixa alta sobre fundo claro (`Eyebrow onLight`, ex.: "MESMO PROJETO, OUTROS TERRENOS"); 4,6:1 sobre `--color-subtle`  |
 
 #### Estados (success, warning, danger, info)
 
@@ -103,11 +105,12 @@ Ex.: `bg-notification-error-bg text-notification-error-fg border-notification-er
 ## Tipografia
 
 - Títulos: **Poppins** 600/700 (`font-heading`, aplicada em `h1`–`h4`). Texto, botões e rótulos: **Inter** 400/500/600 (`font-body`, padrão do `body`). Carregadas com `next/font` em `app/layout.tsx`.
-- Tamanhos só dos depoimentos de clientes (o layout enviado usa uma escala 1px menor; nenhum tamanho existente mudou): `text-caption` 11px (legendas), `text-label` 13px (nomes) e `text-comment` 14,4px (texto de comentário, entrelinha 1,5).
+- Tamanhos que nasceram nos depoimentos de clientes (o layout enviado usa uma escala 1px menor; nenhum tamanho existente mudou): `text-caption` 11px (legendas), `text-label` 13px e `text-comment` 14,4px (texto de comentário, entrelinha 1,5). Onde o `text-label` é usado: nomes nos depoimentos; quartos/vagas/área no card de variação do projeto; o `Button` `sm`.
+- Tamanho ou espaçamento entre letras novo no `@theme` (`--text-*`, `--tracking-*`): acrescente o nome também em `src/components/ui/cn.ts`, senão o `cn` confunde a classe (ex.: achava que `text-label` era cor e apagava a cor do texto).
 - Escala: `text-xs` 12px, `text-sm` 14px, `text-base` 16px, `text-lg` 18px, `text-xl` 20px, `text-2xl` 24px, `text-3xl` 32px, `text-4xl` 44px (título do hero).
 - Pesos: 400 (texto), 500 (rótulos), 600 (subtítulos), 700 (títulos).
 - Altura de linha: 1.2 em títulos, 1.5 em texto corrido.
-- Rótulo em caixa alta ("PROJETOS ARQUITETÔNICOS PRONTOS"): `text-xs font-semibold uppercase tracking-[0.12em]`. Se se repetir, vira componente.
+- Rótulo em caixa alta: componente `Eyebrow`. Espaçamento entre letras em token: `--tracking-eyebrow` 0,12em (padrão, fundo escuro: "PROJETOS ARQUITETÔNICOS PRONTOS") e `--tracking-eyebrow-light` 0,065em (fundo claro, mais justo e em negrito, medido no layout das variações do projeto).
 
 ## Espaçamento
 

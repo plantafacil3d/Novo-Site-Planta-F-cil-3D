@@ -35,6 +35,9 @@ import type { ProjetoRepository } from './ProjetoRepository'
 
 /** Quantos projetos relacionados reais buscar no máximo. */
 const RELACIONADOS_MAXIMO = 8
+/** Teto de cada consulta das variações (pelo código e pelas ligações à mão). Lista curta, mas com
+ *  limite no banco (skill `arquitetura` §3.1): o cadastro liga até 20 à mão. */
+const VARIACOES_MAXIMO = 24
 /** Quantos projetos aparecem na vitrine ("Projetos em destaque"): os publicados mais recentes. */
 const DESTAQUES_MAXIMO = 8
 
@@ -731,6 +734,60 @@ export class SupabaseProjetoRepository implements ProjetoRepository {
     }
 
     const projetos = await Promise.all(data.map(montarResumo))
+    return projetos.filter((projeto): projeto is Projeto => projeto !== null)
+  }
+
+  async listarVariacoes(id: string, codigo: string | undefined): Promise<Projeto[]> {
+    const supabase = criarClientePublico()
+
+    // Ligações à mão, dos dois lados do par (a policy só libera pares de projetos publicados).
+    const [ladoA, ladoB] = await Promise.all([
+      supabase
+        .from('projeto_variacoes')
+        .select('outro:projeto_b_id')
+        .eq('projeto_a_id', id)
+        .limit(VARIACOES_MAXIMO)
+        .overrideTypes<{ outro: string }[], { merge: false }>(),
+      supabase
+        .from('projeto_variacoes')
+        .select('outro:projeto_a_id')
+        .eq('projeto_b_id', id)
+        .limit(VARIACOES_MAXIMO)
+        .overrideTypes<{ outro: string }[], { merge: false }>(),
+    ])
+    if (ladoA.error || ladoB.error) {
+      throw new AppError('falha_inesperada', 'Não foi possível carregar as variações do projeto.')
+    }
+    const ligados = [...ladoA.data, ...ladoB.data].map((linha) => linha.outro)
+
+    const consultaBase = () =>
+      supabase
+        .from('projetos')
+        .select(COLUNAS_RESUMO)
+        .eq('status', 'publicado')
+        .eq('projeto_arquivos.papel', 'principal')
+
+    const [porId, porCodigo] = await Promise.all([
+      consultaBase()
+        .in('id', [id, ...ligados])
+        .overrideTypes<LinhaResumo[], { merge: false }>(),
+      codigo
+        ? consultaBase()
+            .eq('codigo_youtube', codigo)
+            .neq('id', id)
+            .limit(VARIACOES_MAXIMO)
+            .overrideTypes<LinhaResumo[], { merge: false }>()
+        : Promise.resolve({ data: [] as LinhaResumo[], error: null }),
+    ])
+    if (porId.error || porCodigo.error) {
+      throw new AppError('falha_inesperada', 'Não foi possível carregar as variações do projeto.')
+    }
+
+    // Um projeto pode estar ligado à mão E ter o mesmo código: entra uma vez só.
+    const linhas = new Map<string, LinhaResumo>()
+    for (const linha of [...porId.data, ...porCodigo.data]) linhas.set(linha.id, linha)
+
+    const projetos = await Promise.all([...linhas.values()].map(montarResumo))
     return projetos.filter((projeto): projeto is Projeto => projeto !== null)
   }
 }

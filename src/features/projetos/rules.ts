@@ -93,6 +93,26 @@ export function descreverTerreno(larguraM: number, profundidadeM: number): strin
   return `${decimaisCurtos.format(larguraM)} m × ${decimaisCurtos.format(profundidadeM)} m = ${decimaisCurtos.format(area)} m²`
 }
 
+/** 12 x 25 → "12×25m" (sem zeros à toa: 12,5 → "12,5×25m"). Card das variações do projeto. */
+export function formatarTerrenoCurto(larguraM: number, profundidadeM: number): string {
+  return `${decimaisCurtos.format(larguraM)}×${decimaisCurtos.format(profundidadeM)}m`
+}
+
+/** 190 → "190 m²" (sem zeros à toa: 190,5 → "190,5 m²"). */
+export function formatarAreaCurta(metrosQuadrados: number): string {
+  return `${decimaisCurtos.format(metrosQuadrados)} m²`
+}
+
+/** Variações do mesmo projeto, do menor para o maior terreno (área do lote; empate: o mais estreito). */
+export function ordenarVariacoes<T extends Pick<Projeto, 'larguraM' | 'profundidadeM'>>(
+  variacoes: T[],
+): T[] {
+  return [...variacoes].sort(
+    (a, b) =>
+      a.larguraM * a.profundidadeM - b.larguraM * b.profundidadeM || a.larguraM - b.larguraM,
+  )
+}
+
 /** Mensagem pronta do WhatsApp para tirar dúvida sobre um projeto (nome e link da página). */
 export function mensagemDuvidaProjeto(titulo: string, urlPagina: string): string {
   return `Olá! Estou com dúvida sobre este projeto: ${titulo}\n${urlPagina}`

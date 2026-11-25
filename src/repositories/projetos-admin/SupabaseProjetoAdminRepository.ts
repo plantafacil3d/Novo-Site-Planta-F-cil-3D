@@ -24,6 +24,7 @@ import type {
   PavimentoGravavel,
   ProjetoCriado,
 } from '@/features/cadastro-projeto'
+import { paraProjetoVinculado } from '@/features/cadastro-projeto'
 import { criarClienteServidor } from '@/lib/supabase/server'
 import { AppError } from '@/types/erro'
 import type { Pagina } from '@/types/pagina'
@@ -257,7 +258,10 @@ type LinhaCadastroCompleto = {
   projeto_arquivos_exemplo: { arquivo_id: string }[]
 }
 
-function paraCadastroCompleto(linha: LinhaCadastroCompleto): CadastroCompletoDoBanco {
+/** As variações ligadas à mão vêm de outra tabela; `buscarCadastroCompleto` as acrescenta. */
+function paraCadastroCompleto(
+  linha: LinhaCadastroCompleto,
+): Omit<CadastroCompletoDoBanco, 'variacoesManuais'> {
   return {
     id: linha.id,
     slug: linha.slug,
@@ -436,14 +440,109 @@ export class SupabaseProjetoAdminRepository implements ProjetoAdminRepository {
 
   async buscarCadastroCompleto(id: string): Promise<CadastroCompletoDoBanco | null> {
     const supabase = await criarClienteServidor()
-    const { data, error } = await supabase
-      .from('projetos')
-      .select(COLUNAS_DO_CADASTRO_COMPLETO)
-      .eq('id', id)
-      .maybeSingle()
-      .overrideTypes<LinhaCadastroCompleto, { merge: false }>()
+    const [{ data, error }, ligados] = await Promise.all([
+      supabase
+        .from('projetos')
+        .select(COLUNAS_DO_CADASTRO_COMPLETO)
+        .eq('id', id)
+        .maybeSingle()
+        .overrideTypes<LinhaCadastroCompleto, { merge: false }>(),
+      this.idsDasVariacoes(id),
+    ])
     if (error) throw traduzir(error)
-    return data ? paraCadastroCompleto(data) : null
+    if (!data) return null
+
+    const variacoes = ligados.length > 0 ? await this.buscarPorIds(ligados) : []
+    return {
+      ...paraCadastroCompleto(data),
+      variacoesManuais: variacoes.map(paraProjetoVinculado),
+    }
+  }
+
+  /** Ids dos projetos ligados à mão a este, dos dois lados do par. */
+  private async idsDasVariacoes(projetoId: string): Promise<string[]> {
+    const supabase = await criarClienteServidor()
+    const [ladoA, ladoB] = await Promise.all([
+      supabase
+        .from('projeto_variacoes')
+        .select('outro:projeto_b_id')
+        .eq('projeto_a_id', projetoId)
+        .overrideTypes<{ outro: string }[], { merge: false }>(),
+      supabase
+        .from('projeto_variacoes')
+        .select('outro:projeto_a_id')
+        .eq('projeto_b_id', projetoId)
+        .overrideTypes<{ outro: string }[], { merge: false }>(),
+    ])
+    if (ladoA.error) throw traduzir(ladoA.error)
+    if (ladoB.error) throw traduzir(ladoB.error)
+    return [...ladoA.data, ...ladoB.data].map((linha) => linha.outro)
+  }
+
+  async sincronizarVariacoes(projetoId: string, projetoIds: string[]): Promise<void> {
+    const supabase = await criarClienteServidor()
+    const novos = new Set(projetoIds.filter((id) => id !== projetoId))
+    const existentes = new Set(await this.idsDasVariacoes(projetoId))
+
+    // O par fica gravado com o menor id em `projeto_a_id` (regra da tabela).
+    const par = (outro: string) =>
+      projetoId < outro
+        ? { projeto_a_id: projetoId, projeto_b_id: outro }
+        : { projeto_a_id: outro, projeto_b_id: projetoId }
+
+    const sobrando = [...existentes].filter((id) => !novos.has(id))
+    if (sobrando.length > 0) {
+      const maiores = sobrando.filter((outro) => projetoId < outro)
+      const menores = sobrando.filter((outro) => outro < projetoId)
+      const remocoes = [
+        maiores.length > 0 &&
+          supabase
+            .from('projeto_variacoes')
+            .delete()
+            .eq('projeto_a_id', projetoId)
+            .in('projeto_b_id', maiores),
+        menores.length > 0 &&
+          supabase
+            .from('projeto_variacoes')
+            .delete()
+            .eq('projeto_b_id', projetoId)
+            .in('projeto_a_id', menores),
+      ].filter((remocao) => remocao !== false)
+      for (const { error } of await Promise.all(remocoes)) {
+        if (error) throw traduzir(error)
+      }
+    }
+
+    const paraCriar = [...novos].filter((id) => !existentes.has(id))
+    if (paraCriar.length > 0) {
+      const { error } = await supabase.from('projeto_variacoes').insert(paraCriar.map(par))
+      // Um projeto apagado entre a tela abrir e o "Salvar" barra na FK (`23503`).
+      if (error) {
+        if (error.code === '23503') {
+          throw new AppError(
+            'dados_invalidos',
+            'Algum projeto escolhido nas variações não existe mais.',
+          )
+        }
+        throw traduzir(error)
+      }
+    }
+  }
+
+  async listarPorCodigo(
+    codigo: string,
+    excetoId: string | null,
+    limite: number,
+  ): Promise<ProjetoAdmin[]> {
+    const supabase = await criarClienteServidor()
+    let consulta = supabase.from('projetos').select(COLUNAS).eq('codigo_youtube', codigo)
+    if (excetoId) consulta = consulta.neq('id', excetoId)
+    const { data, error } = await consulta
+      .order('criado_em', { ascending: true })
+      .limit(limite)
+      .overrideTypes<Linha[], { merge: false }>()
+    if (error) throw traduzir(error)
+    return data.map(paraProjeto)
   }
 
   async sincronizarComplementares(
