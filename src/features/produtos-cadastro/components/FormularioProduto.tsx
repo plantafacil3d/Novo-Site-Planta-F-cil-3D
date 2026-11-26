@@ -80,6 +80,56 @@ export function FormularioProduto({
         titulo="Dados do produto"
         dica="O produto é cadastrado uma vez só e pode aparecer em vários projetos e na Loja. O link abre em nova aba."
       >
+        <Field
+          label="Link"
+          htmlFor={campo('link')}
+          error={erros.link}
+          hint="Cole o link e clique em Preencher: o nome e a foto vêm sozinhos."
+        >
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Input
+              className="sm:flex-1"
+              id={campo('link')}
+              type="url"
+              inputMode="url"
+              value={campos.link}
+              maxLength={LIMITES_PRODUTO.linkMax}
+              invalid={Boolean(erros.link)}
+              aria-describedby={erros.link ? `${campo('link')}-erro` : undefined}
+              onChange={(evento) => form.atualizar({ link: evento.target.value })}
+              onBlur={() => void form.conferirLink()}
+              placeholder="https://"
+            />
+            <Button
+              variant="secondary"
+              iconLeft="sparkles"
+              onClick={() => void form.preencherPeloLink()}
+              loading={form.lendoLink}
+              disabled={form.enviandoFoto || campos.link.trim() === ''}
+            >
+              {form.lendoLink ? 'Buscando…' : 'Preencher'}
+            </Button>
+          </div>
+        </Field>
+
+        {form.avisoDoLink && <Alert variant="warning">{form.avisoDoLink}</Alert>}
+
+        {form.duplicado && (
+          <Alert variant="warning">
+            <div className="flex flex-col items-start gap-2">
+              <p>
+                Este produto já está cadastrado ({form.duplicado.nome}). {acaoParaDuplicado.rotulo}?
+              </p>
+              <Button
+                variant="secondary"
+                onClick={() => form.duplicado && acaoParaDuplicado.agir(form.duplicado)}
+              >
+                {acaoParaDuplicado.rotulo}
+              </Button>
+            </div>
+          </Alert>
+        )}
+
         <div className="grid gap-5 sm:grid-cols-[12rem_1fr]">
           <div className="flex flex-col gap-2">
             {form.foto ? (
@@ -130,38 +180,6 @@ export function FormularioProduto({
                 placeholder="Ex.: Pendente de vidro fumê para bancada"
               />
             </Field>
-
-            <Field label="Link" htmlFor={campo('link')} error={erros.link}>
-              <Input
-                id={campo('link')}
-                type="url"
-                inputMode="url"
-                value={campos.link}
-                maxLength={LIMITES_PRODUTO.linkMax}
-                invalid={Boolean(erros.link)}
-                aria-describedby={erros.link ? `${campo('link')}-erro` : undefined}
-                onChange={(evento) => form.atualizar({ link: evento.target.value })}
-                onBlur={() => void form.conferirLink()}
-                placeholder="https://"
-              />
-            </Field>
-
-            {form.duplicado && (
-              <Alert variant="warning">
-                <div className="flex flex-col items-start gap-2">
-                  <p>
-                    Este produto já está cadastrado ({form.duplicado.nome}).{' '}
-                    {acaoParaDuplicado.rotulo}?
-                  </p>
-                  <Button
-                    variant="secondary"
-                    onClick={() => form.duplicado && acaoParaDuplicado.agir(form.duplicado)}
-                  >
-                    {acaoParaDuplicado.rotulo}
-                  </Button>
-                </div>
-              </Alert>
-            )}
 
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Categoria" htmlFor={campo('categoria')} error={erros.categoria}>

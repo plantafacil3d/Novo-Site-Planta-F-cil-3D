@@ -75,5 +75,11 @@ export type ParametrosAdminProdutos = { q?: string; pagina: number }
 export type ResultadoProduto<T extends object = object> =
   ({ ok: true; mensagem: string } & T) | { ok: false; mensagem: string; duplicado?: ProdutoLigado }
 
+/** O que o "Preencher" achou no link. A foto vem em base64 e a tela a envia como as outras. */
+export type DadosDoLink = {
+  nome: string | null
+  foto: { base64: string; tipo: string } | null
+}
+
 /** Autorização para o navegador enviar a foto, e onde ela vai ficar. */
 export type FotoAutorizada = { envio: EnvioAutorizado; caminho: string }

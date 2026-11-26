@@ -6,12 +6,20 @@ import { z } from 'zod'
 import { produtoAdminRepository } from '@/repositories/produtos-admin'
 import { projetoAdminRepository } from '@/repositories/projetos-admin'
 import { authService } from '@/services/auth'
+import { leitorDePrevia } from '@/services/previa-de-link'
 import { fileStorage } from '@/services/storage'
 import { extensaoDe } from '@/services/upload/arquivos'
 import { formatoConfere } from '@/services/upload/assinaturas'
 import { AppError } from '@/types/erro'
 
-import { LIMITES_PRODUTO, TAG_PRODUTOS, caminhoDaFoto, nomeJaExiste, normalizarLink } from './rules'
+import {
+  LIMITES_PRODUTO,
+  TAG_PRODUTOS,
+  caminhoDaFoto,
+  nomeDoTituloDoLink,
+  nomeJaExiste,
+  normalizarLink,
+} from './rules'
 import {
   schemaBusca,
   schemaFoto,
@@ -20,6 +28,7 @@ import {
   schemaSalvarProduto,
 } from './schemas'
 import type {
+  DadosDoLink,
   FotoAutorizada,
   OpcaoDoProduto,
   OpcoesDoProduto,
@@ -114,6 +123,27 @@ async function conferirOpcoesEscolhidas(
   const existentes = new Set(opcoes.ambientes.map((opcao) => opcao.nome))
   const apagado = ambientes.find((ambiente) => !existentes.has(ambiente))
   return apagado ? `O ambiente “${apagado}” não existe mais. Desmarque-o.` : null
+}
+
+// ── Preencher pelo link ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Botão "Preencher": lê o nome e a foto que a página do link mostra nas prévias (o servidor busca;
+ * o navegador não pode ler páginas de outros sites). Nada é gravado aqui: a tela preenche os campos
+ * e a pessoa confere antes de salvar.
+ */
+export async function lerLinkDoProduto(link: unknown): Promise<ResultadoProduto<DadosDoLink>> {
+  return rodarComoAdmin<DadosDoLink>(async () => {
+    const lido = schemaLink.safeParse(link)
+    if (!lido.success) return falha(lido.error.issues[0]?.message ?? 'Link inválido.')
+    const previa = await leitorDePrevia.ler(lido.data)
+    const nome = previa?.titulo ? nomeDoTituloDoLink(previa.titulo) : null
+    const foto = previa?.foto ?? null
+    if (!nome && !foto) {
+      return falha('Não consegui ler este link. Preencha o nome e a foto à mão.')
+    }
+    return { ok: true, mensagem: '', nome, foto }
+  })
 }
 
 // ── Salvar ───────────────────────────────────────────────────────────────────────────────────────

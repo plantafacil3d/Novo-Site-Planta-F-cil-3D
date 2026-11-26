@@ -5,7 +5,12 @@ import { useState } from 'react'
 import { fileUploader, reduzirImagem } from '@/services/upload'
 import { AppError } from '@/types/erro'
 
-import { prepararFotoDoProduto, salvarProduto, verificarLinkDoProduto } from '../actions'
+import {
+  lerLinkDoProduto,
+  prepararFotoDoProduto,
+  salvarProduto,
+  verificarLinkDoProduto,
+} from '../actions'
 import type { OrigemProduto } from '../catalogo'
 import { LIMITES_PRODUTO } from '../rules'
 import { schemaCamposDoProduto } from '../schemas'
@@ -34,6 +39,20 @@ const camposVazios: Campos = {
 type Foto = { caminho: string; url: string }
 
 export type CampoDoProduto = keyof Campos | 'foto'
+
+const EXTENSAO_DO_TIPO: Record<string, string> = {
+  'image/webp': 'webp',
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+}
+
+/** A foto que veio do servidor (base64) vira um arquivo, como se a pessoa a tivesse escolhido. */
+function arquivoDaFoto(foto: { base64: string; tipo: string }): File {
+  const bytes = Uint8Array.from(atob(foto.base64), (letra) => letra.charCodeAt(0))
+  return new File([bytes], `foto-do-link.${EXTENSAO_DO_TIPO[foto.tipo] ?? 'webp'}`, {
+    type: foto.tipo,
+  })
+}
 
 function camposDe(produto: ProdutoParaEditar): Campos {
   return {
@@ -70,6 +89,8 @@ export function useFormularioProduto({
   const [duplicado, setDuplicado] = useState<ProdutoLigado | null>(null)
   const [enviandoFoto, setEnviandoFoto] = useState(false)
   const [salvando, setSalvando] = useState(false)
+  const [lendoLink, setLendoLink] = useState(false)
+  const [avisoDoLink, setAvisoDoLink] = useState<string | null>(null)
 
   function atualizar(patch: Partial<Campos>) {
     setCampos((atual) => ({ ...atual, ...patch }))
@@ -78,7 +99,10 @@ export function useFormularioProduto({
       for (const chave of Object.keys(patch) as (keyof Campos)[]) delete proximo[chave]
       return proximo
     })
-    if ('link' in patch) setDuplicado(null)
+    if ('link' in patch) {
+      setDuplicado(null)
+      setAvisoDoLink(null)
+    }
   }
 
   function alternarAmbiente(valor: string) {
@@ -128,6 +152,32 @@ export function useFormularioProduto({
     if (campos.link.trim() === '') return
     const resultado = await verificarLinkDoProduto(campos.link, produtoId)
     if (resultado.ok) setDuplicado(resultado.duplicado)
+  }
+
+  /** "Preencher": busca o nome e a foto do link e preenche os campos para a pessoa conferir. */
+  async function preencherPeloLink() {
+    setAvisoDoLink(null)
+    const lido = schemaCamposDoProduto.shape.link.safeParse(campos.link)
+    if (!lido.success) {
+      setErros((atual) => ({ ...atual, link: lido.error.issues[0]?.message ?? 'Link inválido.' }))
+      return
+    }
+    setLendoLink(true)
+    try {
+      const resultado = await lerLinkDoProduto(lido.data)
+      if (!resultado.ok) {
+        setAvisoDoLink(resultado.mensagem)
+        return
+      }
+      if (resultado.nome) atualizar({ nome: resultado.nome })
+      void conferirLink()
+      if (resultado.foto) await escolherFoto(arquivoDaFoto(resultado.foto))
+      else setAvisoDoLink('Não achei a foto neste link. Escolha a foto à mão.')
+    } catch {
+      setAvisoDoLink('Não consegui ler este link. Preencha o nome e a foto à mão.')
+    } finally {
+      setLendoLink(false)
+    }
   }
 
   async function salvar() {
@@ -181,6 +231,9 @@ export function useFormularioProduto({
     projetos,
     setProjetos,
     conferirLink,
+    preencherPeloLink,
+    lendoLink,
+    avisoDoLink,
     duplicado,
     erros,
     erroGeral,

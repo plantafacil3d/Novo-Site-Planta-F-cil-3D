@@ -94,6 +94,23 @@ export function normalizarLink(link: string): string {
   return link.trim()
 }
 
+/**
+ * Nome sugerido a partir do título da página do link: sem o preço no fim ("... - R$ 87,28"; o site
+ * não mostra preço), sem < e > e dentro do limite. `null` se não sobrar nada.
+ */
+export function nomeDoTituloDoLink(titulo: string): string | null {
+  const limpo = titulo
+    .replace(/\s*[-–|:]?\s*R\$\s*[\d.,]+\s*$/u, '')
+    .replace(/[<>]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (limpo.length <= LIMITES_PRODUTO.nomeMax) return limpo || null
+  // Longo demais: corta no último espaço, para não deixar palavra pela metade.
+  const cortado = limpo.slice(0, LIMITES_PRODUTO.nomeMax + 1)
+  const ultimoEspaco = cortado.lastIndexOf(' ')
+  return (ultimoEspaco > 0 ? cortado.slice(0, ultimoEspaco) : cortado.slice(0, -1)).trim() || null
+}
+
 /** Caminho da foto no Storage, gerado pelo servidor (nunca vem do navegador). */
 export function caminhoDaFoto(id: string, extensao: string): string {
   return `produtos/${id}.${extensao}`
